@@ -14,7 +14,231 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      achievements: {
+        Row: {
+          created_at: string | null
+          date_achieved: string | null
+          description: string | null
+          id: string
+          profile_id: string
+          title: string
+        }
+        Insert: {
+          created_at?: string | null
+          date_achieved?: string | null
+          description?: string | null
+          id?: string
+          profile_id: string
+          title: string
+        }
+        Update: {
+          created_at?: string | null
+          date_achieved?: string | null
+          description?: string | null
+          id?: string
+          profile_id?: string
+          title?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "achievements_profile_id_fkey"
+            columns: ["profile_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      collaboration_requests: {
+        Row: {
+          created_at: string | null
+          id: string
+          message: string | null
+          project_id: string
+          requester_id: string
+          status: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          message?: string | null
+          project_id: string
+          requester_id: string
+          status?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          message?: string | null
+          project_id?: string
+          requester_id?: string
+          status?: string | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "collaboration_requests_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      feedback: {
+        Row: {
+          author_id: string
+          comment: string | null
+          created_at: string | null
+          id: string
+          is_anonymous: boolean | null
+          profile_id: string
+          reaction_type: string | null
+        }
+        Insert: {
+          author_id: string
+          comment?: string | null
+          created_at?: string | null
+          id?: string
+          is_anonymous?: boolean | null
+          profile_id: string
+          reaction_type?: string | null
+        }
+        Update: {
+          author_id?: string
+          comment?: string | null
+          created_at?: string | null
+          id?: string
+          is_anonymous?: boolean | null
+          profile_id?: string
+          reaction_type?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "feedback_profile_id_fkey"
+            columns: ["profile_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      mentorship_requests: {
+        Row: {
+          created_at: string | null
+          id: string
+          mentee_id: string
+          mentor_id: string
+          message: string | null
+          status: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          mentee_id: string
+          mentor_id: string
+          message?: string | null
+          status?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          mentee_id?: string
+          mentor_id?: string
+          message?: string | null
+          status?: string | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      profiles: {
+        Row: {
+          avatar_url: string | null
+          bio: string | null
+          created_at: string | null
+          full_name: string
+          github_url: string | null
+          grade: string | null
+          id: string
+          linkedin_url: string | null
+          location: string | null
+          portfolio_health: number | null
+          portfolio_url: string | null
+          school: string | null
+          skills: string[] | null
+          updated_at: string | null
+        }
+        Insert: {
+          avatar_url?: string | null
+          bio?: string | null
+          created_at?: string | null
+          full_name: string
+          github_url?: string | null
+          grade?: string | null
+          id: string
+          linkedin_url?: string | null
+          location?: string | null
+          portfolio_health?: number | null
+          portfolio_url?: string | null
+          school?: string | null
+          skills?: string[] | null
+          updated_at?: string | null
+        }
+        Update: {
+          avatar_url?: string | null
+          bio?: string | null
+          created_at?: string | null
+          full_name?: string
+          github_url?: string | null
+          grade?: string | null
+          id?: string
+          linkedin_url?: string | null
+          location?: string | null
+          portfolio_health?: number | null
+          portfolio_url?: string | null
+          school?: string | null
+          skills?: string[] | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      projects: {
+        Row: {
+          created_at: string | null
+          description: string
+          id: string
+          required_skills: string[] | null
+          status: string | null
+          title: string
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          description: string
+          id?: string
+          required_skills?: string[] | null
+          status?: string | null
+          title: string
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          description?: string
+          id?: string
+          required_skills?: string[] | null
+          status?: string | null
+          title?: string
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
