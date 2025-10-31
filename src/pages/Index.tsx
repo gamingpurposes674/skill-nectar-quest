@@ -1,12 +1,198 @@
-// Update this page (the content is just a fallback if you fail to update the page)
+import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Link } from "react-router-dom";
+import { 
+  ArrowRight, 
+  Users, 
+  Sparkles, 
+  Target, 
+  MessageSquare,
+  TrendingUp,
+  Award,
+  Zap
+} from "lucide-react";
+import heroBackground from "@/assets/hero-background.jpg";
 
 const Index = () => {
+  const features = [
+    {
+      icon: Users,
+      title: "Build Your Portfolio",
+      description: "Showcase your projects, skills, and achievements in a professional profile"
+    },
+    {
+      icon: Sparkles,
+      title: "Find Collaborators",
+      description: "Connect with peers who share your interests and complement your skills"
+    },
+    {
+      icon: Target,
+      title: "Track Your Growth",
+      description: "Monitor your portfolio health and get feedback from the community"
+    },
+    {
+      icon: MessageSquare,
+      title: "Get Mentorship",
+      description: "Connect with college students and professionals for guidance"
+    }
+  ];
+
+  const stats = [
+    { value: "5,000+", label: "Active Students" },
+    { value: "1,200+", label: "Projects Launched" },
+    { value: "500+", label: "Mentors Available" },
+    { value: "50+", label: "Schools Connected" }
+  ];
+
   return (
-    <div className="flex min-h-screen items-center justify-center bg-background">
-      <div className="text-center">
-        <h1 className="mb-4 text-4xl font-bold">Welcome to Your Blank App</h1>
-        <p className="text-xl text-muted-foreground">Start building your amazing project here!</p>
-      </div>
+    <div className="min-h-screen">
+      {/* Navigation */}
+      <nav className="fixed top-0 w-full z-50 border-b border-border/50 bg-card/50 backdrop-blur-lg">
+        <div className="container mx-auto px-4 h-16 flex items-center justify-between">
+          <h1 className="text-xl font-bold text-gradient">ConnectEd</h1>
+          <div className="flex items-center gap-3">
+            <Link to="/dashboard">
+              <Button variant="ghost" size="sm">Sign In</Button>
+            </Link>
+            <Link to="/dashboard">
+              <Button size="sm" className="gradient-primary shadow-glow">
+                Get Started
+                <ArrowRight className="ml-2 h-4 w-4" />
+              </Button>
+            </Link>
+          </div>
+        </div>
+      </nav>
+
+      {/* Hero Section */}
+      <section className="relative min-h-screen flex items-center justify-center overflow-hidden pt-16">
+        <div 
+          className="absolute inset-0 z-0"
+          style={{
+            backgroundImage: `url(${heroBackground})`,
+            backgroundSize: 'cover',
+            backgroundPosition: 'center',
+          }}
+        >
+          <div className="absolute inset-0 bg-gradient-to-br from-background/95 via-background/90 to-background/95" />
+        </div>
+
+        <div className="container mx-auto px-4 relative z-10">
+          <div className="max-w-4xl mx-auto text-center space-y-8 animate-fade-in">
+            <Badge variant="secondary" className="text-sm px-4 py-2">
+              <Zap className="h-4 w-4 mr-2 inline" />
+              Built for Students, by Students
+            </Badge>
+            
+            <h1 className="text-5xl md:text-7xl font-bold leading-tight">
+              Your Professional
+              <span className="block text-gradient">Network Starts Here</span>
+            </h1>
+            
+            <p className="text-xl text-muted-foreground max-w-2xl mx-auto leading-relaxed">
+              Connect, collaborate, and grow with thousands of students. Build your portfolio, 
+              find project partners, and get mentorship from college students and professionals.
+            </p>
+
+            <div className="flex flex-wrap gap-4 justify-center">
+              <Link to="/dashboard">
+                <Button size="lg" className="gradient-primary shadow-elegant text-lg px-8">
+                  Start Building
+                  <ArrowRight className="ml-2 h-5 w-5" />
+                </Button>
+              </Link>
+              <Link to="/profile">
+                <Button size="lg" variant="outline" className="text-lg px-8">
+                  View Demo Profile
+                </Button>
+              </Link>
+            </div>
+
+            {/* Stats */}
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-6 pt-12">
+              {stats.map((stat, idx) => (
+                <div key={idx} className="animate-slide-up" style={{ animationDelay: `${idx * 100}ms` }}>
+                  <p className="text-3xl md:text-4xl font-bold text-gradient">{stat.value}</p>
+                  <p className="text-sm text-muted-foreground mt-1">{stat.label}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Features Section */}
+      <section className="py-24 bg-gradient-to-b from-background to-muted/30">
+        <div className="container mx-auto px-4">
+          <div className="text-center mb-16 animate-fade-in">
+            <Badge variant="secondary" className="mb-4">
+              <TrendingUp className="h-4 w-4 mr-2 inline" />
+              Powerful Features
+            </Badge>
+            <h2 className="text-4xl font-bold mb-4">Everything You Need to Succeed</h2>
+            <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
+              From portfolio building to mentorship, we've got all the tools to help you grow
+            </p>
+          </div>
+
+          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 max-w-7xl mx-auto">
+            {features.map((feature, idx) => (
+              <Card 
+                key={idx} 
+                className="glass-card shadow-card p-6 hover:shadow-elegant transition-all duration-300 group animate-scale-in"
+                style={{ animationDelay: `${idx * 100}ms` }}
+              >
+                <div className="p-3 rounded-xl bg-gradient-primary w-fit mb-4 group-hover:scale-110 transition-transform">
+                  <feature.icon className="h-6 w-6 text-primary-foreground" />
+                </div>
+                <h3 className="text-xl font-semibold mb-2">{feature.title}</h3>
+                <p className="text-muted-foreground text-sm leading-relaxed">
+                  {feature.description}
+                </p>
+              </Card>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* CTA Section */}
+      <section className="py-24 relative overflow-hidden">
+        <div className="absolute inset-0 gradient-primary opacity-5" />
+        <div className="container mx-auto px-4 relative">
+          <Card className="glass-card shadow-elegant p-12 max-w-4xl mx-auto text-center animate-scale-in">
+            <Award className="h-16 w-16 mx-auto mb-6 text-primary" />
+            <h2 className="text-4xl font-bold mb-4">Ready to Level Up?</h2>
+            <p className="text-muted-foreground text-lg mb-8 max-w-2xl mx-auto">
+              Join thousands of students who are already building their future. 
+              Create your profile in minutes and start connecting today.
+            </p>
+            <Link to="/dashboard">
+              <Button size="lg" className="gradient-primary shadow-glow text-lg px-12">
+                Create Your Profile
+                <ArrowRight className="ml-2 h-5 w-5" />
+              </Button>
+            </Link>
+          </Card>
+        </div>
+      </section>
+
+      {/* Footer */}
+      <footer className="border-t border-border/50 py-12 bg-card/30">
+        <div className="container mx-auto px-4">
+          <div className="flex flex-col md:flex-row justify-between items-center gap-4">
+            <p className="text-sm text-muted-foreground">
+              © 2025 ConnectEd. Built for students, by students.
+            </p>
+            <div className="flex gap-6 text-sm text-muted-foreground">
+              <a href="#" className="hover:text-primary transition-colors">About</a>
+              <a href="#" className="hover:text-primary transition-colors">Privacy</a>
+              <a href="#" className="hover:text-primary transition-colors">Terms</a>
+              <a href="#" className="hover:text-primary transition-colors">Contact</a>
+            </div>
+          </div>
+        </div>
+      </footer>
     </div>
   );
 };
