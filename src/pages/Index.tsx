@@ -52,10 +52,10 @@ const Index = () => {
         <div className="container mx-auto px-4 h-16 flex items-center justify-between">
           <h1 className="text-xl font-bold text-gradient">ConnectEd</h1>
           <div className="flex items-center gap-3">
-            <Link to="/dashboard">
+            <Link to="/auth">
               <Button variant="ghost" size="sm">Sign In</Button>
             </Link>
-            <Link to="/dashboard">
+            <Link to="/auth">
               <Button size="sm" className="gradient-primary shadow-glow">
                 Get Started
                 <ArrowRight className="ml-2 h-4 w-4" />
@@ -96,15 +96,15 @@ const Index = () => {
             </p>
 
             <div className="flex flex-wrap gap-4 justify-center">
-              <Link to="/dashboard">
+              <Link to="/auth">
                 <Button size="lg" className="gradient-primary shadow-elegant text-lg px-8">
                   Start Building
                   <ArrowRight className="ml-2 h-5 w-5" />
                 </Button>
               </Link>
-              <Link to="/profile">
+              <Link to="/auth">
                 <Button size="lg" variant="outline" className="text-lg px-8">
-                  View Demo Profile
+                  Sign In
                 </Button>
               </Link>
             </div>
@@ -167,7 +167,7 @@ const Index = () => {
               Join thousands of students who are already building their future. 
               Create your profile in minutes and start connecting today.
             </p>
-            <Link to="/dashboard">
+            <Link to="/auth">
               <Button size="lg" className="gradient-primary shadow-glow text-lg px-12">
                 Create Your Profile
                 <ArrowRight className="ml-2 h-5 w-5" />

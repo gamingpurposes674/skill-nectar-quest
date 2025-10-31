@@ -1,3 +1,4 @@
+import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -8,76 +9,121 @@ import {
   Bell, 
   Plus, 
   Users, 
-  MessageSquare, 
+  Target,
   TrendingUp,
   Sparkles,
   BookOpen,
-  Target
+  LogOut
 } from "lucide-react";
+import { useAuth } from "@/contexts/AuthContext";
+import { supabase } from "@/integrations/supabase/client";
+import { Link, useNavigate } from "react-router-dom";
+import { toast } from "sonner";
 import CollaborationCard from "@/components/CollaborationCard";
+import CreateProjectDialog from "@/components/CreateProjectDialog";
 
 const Dashboard = () => {
-  const projects = [
-    {
-      id: 1,
-      title: "Mobile App for Mental Health",
-      author: "Sarah Chen",
-      avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Sarah",
-      description: "Looking for a UI/UX designer and React Native developer to build a mental wellness app for teens.",
-      skills: ["React Native", "UI/UX", "Firebase"],
-      timePosted: "2 hours ago"
-    },
-    {
-      id: 2,
-      title: "Climate Change Data Visualization",
-      author: "Marcus Rivera",
-      avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Marcus",
-      description: "Need data scientists and frontend developers for an interactive climate data dashboard project.",
-      skills: ["Python", "D3.js", "Data Analysis"],
-      timePosted: "5 hours ago"
-    },
-    {
-      id: 3,
-      title: "Educational Game Development",
-      author: "Priya Patel",
-      avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Priya",
-      description: "Creating an educational game to teach coding to elementary students. Need game designers and developers!",
-      skills: ["Unity", "C#", "Game Design"],
-      timePosted: "1 day ago"
-    }
-  ];
+  const { user, signOut } = useAuth();
+  const navigate = useNavigate();
+  const [profile, setProfile] = useState<any>(null);
+  const [projects, setProjects] = useState<any[]>([]);
+  const [myProjects, setMyProjects] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [showCreateDialog, setShowCreateDialog] = useState(false);
 
-  const mentors = [
-    { name: "Dr. Emily Watson", specialty: "Computer Science", avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Emily" },
-    { name: "James Liu", specialty: "Product Design", avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=James" },
-    { name: "Sofia Rodriguez", specialty: "Data Science", avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Sofia" }
-  ];
+  useEffect(() => {
+    if (user) {
+      loadData();
+    }
+  }, [user]);
+
+  const loadData = async () => {
+    try {
+      // Load user profile
+      const { data: profileData, error: profileError } = await supabase
+        .from("profiles")
+        .select("*")
+        .eq("id", user?.id)
+        .single();
+
+      if (profileError) throw profileError;
+      setProfile(profileData);
+
+      // Load all projects (feed)
+      const { data: projectsData, error: projectsError } = await supabase
+        .from("projects")
+        .select(`
+          *,
+          profiles:user_id (full_name, avatar_url)
+        `)
+        .eq("status", "open")
+        .order("created_at", { ascending: false })
+        .limit(10);
+
+      if (projectsError) throw projectsError;
+      setProjects(projectsData || []);
+
+      // Load user's own projects
+      const { data: myProjectsData, error: myProjectsError } = await supabase
+        .from("projects")
+        .select("*")
+        .eq("user_id", user?.id)
+        .order("created_at", { ascending: false });
+
+      if (myProjectsError) throw myProjectsError;
+      setMyProjects(myProjectsData || []);
+
+    } catch (error: any) {
+      console.error("Error loading data:", error);
+      toast.error("Failed to load dashboard data");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleProjectCreated = () => {
+    loadData();
+    setShowCreateDialog(false);
+  };
+
+  const getTimeAgo = (date: string) => {
+    const seconds = Math.floor((new Date().getTime() - new Date(date).getTime()) / 1000);
+    if (seconds < 3600) return `${Math.floor(seconds / 60)} minutes ago`;
+    if (seconds < 86400) return `${Math.floor(seconds / 3600)} hours ago`;
+    return `${Math.floor(seconds / 86400)} days ago`;
+  };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <div className="h-8 w-8 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-4" />
+          <p className="text-muted-foreground">Loading...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted">
       {/* Navigation */}
       <nav className="border-b border-border/50 bg-card/50 backdrop-blur-lg sticky top-0 z-50">
         <div className="container mx-auto px-4 h-16 flex items-center justify-between">
-          <h1 className="text-xl font-bold text-gradient">ConnectEd</h1>
+          <Link to="/dashboard">
+            <h1 className="text-xl font-bold text-gradient cursor-pointer">ConnectEd</h1>
+          </Link>
           
           <div className="flex items-center gap-4">
-            <div className="relative hidden md:block">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-              <input
-                type="text"
-                placeholder="Search projects, people..."
-                className="pl-10 pr-4 py-2 rounded-full border border-border bg-card/50 focus:outline-none focus:ring-2 focus:ring-primary w-64"
-              />
-            </div>
+            <Link to={`/profile/${user?.id}`}>
+              <Avatar className="h-8 w-8 cursor-pointer hover:ring-2 hover:ring-primary transition-all">
+                <AvatarImage src={profile?.avatar_url} />
+                <AvatarFallback>{profile?.full_name?.[0] || "U"}</AvatarFallback>
+              </Avatar>
+            </Link>
             
-            <Button size="icon" variant="ghost">
-              <Bell className="h-5 w-5" />
+            <Button size="icon" variant="ghost" onClick={signOut}>
+              <LogOut className="h-5 w-5" />
             </Button>
-            
-            <Avatar className="h-8 w-8 cursor-pointer">
-              <AvatarImage src="https://api.dicebear.com/7.x/avataaars/svg?seed=User" />
-              <AvatarFallback>ME</AvatarFallback>
-            </Avatar>
           </div>
         </div>
       </nav>
@@ -95,7 +141,7 @@ const Dashboard = () => {
                   </div>
                   <div>
                     <p className="text-sm text-muted-foreground">Connections</p>
-                    <p className="text-2xl font-bold">127</p>
+                    <p className="text-2xl font-bold">0</p>
                   </div>
                 </div>
               </Card>
@@ -107,7 +153,7 @@ const Dashboard = () => {
                   </div>
                   <div>
                     <p className="text-sm text-muted-foreground">Active Projects</p>
-                    <p className="text-2xl font-bold">3</p>
+                    <p className="text-2xl font-bold">{myProjects.length}</p>
                   </div>
                 </div>
               </Card>
@@ -118,8 +164,8 @@ const Dashboard = () => {
                     <TrendingUp className="h-5 w-5 text-accent" />
                   </div>
                   <div>
-                    <p className="text-sm text-muted-foreground">Profile Views</p>
-                    <p className="text-2xl font-bold">89</p>
+                    <p className="text-sm text-muted-foreground">Portfolio Health</p>
+                    <p className="text-2xl font-bold">{profile?.portfolio_health || 0}%</p>
                   </div>
                 </div>
               </Card>
@@ -134,52 +180,80 @@ const Dashboard = () => {
                     Feed
                   </TabsTrigger>
                   <TabsTrigger value="my-projects">My Projects</TabsTrigger>
-                  <TabsTrigger value="mentorship">Mentorship</TabsTrigger>
                 </TabsList>
                 
-                <Button className="gradient-primary shadow-glow">
+                <Button 
+                  className="gradient-primary shadow-glow"
+                  onClick={() => setShowCreateDialog(true)}
+                >
                   <Plus className="h-4 w-4 mr-2" />
                   New Project
                 </Button>
               </div>
 
               <TabsContent value="feed" className="space-y-4">
-                {projects.map((project) => (
-                  <CollaborationCard key={project.id} {...project} />
-                ))}
+                {projects.length === 0 ? (
+                  <Card className="glass-card shadow-card p-8 text-center">
+                    <BookOpen className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
+                    <h3 className="text-lg font-semibold mb-2">No projects yet</h3>
+                    <p className="text-sm text-muted-foreground">
+                      Be the first to post a collaboration opportunity!
+                    </p>
+                  </Card>
+                ) : (
+                  projects.map((project) => (
+                    <CollaborationCard
+                      key={project.id}
+                      id={project.id}
+                      title={project.title}
+                      author={project.profiles?.full_name || "Unknown User"}
+                      avatar={project.profiles?.avatar_url || ""}
+                      description={project.description}
+                      skills={project.required_skills || []}
+                      timePosted={getTimeAgo(project.created_at)}
+                      onRequestCollaboration={() => {
+                        toast.success("Collaboration request sent!");
+                      }}
+                    />
+                  ))
+                )}
               </TabsContent>
 
               <TabsContent value="my-projects">
-                <Card className="glass-card shadow-card p-8 text-center">
-                  <BookOpen className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
-                  <h3 className="text-lg font-semibold mb-2">No projects yet</h3>
-                  <p className="text-sm text-muted-foreground mb-4">
-                    Start collaborating by creating your first project
-                  </p>
-                  <Button className="gradient-primary">Create Project</Button>
-                </Card>
-              </TabsContent>
-
-              <TabsContent value="mentorship">
-                <div className="space-y-4">
-                  {mentors.map((mentor, idx) => (
-                    <Card key={idx} className="glass-card shadow-card p-6 hover:shadow-elegant transition-all">
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-4">
-                          <Avatar className="h-12 w-12">
-                            <AvatarImage src={mentor.avatar} />
-                            <AvatarFallback>{mentor.name[0]}</AvatarFallback>
-                          </Avatar>
+                {myProjects.length === 0 ? (
+                  <Card className="glass-card shadow-card p-8 text-center">
+                    <BookOpen className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
+                    <h3 className="text-lg font-semibold mb-2">No projects yet</h3>
+                    <p className="text-sm text-muted-foreground mb-4">
+                      Start collaborating by creating your first project
+                    </p>
+                    <Button 
+                      className="gradient-primary"
+                      onClick={() => setShowCreateDialog(true)}
+                    >
+                      Create Project
+                    </Button>
+                  </Card>
+                ) : (
+                  <div className="space-y-4">
+                    {myProjects.map((project) => (
+                      <Card key={project.id} className="glass-card shadow-card p-6">
+                        <div className="flex justify-between items-start">
                           <div>
-                            <p className="font-semibold">{mentor.name}</p>
-                            <p className="text-sm text-muted-foreground">{mentor.specialty}</p>
+                            <h3 className="font-semibold text-lg">{project.title}</h3>
+                            <p className="text-sm text-muted-foreground mt-1">{project.description}</p>
+                            <div className="flex flex-wrap gap-2 mt-3">
+                              {project.required_skills?.map((skill: string) => (
+                                <Badge key={skill} variant="secondary">{skill}</Badge>
+                              ))}
+                            </div>
                           </div>
+                          <Badge>{project.status}</Badge>
                         </div>
-                        <Button variant="outline">Request Mentorship</Button>
-                      </div>
-                    </Card>
-                  ))}
-                </div>
+                      </Card>
+                    ))}
+                  </div>
+                )}
               </TabsContent>
             </Tabs>
           </div>
@@ -187,31 +261,57 @@ const Dashboard = () => {
           {/* Right Sidebar */}
           <div className="space-y-6">
             <Card className="glass-card shadow-card p-6 animate-scale-in">
-              <h3 className="font-semibold mb-4 flex items-center gap-2">
-                <MessageSquare className="h-5 w-5 text-primary" />
-                Recent Activity
-              </h3>
-              <div className="space-y-3">
-                {[1, 2, 3].map((i) => (
-                  <div key={i} className="text-sm text-muted-foreground">
-                    <p className="font-medium text-foreground">New collaboration request</p>
-                    <p className="text-xs">2 hours ago</p>
+              <Link to={`/profile/${user?.id}`}>
+                <div className="flex items-center gap-3 mb-4 cursor-pointer hover:opacity-80 transition-opacity">
+                  <Avatar className="h-12 w-12">
+                    <AvatarImage src={profile?.avatar_url} />
+                    <AvatarFallback>{profile?.full_name?.[0] || "U"}</AvatarFallback>
+                  </Avatar>
+                  <div>
+                    <p className="font-semibold">{profile?.full_name}</p>
+                    <p className="text-xs text-muted-foreground">{profile?.grade || "Student"}</p>
                   </div>
-                ))}
-              </div>
+                </div>
+              </Link>
+              <Button variant="outline" className="w-full" asChild>
+                <Link to={`/profile/${user?.id}`}>
+                  View Profile
+                </Link>
+              </Button>
             </Card>
 
             <Card className="glass-card shadow-card p-6">
-              <h3 className="font-semibold mb-4">Trending Skills</h3>
-              <div className="flex flex-wrap gap-2">
-                {["React", "Python", "UI/UX", "AI/ML", "Figma"].map((skill) => (
-                  <Badge key={skill} variant="secondary">{skill}</Badge>
-                ))}
+              <h3 className="font-semibold mb-4">Quick Actions</h3>
+              <div className="space-y-2">
+                <Button 
+                  variant="ghost" 
+                  className="w-full justify-start"
+                  onClick={() => setShowCreateDialog(true)}
+                >
+                  <Plus className="h-4 w-4 mr-2" />
+                  Create Project
+                </Button>
+                <Button 
+                  variant="ghost" 
+                  className="w-full justify-start"
+                  asChild
+                >
+                  <Link to={`/profile/${user?.id}`}>
+                    <Users className="h-4 w-4 mr-2" />
+                    Edit Profile
+                  </Link>
+                </Button>
               </div>
             </Card>
           </div>
         </div>
       </div>
+
+      <CreateProjectDialog 
+        open={showCreateDialog}
+        onOpenChange={setShowCreateDialog}
+        onSuccess={handleProjectCreated}
+      />
     </div>
   );
 };

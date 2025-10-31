@@ -5,21 +5,25 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Users, Clock } from "lucide-react";
 
 interface CollaborationCardProps {
+  id: string;
   title: string;
   author: string;
   avatar: string;
   description: string;
   skills: string[];
   timePosted: string;
+  onRequestCollaboration: () => void;
 }
 
 const CollaborationCard = ({
+  id,
   title,
   author,
   avatar,
   description,
   skills,
-  timePosted
+  timePosted,
+  onRequestCollaboration
 }: CollaborationCardProps) => {
   return (
     <Card className="glass-card shadow-card p-6 hover:shadow-elegant transition-all duration-300 group">
@@ -37,7 +41,7 @@ const CollaborationCard = ({
               </h3>
               <p className="text-sm text-muted-foreground">by {author}</p>
             </div>
-            <Button className="gradient-primary shadow-glow">
+            <Button className="gradient-primary shadow-glow" onClick={onRequestCollaboration}>
               <Users className="h-4 w-4 mr-2" />
               Join Project
             </Button>
