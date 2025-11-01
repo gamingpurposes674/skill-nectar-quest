@@ -13,11 +13,14 @@ import {
   Linkedin, 
   ExternalLink,
   ArrowLeft,
-  Edit
+  Edit,
+  Plus,
+  Trash2
 } from "lucide-react";
 import PortfolioHealthIndicator from "@/components/PortfolioHealthIndicator";
 import FeedbackPanel from "@/components/FeedbackPanel";
 import EditProfileDialog from "@/components/EditProfileDialog";
+import AddAchievementDialog from "@/components/AddAchievementDialog";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
@@ -31,6 +34,8 @@ const Profile = () => {
   const [reactions, setReactions] = useState({ thumbsUp: 0, flame: 0, lightbulb: 0, message: 0 });
   const [loading, setLoading] = useState(true);
   const [showEditDialog, setShowEditDialog] = useState(false);
+  const [showAddAchievementDialog, setShowAddAchievementDialog] = useState(false);
+  const [portfolioHealth, setPortfolioHealth] = useState(0);
 
   const profileId = id || user?.id;
   const isOwnProfile = user?.id === profileId;
@@ -72,6 +77,20 @@ const Profile = () => {
 
       if (achievementsError) throw achievementsError;
       setAchievements(achievementsData || []);
+
+      // Calculate portfolio health dynamically
+      const projectCount = projectsData?.length || 0;
+      const achievementCount = achievementsData?.length || 0;
+      const health = Math.min((projectCount * 10) + (achievementCount * 10), 100);
+      setPortfolioHealth(health);
+
+      // Update portfolio health in database
+      if (isOwnProfile && health !== profileData.portfolio_health) {
+        await supabase
+          .from("profiles")
+          .update({ portfolio_health: health })
+          .eq("id", profileId);
+      }
 
       // Load feedback reactions count
       const { data: feedbackData, error: feedbackError } = await supabase
@@ -125,6 +144,44 @@ const Profile = () => {
     } catch (error: any) {
       console.error("Error adding reaction:", error);
       toast.error("Failed to add reaction");
+    }
+  };
+
+  const handleDeleteProject = async (projectId: string) => {
+    if (!confirm("Are you sure you want to delete this project?")) return;
+
+    try {
+      const { error } = await supabase
+        .from("projects")
+        .delete()
+        .eq("id", projectId);
+
+      if (error) throw error;
+
+      toast.success("Project deleted successfully!");
+      loadProfileData();
+    } catch (error: any) {
+      console.error("Error deleting project:", error);
+      toast.error("Failed to delete project");
+    }
+  };
+
+  const handleDeleteAchievement = async (achievementId: string) => {
+    if (!confirm("Are you sure you want to delete this achievement?")) return;
+
+    try {
+      const { error } = await supabase
+        .from("achievements")
+        .delete()
+        .eq("id", achievementId);
+
+      if (error) throw error;
+
+      toast.success("Achievement deleted successfully!");
+      loadProfileData();
+    } catch (error: any) {
+      console.error("Error deleting achievement:", error);
+      toast.error("Failed to delete achievement");
     }
   };
 
@@ -201,10 +258,19 @@ const Profile = () => {
                   )}
                 </div>
 
+                {profile.major && (
+                  <div className="text-sm text-muted-foreground">
+                    <span className="font-medium">Major:</span> {profile.major}
+                  </div>
+                )}
+
                 {profile.bio && (
-                  <p className="text-sm leading-relaxed text-foreground/80">
-                    {profile.bio}
-                  </p>
+                  <div>
+                    <h3 className="font-semibold text-sm mb-1">About</h3>
+                    <p className="text-sm leading-relaxed text-foreground/80">
+                      {profile.bio}
+                    </p>
+                  </div>
                 )}
 
                 <div className="flex gap-3 pt-2">
@@ -227,7 +293,7 @@ const Profile = () => {
               </div>
             </Card>
 
-            <PortfolioHealthIndicator score={profile.portfolio_health || 0} />
+            <PortfolioHealthIndicator score={portfolioHealth} />
           </div>
 
           {/* Right Column - Content */}
@@ -276,10 +342,20 @@ const Profile = () => {
                 ) : (
                   projects.map((project) => (
                     <Card key={project.id} className="glass-card shadow-card p-6 hover:shadow-elegant transition-all duration-300">
-                      <div className="flex justify-between items-start">
-                        <div>
+                      <div className="flex justify-between items-start gap-4">
+                        <div className="flex-1">
                           <h4 className="font-semibold text-lg">{project.title}</h4>
                           <p className="text-sm text-muted-foreground mt-1">{project.description}</p>
+                          {project.project_link && (
+                            <a 
+                              href={project.project_link} 
+                              target="_blank" 
+                              rel="noopener noreferrer"
+                              className="text-xs text-primary hover:underline mt-1 inline-block"
+                            >
+                              View Project →
+                            </a>
+                          )}
                           {project.required_skills && project.required_skills.length > 0 && (
                             <div className="flex flex-wrap gap-2 mt-3">
                               {project.required_skills.map((skill: string) => (
@@ -288,7 +364,19 @@ const Profile = () => {
                             </div>
                           )}
                         </div>
-                        <Badge>{project.status}</Badge>
+                        <div className="flex items-start gap-2">
+                          <Badge>{project.status}</Badge>
+                          {isOwnProfile && (
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              onClick={() => handleDeleteProject(project.id)}
+                              className="h-8 w-8 text-destructive hover:text-destructive"
+                            >
+                              <Trash2 className="h-4 w-4" />
+                            </Button>
+                          )}
+                        </div>
                       </div>
                     </Card>
                   ))
@@ -296,6 +384,17 @@ const Profile = () => {
               </TabsContent>
 
               <TabsContent value="achievements" className="space-y-4 mt-6">
+                {isOwnProfile && (
+                  <Button 
+                    onClick={() => setShowAddAchievementDialog(true)}
+                    className="w-full"
+                    variant="outline"
+                  >
+                    <Plus className="h-4 w-4 mr-2" />
+                    Add Achievement
+                  </Button>
+                )}
+                
                 {achievements.length === 0 ? (
                   <Card className="glass-card shadow-card p-8 text-center">
                     <p className="text-muted-foreground">No achievements yet</p>
@@ -304,9 +403,9 @@ const Profile = () => {
                   <Card className="glass-card shadow-card p-6">
                     <ul className="space-y-3">
                       {achievements.map((achievement) => (
-                        <li key={achievement.id} className="flex items-start gap-3">
+                        <li key={achievement.id} className="flex items-start gap-3 group">
                           <Award className="h-5 w-5 text-accent mt-0.5 flex-shrink-0" />
-                          <div>
+                          <div className="flex-1">
                             <p className="font-medium">{achievement.title}</p>
                             {achievement.description && (
                               <p className="text-sm text-muted-foreground">{achievement.description}</p>
@@ -317,6 +416,16 @@ const Profile = () => {
                               </p>
                             )}
                           </div>
+                          {isOwnProfile && (
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              onClick={() => handleDeleteAchievement(achievement.id)}
+                              className="h-8 w-8 opacity-0 group-hover:opacity-100 transition-opacity text-destructive hover:text-destructive"
+                            >
+                              <Trash2 className="h-4 w-4" />
+                            </Button>
+                          )}
                         </li>
                       ))}
                     </ul>
@@ -336,6 +445,12 @@ const Profile = () => {
         open={showEditDialog}
         onOpenChange={setShowEditDialog}
         profile={profile}
+        onSuccess={loadProfileData}
+      />
+
+      <AddAchievementDialog
+        open={showAddAchievementDialog}
+        onOpenChange={setShowAddAchievementDialog}
         onSuccess={loadProfileData}
       />
     </div>

@@ -166,6 +166,7 @@ export type Database = {
           id: string
           linkedin_url: string | null
           location: string | null
+          major: string | null
           portfolio_health: number | null
           portfolio_url: string | null
           school: string | null
@@ -182,6 +183,7 @@ export type Database = {
           id: string
           linkedin_url?: string | null
           location?: string | null
+          major?: string | null
           portfolio_health?: number | null
           portfolio_url?: string | null
           school?: string | null
@@ -198,6 +200,7 @@ export type Database = {
           id?: string
           linkedin_url?: string | null
           location?: string | null
+          major?: string | null
           portfolio_health?: number | null
           portfolio_url?: string | null
           school?: string | null

@@ -4,30 +4,33 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { Calendar } from "@/components/ui/calendar";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { CalendarIcon } from "lucide-react";
+import { format } from "date-fns";
+import { cn } from "@/lib/utils";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
-import SkillSelector from "./SkillSelector";
 
-interface CreateProjectDialogProps {
+interface AddAchievementDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onSuccess: () => void;
 }
 
-const CreateProjectDialog = ({ open, onOpenChange, onSuccess }: CreateProjectDialogProps) => {
+const AddAchievementDialog = ({ open, onOpenChange, onSuccess }: AddAchievementDialogProps) => {
   const { user } = useAuth();
   const [loading, setLoading] = useState(false);
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
-  const [projectLink, setProjectLink] = useState("");
-  const [skills, setSkills] = useState<string[]>([]);
+  const [date, setDate] = useState<Date>();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!user) {
-      toast.error("You must be logged in to create a project");
+      toast.error("You must be logged in to add an achievement");
       return;
     }
 
@@ -35,30 +38,28 @@ const CreateProjectDialog = ({ open, onOpenChange, onSuccess }: CreateProjectDia
 
     try {
       const { error } = await supabase
-        .from("projects")
+        .from("achievements")
         .insert({
-          user_id: user.id,
+          profile_id: user.id,
           title,
           description,
-          project_link: projectLink || null,
-          required_skills: skills,
-          status: "open"
+          date_achieved: date?.toISOString().split('T')[0]
         });
 
       if (error) throw error;
 
-      toast.success("Project added successfully!");
+      toast.success("Achievement added successfully!");
       
       // Reset form
       setTitle("");
       setDescription("");
-      setProjectLink("");
-      setSkills([]);
+      setDate(undefined);
       
       onSuccess();
+      onOpenChange(false);
     } catch (error: any) {
-      console.error("Error creating project:", error);
-      toast.error(error.message || "Failed to create project");
+      console.error("Error adding achievement:", error);
+      toast.error(error.message || "Failed to add achievement");
     } finally {
       setLoading(false);
     }
@@ -68,56 +69,62 @@ const CreateProjectDialog = ({ open, onOpenChange, onSuccess }: CreateProjectDia
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[525px]">
         <DialogHeader>
-          <DialogTitle>Create New Project</DialogTitle>
+          <DialogTitle>Add Achievement</DialogTitle>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <Label htmlFor="title">Project Title</Label>
+            <Label htmlFor="title">Title *</Label>
             <Input
               id="title"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
-              placeholder="e.g., Mobile App for Mental Health"
+              placeholder="e.g., First Place in Science Fair"
               required
               disabled={loading}
             />
           </div>
 
           <div>
-            <Label htmlFor="description">Description *</Label>
+            <Label htmlFor="description">Description</Label>
             <Textarea
               id="description"
               value={description}
               onChange={(e) => setDescription(e.target.value)}
-              placeholder="Describe your project and what kind of collaborators you're looking for..."
-              rows={4}
-              required
+              placeholder="Describe your achievement..."
+              rows={3}
               disabled={loading}
             />
           </div>
 
           <div>
-            <Label htmlFor="project_link">Project Link (Optional)</Label>
-            <Input
-              id="project_link"
-              type="url"
-              value={projectLink}
-              onChange={(e) => setProjectLink(e.target.value)}
-              placeholder="https://github.com/username/project"
-              disabled={loading}
-            />
+            <Label>Date Achieved</Label>
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button
+                  variant="outline"
+                  className={cn(
+                    "w-full justify-start text-left font-normal",
+                    !date && "text-muted-foreground"
+                  )}
+                  disabled={loading}
+                >
+                  <CalendarIcon className="mr-2 h-4 w-4" />
+                  {date ? format(date, "PPP") : <span>Pick a date</span>}
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-auto p-0" align="start">
+                <Calendar
+                  mode="single"
+                  selected={date}
+                  onSelect={setDate}
+                  initialFocus
+                  className="pointer-events-auto"
+                />
+              </PopoverContent>
+            </Popover>
           </div>
 
-          <div>
-            <Label>Required Skills</Label>
-            <SkillSelector
-              selectedSkills={skills}
-              onChange={setSkills}
-              disabled={loading}
-            />
-          </div>
-
-          <div className="flex justify-end gap-2">
+          <div className="flex justify-end gap-2 pt-4">
             <Button 
               type="button" 
               variant="outline" 
@@ -127,7 +134,7 @@ const CreateProjectDialog = ({ open, onOpenChange, onSuccess }: CreateProjectDia
               Cancel
             </Button>
             <Button type="submit" className="gradient-primary" disabled={loading}>
-              {loading ? "Creating..." : "Create Project"}
+              {loading ? "Adding..." : "Add Achievement"}
             </Button>
           </div>
         </form>
@@ -136,4 +143,4 @@ const CreateProjectDialog = ({ open, onOpenChange, onSuccess }: CreateProjectDia
   );
 };
 
-export default CreateProjectDialog;
+export default AddAchievementDialog;
