@@ -214,6 +214,7 @@ export type Database = {
           created_at: string | null
           description: string
           id: string
+          project_link: string | null
           required_skills: string[] | null
           status: string | null
           title: string
@@ -224,6 +225,7 @@ export type Database = {
           created_at?: string | null
           description: string
           id?: string
+          project_link?: string | null
           required_skills?: string[] | null
           status?: string | null
           title: string
@@ -234,6 +236,7 @@ export type Database = {
           created_at?: string | null
           description?: string
           id?: string
+          project_link?: string | null
           required_skills?: string[] | null
           status?: string | null
           title?: string
