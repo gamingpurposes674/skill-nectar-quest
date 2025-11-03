@@ -21,6 +21,7 @@ export type Database = {
           description: string | null
           id: string
           profile_id: string
+          proof_file_url: string | null
           title: string
         }
         Insert: {
@@ -29,6 +30,7 @@ export type Database = {
           description?: string | null
           id?: string
           profile_id: string
+          proof_file_url?: string | null
           title: string
         }
         Update: {
@@ -37,6 +39,7 @@ export type Database = {
           description?: string | null
           id?: string
           profile_id?: string
+          proof_file_url?: string | null
           title?: string
         }
         Relationships: [
@@ -215,6 +218,8 @@ export type Database = {
           description: string
           id: string
           project_link: string | null
+          project_size: string | null
+          proof_file_url: string | null
           required_skills: string[] | null
           status: string | null
           title: string
@@ -226,6 +231,8 @@ export type Database = {
           description: string
           id?: string
           project_link?: string | null
+          project_size?: string | null
+          proof_file_url?: string | null
           required_skills?: string[] | null
           status?: string | null
           title: string
@@ -237,6 +244,8 @@ export type Database = {
           description?: string
           id?: string
           project_link?: string | null
+          project_size?: string | null
+          proof_file_url?: string | null
           required_skills?: string[] | null
           status?: string | null
           title?: string

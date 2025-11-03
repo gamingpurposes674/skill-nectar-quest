@@ -6,7 +6,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { CalendarIcon } from "lucide-react";
+import { CalendarIcon, Upload, X } from "lucide-react";
 import { format } from "date-fns";
 import { cn } from "@/lib/utils";
 import { supabase } from "@/integrations/supabase/client";
@@ -25,6 +25,53 @@ const AddAchievementDialog = ({ open, onOpenChange, onSuccess }: AddAchievementD
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [date, setDate] = useState<Date>();
+  const [proofFile, setProofFile] = useState<File | null>(null);
+  const [proofPreview, setProofPreview] = useState<string | null>(null);
+
+  const handleProofFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const maxSize = 5 * 1024 * 1024; // 5MB
+    if (file.size > maxSize) {
+      toast.error("File size must be less than 5MB");
+      return;
+    }
+
+    setProofFile(file);
+
+    if (file.type.startsWith('image/')) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setProofPreview(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+    } else {
+      setProofPreview(null);
+    }
+  };
+
+  const uploadProofFile = async (): Promise<string | null> => {
+    if (!proofFile || !user) return null;
+
+    const fileExt = proofFile.name.split('.').pop();
+    const fileName = `${user.id}/${Date.now()}.${fileExt}`;
+
+    const { error: uploadError } = await supabase.storage
+      .from('achievement-proofs')
+      .upload(fileName, proofFile);
+
+    if (uploadError) {
+      console.error("Error uploading proof:", uploadError);
+      throw uploadError;
+    }
+
+    const { data: { publicUrl } } = supabase.storage
+      .from('achievement-proofs')
+      .getPublicUrl(fileName);
+
+    return publicUrl;
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -37,13 +84,20 @@ const AddAchievementDialog = ({ open, onOpenChange, onSuccess }: AddAchievementD
     setLoading(true);
 
     try {
+      let proofFileUrl: string | null = null;
+      
+      if (proofFile) {
+        proofFileUrl = await uploadProofFile();
+      }
+
       const { error } = await supabase
         .from("achievements")
         .insert({
           profile_id: user.id,
           title,
           description,
-          date_achieved: date?.toISOString().split('T')[0]
+          date_achieved: date?.toISOString().split('T')[0],
+          proof_file_url: proofFileUrl,
         });
 
       if (error) throw error;
@@ -54,6 +108,8 @@ const AddAchievementDialog = ({ open, onOpenChange, onSuccess }: AddAchievementD
       setTitle("");
       setDescription("");
       setDate(undefined);
+      setProofFile(null);
+      setProofPreview(null);
       
       onSuccess();
       onOpenChange(false);
@@ -122,6 +178,56 @@ const AddAchievementDialog = ({ open, onOpenChange, onSuccess }: AddAchievementD
                 />
               </PopoverContent>
             </Popover>
+          </div>
+
+          <div>
+            <Label htmlFor="proof_file">Upload Proof (Optional)</Label>
+            <div className="mt-2">
+              <input
+                id="proof_file"
+                type="file"
+                onChange={handleProofFileChange}
+                accept="image/*,.pdf,.doc,.docx"
+                className="hidden"
+                disabled={loading}
+              />
+              {!proofFile ? (
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => document.getElementById('proof_file')?.click()}
+                  disabled={loading}
+                  className="w-full"
+                >
+                  <Upload className="w-4 h-4 mr-2" />
+                  Choose File
+                </Button>
+              ) : (
+                <div className="border rounded-lg p-4">
+                  {proofPreview ? (
+                    <img src={proofPreview} alt="Proof preview" className="w-full h-32 object-cover rounded mb-2" />
+                  ) : (
+                    <div className="flex items-center justify-center h-32 bg-muted rounded mb-2">
+                      <span className="text-sm text-muted-foreground">{proofFile.name}</span>
+                    </div>
+                  )}
+                  <Button
+                    type="button"
+                    variant="destructive"
+                    size="sm"
+                    onClick={() => {
+                      setProofFile(null);
+                      setProofPreview(null);
+                    }}
+                    disabled={loading}
+                    className="w-full"
+                  >
+                    <X className="w-4 h-4 mr-2" />
+                    Remove File
+                  </Button>
+                </div>
+              )}
+            </div>
           </div>
 
           <div className="flex justify-end gap-2 pt-4">

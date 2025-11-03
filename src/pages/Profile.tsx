@@ -78,10 +78,14 @@ const Profile = () => {
       if (achievementsError) throw achievementsError;
       setAchievements(achievementsData || []);
 
-      // Calculate portfolio health dynamically
-      const projectCount = projectsData?.length || 0;
-      const achievementCount = achievementsData?.length || 0;
-      const health = Math.min((projectCount * 10) + (achievementCount * 10), 100);
+      // Calculate portfolio health dynamically based on project sizes
+      const projectProgress = (projectsData || []).reduce((total, project) => {
+        if (project.project_size === 'major') return total + 5;
+        return total + 1.5;
+      }, 0);
+      
+      const achievementProgress = (achievementsData?.length || 0) * 1.5;
+      const health = Math.min(projectProgress + achievementProgress, 100);
       setPortfolioHealth(health);
 
       // Update portfolio health in database
@@ -344,7 +348,14 @@ const Profile = () => {
                     <Card key={project.id} className="glass-card shadow-card p-6 hover:shadow-elegant transition-all duration-300">
                       <div className="flex justify-between items-start gap-4">
                         <div className="flex-1">
-                          <h4 className="font-semibold text-lg">{project.title}</h4>
+                          <div className="flex items-center gap-2 mb-1">
+                            <h4 className="font-semibold text-lg">{project.title}</h4>
+                            {project.project_size && (
+                              <Badge variant="outline" className="text-xs capitalize">
+                                {project.project_size}
+                              </Badge>
+                            )}
+                          </div>
                           <p className="text-sm text-muted-foreground mt-1">{project.description}</p>
                           {project.project_link && (
                             <a 
@@ -355,6 +366,28 @@ const Profile = () => {
                             >
                               View Project →
                             </a>
+                          )}
+                          {project.proof_file_url && (
+                            <div className="mt-3">
+                              <p className="text-xs text-muted-foreground mb-2">Proof of Work:</p>
+                              {project.proof_file_url.match(/\.(jpg|jpeg|png|gif|webp)$/i) ? (
+                                <img 
+                                  src={project.proof_file_url} 
+                                  alt="Project proof" 
+                                  className="w-full max-w-md h-48 object-cover rounded border"
+                                />
+                              ) : (
+                                <a 
+                                  href={project.proof_file_url} 
+                                  target="_blank" 
+                                  rel="noopener noreferrer"
+                                  className="text-xs text-primary hover:underline flex items-center gap-1"
+                                >
+                                  <ExternalLink className="h-3 w-3" />
+                                  View Document
+                                </a>
+                              )}
+                            </div>
                           )}
                           {project.required_skills && project.required_skills.length > 0 && (
                             <div className="flex flex-wrap gap-2 mt-3">
@@ -414,6 +447,28 @@ const Profile = () => {
                               <p className="text-xs text-muted-foreground mt-1">
                                 {new Date(achievement.date_achieved).toLocaleDateString()}
                               </p>
+                            )}
+                            {achievement.proof_file_url && (
+                              <div className="mt-2">
+                                <p className="text-xs text-muted-foreground mb-1">Proof:</p>
+                                {achievement.proof_file_url.match(/\.(jpg|jpeg|png|gif|webp)$/i) ? (
+                                  <img 
+                                    src={achievement.proof_file_url} 
+                                    alt="Achievement proof" 
+                                    className="w-full max-w-sm h-32 object-cover rounded border"
+                                  />
+                                ) : (
+                                  <a 
+                                    href={achievement.proof_file_url} 
+                                    target="_blank" 
+                                    rel="noopener noreferrer"
+                                    className="text-xs text-primary hover:underline flex items-center gap-1"
+                                  >
+                                    <ExternalLink className="h-3 w-3" />
+                                    View Document
+                                  </a>
+                                )}
+                              </div>
                             )}
                           </div>
                           {isOwnProfile && (

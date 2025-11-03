@@ -311,6 +311,7 @@ const Dashboard = () => {
         open={showCreateDialog}
         onOpenChange={setShowCreateDialog}
         onSuccess={handleProjectCreated}
+        userMajor={profile?.major}
       />
     </div>
   );
