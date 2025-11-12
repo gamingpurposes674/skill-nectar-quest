@@ -81,6 +81,24 @@ const AddAchievementDialog = ({ open, onOpenChange, onSuccess }: AddAchievementD
       return;
     }
 
+    // Validate title (minimum 3 characters)
+    if (title.trim().length < 3) {
+      toast.error("Title must be at least 3 characters long");
+      return;
+    }
+
+    // Validate description (minimum 15 characters)
+    if (description.trim().length < 15) {
+      toast.error("Description must be at least 15 characters long");
+      return;
+    }
+
+    // Validate proof file is mandatory
+    if (!proofFile) {
+      toast.error("Please upload proof of achievement (image or document)");
+      return;
+    }
+
     setLoading(true);
 
     try {
@@ -141,13 +159,14 @@ const AddAchievementDialog = ({ open, onOpenChange, onSuccess }: AddAchievementD
           </div>
 
           <div>
-            <Label htmlFor="description">Description</Label>
+            <Label htmlFor="description">Description (minimum 15 characters) *</Label>
             <Textarea
               id="description"
               value={description}
               onChange={(e) => setDescription(e.target.value)}
-              placeholder="Describe your achievement..."
+              placeholder="Describe your achievement in detail..."
               rows={3}
+              required
               disabled={loading}
             />
           </div>
@@ -181,7 +200,7 @@ const AddAchievementDialog = ({ open, onOpenChange, onSuccess }: AddAchievementD
           </div>
 
           <div>
-            <Label htmlFor="proof_file">Upload Proof (Optional)</Label>
+            <Label htmlFor="proof_file">Upload Proof (Required) *</Label>
             <div className="mt-2">
               <input
                 id="proof_file"

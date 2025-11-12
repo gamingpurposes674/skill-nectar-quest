@@ -6,14 +6,14 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { 
   Search, 
-  Bell, 
   Plus, 
   Users, 
   Target,
   TrendingUp,
   Sparkles,
   BookOpen,
-  LogOut
+  LogOut,
+  ChevronDown
 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
@@ -21,6 +21,9 @@ import { Link, useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import CollaborationCard from "@/components/CollaborationCard";
 import CreateProjectDialog from "@/components/CreateProjectDialog";
+import FindProjectsDialog from "@/components/FindProjectsDialog";
+import NotificationsMenu from "@/components/NotificationsMenu";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 
 const Dashboard = () => {
   const { user, signOut } = useAuth();
@@ -30,6 +33,7 @@ const Dashboard = () => {
   const [myProjects, setMyProjects] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [showCreateDialog, setShowCreateDialog] = useState(false);
+  const [showFindProjectsDialog, setShowFindProjectsDialog] = useState(false);
 
   useEffect(() => {
     if (user) {
@@ -86,6 +90,30 @@ const Dashboard = () => {
     setShowCreateDialog(false);
   };
 
+  const handleRequestCollaboration = async (projectId: string) => {
+    if (!user) {
+      toast.error("Please sign in to collaborate");
+      return;
+    }
+
+    try {
+      const { error } = await supabase
+        .from("collaboration_requests")
+        .insert({
+          project_id: projectId,
+          requester_id: user.id,
+          message: "I'd like to collaborate on your project!",
+          status: "pending"
+        });
+
+      if (error) throw error;
+      toast.success("Collaboration request sent!");
+    } catch (error: any) {
+      console.error("Error sending request:", error);
+      toast.error("Failed to send collaboration request");
+    }
+  };
+
   const getTimeAgo = (date: string) => {
     const seconds = Math.floor((new Date().getTime() - new Date(date).getTime()) / 1000);
     if (seconds < 3600) return `${Math.floor(seconds / 60)} minutes ago`;
@@ -113,7 +141,9 @@ const Dashboard = () => {
             <h1 className="text-xl font-bold text-gradient cursor-pointer">ConnectEd</h1>
           </Link>
           
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-2">
+            <NotificationsMenu />
+            
             <Link to={`/profile/${user?.id}`}>
               <Avatar className="h-8 w-8 cursor-pointer hover:ring-2 hover:ring-primary transition-all">
                 <AvatarImage src={profile?.avatar_url} />
@@ -182,13 +212,25 @@ const Dashboard = () => {
                   <TabsTrigger value="my-projects">My Projects</TabsTrigger>
                 </TabsList>
                 
-                <Button 
-                  className="gradient-primary shadow-glow"
-                  onClick={() => setShowCreateDialog(true)}
-                >
-                  <Plus className="h-4 w-4 mr-2" />
-                  New Project
-                </Button>
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button className="gradient-primary shadow-glow">
+                      <Plus className="h-4 w-4 mr-2" />
+                      New Project
+                      <ChevronDown className="h-4 w-4 ml-2" />
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end">
+                    <DropdownMenuItem onClick={() => setShowCreateDialog(true)}>
+                      <Plus className="h-4 w-4 mr-2" />
+                      Create New Project
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => setShowFindProjectsDialog(true)}>
+                      <Search className="h-4 w-4 mr-2" />
+                      Find Projects to Collaborate On
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
               </div>
 
               <TabsContent value="feed" className="space-y-4">
@@ -211,9 +253,7 @@ const Dashboard = () => {
                       description={project.description}
                       skills={project.required_skills || []}
                       timePosted={getTimeAgo(project.created_at)}
-                      onRequestCollaboration={() => {
-                        toast.success("Collaboration request sent!");
-                      }}
+                      onRequestCollaboration={() => handleRequestCollaboration(project.id)}
                     />
                   ))
                 )}
@@ -312,6 +352,11 @@ const Dashboard = () => {
         onOpenChange={setShowCreateDialog}
         onSuccess={handleProjectCreated}
         userMajor={profile?.major}
+      />
+      
+      <FindProjectsDialog
+        open={showFindProjectsDialog}
+        onOpenChange={setShowFindProjectsDialog}
       />
     </div>
   );

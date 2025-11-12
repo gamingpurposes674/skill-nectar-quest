@@ -23,6 +23,9 @@ export type Database = {
           profile_id: string
           proof_file_url: string | null
           title: string
+          validation_status:
+            | Database["public"]["Enums"]["validation_status"]
+            | null
         }
         Insert: {
           created_at?: string | null
@@ -32,6 +35,9 @@ export type Database = {
           profile_id: string
           proof_file_url?: string | null
           title: string
+          validation_status?:
+            | Database["public"]["Enums"]["validation_status"]
+            | null
         }
         Update: {
           created_at?: string | null
@@ -41,6 +47,9 @@ export type Database = {
           profile_id?: string
           proof_file_url?: string | null
           title?: string
+          validation_status?:
+            | Database["public"]["Enums"]["validation_status"]
+            | null
         }
         Relationships: [
           {
@@ -160,9 +169,11 @@ export type Database = {
       }
       profiles: {
         Row: {
+          age: number | null
           avatar_url: string | null
           bio: string | null
           created_at: string | null
+          dream_college: string | null
           full_name: string
           github_url: string | null
           grade: string | null
@@ -177,9 +188,11 @@ export type Database = {
           updated_at: string | null
         }
         Insert: {
+          age?: number | null
           avatar_url?: string | null
           bio?: string | null
           created_at?: string | null
+          dream_college?: string | null
           full_name: string
           github_url?: string | null
           grade?: string | null
@@ -194,9 +207,11 @@ export type Database = {
           updated_at?: string | null
         }
         Update: {
+          age?: number | null
           avatar_url?: string | null
           bio?: string | null
           created_at?: string | null
+          dream_college?: string | null
           full_name?: string
           github_url?: string | null
           grade?: string | null
@@ -225,6 +240,9 @@ export type Database = {
           title: string
           updated_at: string | null
           user_id: string
+          validation_status:
+            | Database["public"]["Enums"]["validation_status"]
+            | null
         }
         Insert: {
           created_at?: string | null
@@ -238,6 +256,9 @@ export type Database = {
           title: string
           updated_at?: string | null
           user_id: string
+          validation_status?:
+            | Database["public"]["Enums"]["validation_status"]
+            | null
         }
         Update: {
           created_at?: string | null
@@ -251,6 +272,9 @@ export type Database = {
           title?: string
           updated_at?: string | null
           user_id?: string
+          validation_status?:
+            | Database["public"]["Enums"]["validation_status"]
+            | null
         }
         Relationships: []
       }
@@ -262,7 +286,7 @@ export type Database = {
       [_ in never]: never
     }
     Enums: {
-      [_ in never]: never
+      validation_status: "approved" | "rejected" | "pending"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -389,6 +413,8 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      validation_status: ["approved", "rejected", "pending"],
+    },
   },
 } as const

@@ -78,13 +78,16 @@ const Profile = () => {
       if (achievementsError) throw achievementsError;
       setAchievements(achievementsData || []);
 
-      // Calculate portfolio health dynamically based on project sizes
-      const projectProgress = (projectsData || []).reduce((total, project) => {
+      // Calculate portfolio health dynamically based on APPROVED project sizes only
+      const approvedProjects = (projectsData || []).filter(p => p.validation_status === 'approved');
+      const approvedAchievements = (achievementsData || []).filter(a => a.validation_status === 'approved');
+      
+      const projectProgress = approvedProjects.reduce((total, project) => {
         if (project.project_size === 'major') return total + 5;
         return total + 1.5;
       }, 0);
       
-      const achievementProgress = (achievementsData?.length || 0) * 1.5;
+      const achievementProgress = approvedAchievements.length * 1.5;
       const health = Math.min(projectProgress + achievementProgress, 100);
       setPortfolioHealth(health);
 
@@ -246,30 +249,65 @@ const Profile = () => {
                   <AvatarFallback>{profile.full_name?.[0] || "U"}</AvatarFallback>
                 </Avatar>
                 
-                <div>
-                  <h2 className="text-2xl font-bold">{profile.full_name}</h2>
-                  {profile.grade && (
-                    <p className="text-muted-foreground flex items-center justify-center gap-1 mt-1">
-                      <GraduationCap className="h-4 w-4" />
-                      {profile.grade}
+                <div className="w-full">
+                  <div className="flex items-center justify-center gap-2 flex-wrap">
+                    <h2 className="text-2xl font-bold">{profile.full_name}</h2>
+                    {profile.grade && (
+                      <Badge variant={
+                        (profile.grade.toLowerCase().includes('college') || 
+                         profile.grade.toLowerCase().includes('pass') ||
+                         profile.grade === '12' ||
+                         parseInt(profile.grade) > 12) ? "default" : "secondary"
+                      }>
+                        {(profile.grade.toLowerCase().includes('college') || 
+                          profile.grade.toLowerCase().includes('pass') ||
+                          profile.grade === '12' ||
+                          parseInt(profile.grade) > 12) ? "SENIOR" : "STUDENT"}
+                      </Badge>
+                    )}
+                  </div>
+                  
+                  {profile.age && (
+                    <p className="text-sm text-muted-foreground mt-1">
+                      Age: {profile.age}
                     </p>
                   )}
+                  
+                  {profile.grade && (
+                    <p className="text-sm text-muted-foreground flex items-center justify-center gap-1 mt-1">
+                      <GraduationCap className="h-4 w-4" />
+                      Grade: {profile.grade}
+                    </p>
+                  )}
+                  
+                  {profile.major && (
+                    <p className="text-sm text-muted-foreground mt-1">
+                      <span className="font-medium">Major/Dream Major:</span> {profile.major}
+                    </p>
+                  )}
+                  
+                  {profile.school && (
+                    <p className="text-sm text-muted-foreground mt-1">
+                      <span className="font-medium">School:</span> {profile.school}
+                    </p>
+                  )}
+                  
+                  {profile.dream_college && (
+                    <p className="text-sm text-muted-foreground mt-1">
+                      <span className="font-medium">Dream College:</span> {profile.dream_college}
+                    </p>
+                  )}
+                  
                   {profile.location && (
-                    <p className="text-sm text-muted-foreground flex items-center justify-center gap-1">
+                    <p className="text-sm text-muted-foreground flex items-center justify-center gap-1 mt-1">
                       <MapPin className="h-3 w-3" />
                       {profile.location}
                     </p>
                   )}
                 </div>
 
-                {profile.major && (
-                  <div className="text-sm text-muted-foreground">
-                    <span className="font-medium">Major:</span> {profile.major}
-                  </div>
-                )}
-
                 {profile.bio && (
-                  <div>
+                  <div className="w-full">
                     <h3 className="font-semibold text-sm mb-1">About</h3>
                     <p className="text-sm leading-relaxed text-foreground/80">
                       {profile.bio}
@@ -399,6 +437,11 @@ const Profile = () => {
                         </div>
                         <div className="flex items-start gap-2">
                           <Badge>{project.status}</Badge>
+                          {project.validation_status && project.validation_status !== 'approved' && (
+                            <Badge variant={project.validation_status === 'pending' ? 'outline' : 'destructive'}>
+                              {project.validation_status}
+                            </Badge>
+                          )}
                           {isOwnProfile && (
                             <Button
                               variant="ghost"
@@ -469,6 +512,14 @@ const Profile = () => {
                                   </a>
                                 )}
                               </div>
+                            )}
+                            {achievement.validation_status && achievement.validation_status !== 'approved' && (
+                              <Badge 
+                                variant={achievement.validation_status === 'pending' ? 'outline' : 'destructive'}
+                                className="mt-2"
+                              >
+                                {achievement.validation_status}
+                              </Badge>
                             )}
                           </div>
                           {isOwnProfile && (

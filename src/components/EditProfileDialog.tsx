@@ -24,7 +24,9 @@ const EditProfileDialog = ({ open, onOpenChange, profile, onSuccess }: EditProfi
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
     full_name: "",
+    age: "",
     school: "",
+    dream_college: "",
     grade: "",
     location: "",
     bio: "",
@@ -41,7 +43,9 @@ const EditProfileDialog = ({ open, onOpenChange, profile, onSuccess }: EditProfi
     if (profile && open) {
       setFormData({
         full_name: profile.full_name || "",
+        age: profile.age || "",
         school: profile.school || "",
+        dream_college: profile.dream_college || "",
         grade: profile.grade || "",
         location: profile.location || "",
         bio: profile.bio || "",
@@ -107,6 +111,7 @@ const EditProfileDialog = ({ open, onOpenChange, profile, onSuccess }: EditProfi
         .from("profiles")
         .update({
           ...formData,
+          age: formData.age ? parseInt(formData.age) : null,
           skills,
           avatar_url: avatarUrl,
           updated_at: new Date().toISOString()
@@ -188,7 +193,31 @@ const EditProfileDialog = ({ open, onOpenChange, profile, onSuccess }: EditProfi
 
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <Label htmlFor="school">School/College</Label>
+              <Label htmlFor="age">Age</Label>
+              <Input
+                id="age"
+                type="number"
+                value={formData.age}
+                onChange={(e) => setFormData({ ...formData, age: e.target.value })}
+                placeholder="16"
+                disabled={loading}
+              />
+            </div>
+            <div>
+              <Label htmlFor="grade">Grade/Passout Year</Label>
+              <Input
+                id="grade"
+                value={formData.grade}
+                onChange={(e) => setFormData({ ...formData, grade: e.target.value })}
+                placeholder="Grade 10 or 2024"
+                disabled={loading}
+              />
+            </div>
+          </div>
+
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <Label htmlFor="school">Current School/College</Label>
               <Input
                 id="school"
                 value={formData.school}
@@ -198,12 +227,12 @@ const EditProfileDialog = ({ open, onOpenChange, profile, onSuccess }: EditProfi
               />
             </div>
             <div>
-              <Label htmlFor="grade">Grade/Year</Label>
+              <Label htmlFor="dream_college">Dream College (Optional)</Label>
               <Input
-                id="grade"
-                value={formData.grade}
-                onChange={(e) => setFormData({ ...formData, grade: e.target.value })}
-                placeholder="Grade 10"
+                id="dream_college"
+                value={formData.dream_college}
+                onChange={(e) => setFormData({ ...formData, dream_college: e.target.value })}
+                placeholder="MIT"
                 disabled={loading}
               />
             </div>

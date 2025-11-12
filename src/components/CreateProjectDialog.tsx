@@ -103,6 +103,30 @@ const CreateProjectDialog = ({ open, onOpenChange, onSuccess, userMajor }: Creat
       return;
     }
 
+    // Validate title (minimum 3 characters, no gibberish)
+    if (title.trim().length < 3) {
+      toast.error("Title must be at least 3 characters long");
+      return;
+    }
+
+    // Validate description (minimum 20 characters)
+    if (description.trim().length < 20) {
+      toast.error("Description must be at least 20 characters long");
+      return;
+    }
+
+    // Validate proof file is mandatory
+    if (!proofFile) {
+      toast.error("Please upload proof of work (image or document) before submitting");
+      return;
+    }
+
+    // Validate at least one skill is selected
+    if (skills.length === 0) {
+      toast.error("Please select at least one skill from the predefined list");
+      return;
+    }
+
     // Check skill-major alignment
     if (!checkSkillMajorAlignment() && !pendingSubmit) {
       setShowMismatchDialog(true);
@@ -232,7 +256,7 @@ const CreateProjectDialog = ({ open, onOpenChange, onSuccess, userMajor }: Creat
           </div>
 
           <div>
-            <Label htmlFor="proof_file">Upload Proof (Optional)</Label>
+            <Label htmlFor="proof_file">Upload Proof (Required) *</Label>
             <div className="mt-2">
               <input
                 id="proof_file"
