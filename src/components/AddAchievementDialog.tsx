@@ -12,6 +12,7 @@ import { cn } from "@/lib/utils";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
+import { isGibberish } from "@/lib/textValidation";
 
 interface AddAchievementDialogProps {
   open: boolean;
@@ -81,21 +82,31 @@ const AddAchievementDialog = ({ open, onOpenChange, onSuccess }: AddAchievementD
       return;
     }
 
-    // Validate title (minimum 3 characters)
+    // Validate title (minimum 3 characters and check for gibberish)
     if (title.trim().length < 3) {
       toast.error("Title must be at least 3 characters long");
       return;
     }
 
-    // Validate description (minimum 15 characters)
+    if (isGibberish(title)) {
+      toast.error("Please enter a valid achievement title with meaningful words");
+      return;
+    }
+
+    // Validate description (minimum 15 characters and check for gibberish)
     if (description.trim().length < 15) {
       toast.error("Description must be at least 15 characters long");
       return;
     }
 
+    if (isGibberish(description)) {
+      toast.error("Please enter a valid achievement description");
+      return;
+    }
+
     // Validate proof file is mandatory
     if (!proofFile) {
-      toast.error("Please upload proof of achievement (image or document)");
+      toast.error("Upload a valid proof before submitting your achievement");
       return;
     }
 
@@ -116,6 +127,7 @@ const AddAchievementDialog = ({ open, onOpenChange, onSuccess }: AddAchievementD
           description,
           date_achieved: date?.toISOString().split('T')[0],
           proof_file_url: proofFileUrl,
+          validation_status: "approved", // Auto-approve validated achievements
         });
 
       if (error) throw error;

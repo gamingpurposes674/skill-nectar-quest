@@ -42,6 +42,7 @@ const FindProjectsDialog = ({ open, onOpenChange }: FindProjectsDialogProps) => 
         `)
         .eq("status", "open")
         .eq("validation_status", "approved")
+        .eq("collaboration_open", true)
         .neq("user_id", user?.id)
         .order("created_at", { ascending: false })
         .limit(20);
