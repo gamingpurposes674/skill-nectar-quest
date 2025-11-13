@@ -10,7 +10,9 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
 import SkillSelector from "./SkillSelector";
+import CollaborationOptInDialog from "./CollaborationOptInDialog";
 import { Upload, X } from "lucide-react";
+import { isGibberish, checkMajorRelevance } from "@/lib/textValidation";
 
 interface CreateProjectDialogProps {
   open: boolean;
@@ -42,6 +44,9 @@ const CreateProjectDialog = ({ open, onOpenChange, onSuccess, userMajor }: Creat
   const [proofPreview, setProofPreview] = useState<string | null>(null);
   const [showMismatchDialog, setShowMismatchDialog] = useState(false);
   const [pendingSubmit, setPendingSubmit] = useState(false);
+  const [createdProjectId, setCreatedProjectId] = useState<string | null>(null);
+  const [showCollabOptIn, setShowCollabOptIn] = useState(false);
+  const [createdProjectTitle, setCreatedProjectTitle] = useState("");
 
   const checkSkillMajorAlignment = (): boolean => {
     if (!userMajor || !skills.length) return true;
@@ -99,245 +104,289 @@ const CreateProjectDialog = ({ open, onOpenChange, onSuccess, userMajor }: Creat
     e.preventDefault();
     
     if (!user) {
-      toast.error("You must be logged in to create a project");
+      toast.error("You must be logged in");
       return;
     }
 
-    // Validate title (minimum 3 characters, no gibberish)
+    // Enhanced validation - Check for gibberish in title
     if (title.trim().length < 3) {
       toast.error("Title must be at least 3 characters long");
       return;
     }
 
-    // Validate description (minimum 20 characters)
+    if (isGibberish(title)) {
+      toast.error("Please enter a valid project title with meaningful words");
+      return;
+    }
+
+    // Enhanced validation - Check for gibberish in description
     if (description.trim().length < 20) {
       toast.error("Description must be at least 20 characters long");
       return;
     }
 
-    // Validate proof file is mandatory
-    if (!proofFile) {
-      toast.error("Please upload proof of work (image or document) before submitting");
+    if (isGibberish(description)) {
+      toast.error("Please enter a valid project description with clear context");
       return;
     }
 
-    // Validate at least one skill is selected
     if (skills.length === 0) {
-      toast.error("Please select at least one skill from the predefined list");
+      toast.error("Please select at least one skill");
       return;
     }
 
-    // Check skill-major alignment
-    if (!checkSkillMajorAlignment() && !pendingSubmit) {
+    if (!proofFile) {
+      toast.error("Upload a valid proof before submitting your project");
+      return;
+    }
+
+    // Check major-skill alignment
+    if (!pendingSubmit && !checkSkillMajorAlignment()) {
       setShowMismatchDialog(true);
+      setPendingSubmit(true);
       return;
     }
 
+    await submitProject();
+  };
+
+  const submitProject = async () => {
     setLoading(true);
-    setPendingSubmit(false);
-
     try {
-      let proofFileUrl: string | null = null;
-      
-      if (proofFile) {
-        proofFileUrl = await uploadProofFile();
-      }
+      const proofUrl = await uploadProofFile();
+      if (!proofUrl) throw new Error("Failed to upload proof");
 
-      const { error } = await supabase
-        .from("projects")
+      const { data: newProject, error } = await supabase
+        .from('projects')
         .insert({
-          user_id: user.id,
+          user_id: user!.id,
           title,
           description,
           project_link: projectLink || null,
           required_skills: skills,
           project_size: projectSize,
-          proof_file_url: proofFileUrl,
+          proof_file_url: proofUrl,
+          validation_status: "approved", // Auto-approve validated projects
           status: "open"
-        });
+        })
+        .select()
+        .single();
 
       if (error) throw error;
 
-      toast.success("Project added successfully!");
+      toast.success("Project created successfully!");
+      
+      // Show collaboration opt-in dialog
+      setCreatedProjectId(newProject.id);
+      setCreatedProjectTitle(title); // Save title for collab dialog
+      setShowCollabOptIn(true);
       
       // Reset form
-      setTitle("");
-      setDescription("");
-      setProjectLink("");
-      setSkills([]);
-      setProjectSize("small");
-      setProofFile(null);
-      setProofPreview(null);
-      
+      resetForm();
       onSuccess();
-      onOpenChange(false);
     } catch (error: any) {
       console.error("Error creating project:", error);
       toast.error(error.message || "Failed to create project");
     } finally {
       setLoading(false);
+      setPendingSubmit(false);
     }
   };
 
-  const handleConfirmMismatch = () => {
-    setShowMismatchDialog(false);
-    setPendingSubmit(true);
-    // Trigger form submission
-    const form = document.getElementById('create-project-form') as HTMLFormElement;
-    form?.requestSubmit();
+  const resetForm = () => {
+    setTitle("");
+    setDescription("");
+    setProjectLink("");
+    setSkills([]);
+    setProjectSize("small");
+    setProofFile(null);
+    setProofPreview(null);
+    setPendingSubmit(false);
+  };
+
+  const handleClose = () => {
+    resetForm();
+    onOpenChange(false);
   };
 
   return (
     <>
-      <Dialog open={open} onOpenChange={onOpenChange}>
-        <DialogContent className="sm:max-w-[525px] max-h-[90vh] overflow-y-auto">
+      <Dialog open={open} onOpenChange={handleClose}>
+        <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>Create New Project</DialogTitle>
           </DialogHeader>
-          <form id="create-project-form" onSubmit={handleSubmit} className="space-y-4">
-          <div>
-            <Label htmlFor="title">Project Title</Label>
-            <Input
-              id="title"
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
-              placeholder="e.g., Mobile App for Mental Health"
-              required
-              disabled={loading}
-            />
-          </div>
 
-          <div>
-            <Label htmlFor="description">Description *</Label>
-            <Textarea
-              id="description"
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
-              placeholder="Describe your project and what kind of collaborators you're looking for..."
-              rows={4}
-              required
-              disabled={loading}
-            />
-          </div>
-
-          <div>
-            <Label htmlFor="project_link">Project Link (Optional)</Label>
-            <Input
-              id="project_link"
-              type="url"
-              value={projectLink}
-              onChange={(e) => setProjectLink(e.target.value)}
-              placeholder="https://github.com/username/project"
-              disabled={loading}
-            />
-          </div>
-
-          <div>
-            <Label>Required Skills *</Label>
-            <SkillSelector
-              selectedSkills={skills}
-              onChange={setSkills}
-              disabled={loading}
-            />
-          </div>
-
-          <div>
-            <Label htmlFor="project_size">Project Size *</Label>
-            <Select value={projectSize} onValueChange={setProjectSize} disabled={loading}>
-              <SelectTrigger>
-                <SelectValue placeholder="Select project size" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="small">Small (+1.5% progress)</SelectItem>
-                <SelectItem value="medium">Medium (+1.5% progress)</SelectItem>
-                <SelectItem value="major">Major (+5% progress)</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-
-          <div>
-            <Label htmlFor="proof_file">Upload Proof (Required) *</Label>
-            <div className="mt-2">
-              <input
-                id="proof_file"
-                type="file"
-                onChange={handleProofFileChange}
-                accept="image/*,.pdf,.doc,.docx"
-                className="hidden"
-                disabled={loading}
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="title">Project Title *</Label>
+              <Input
+                id="title"
+                placeholder="Enter a meaningful project title"
+                value={title}
+                onChange={(e) => setTitle(e.target.value)}
+                required
               />
-              {!proofFile ? (
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={() => document.getElementById('proof_file')?.click()}
-                  disabled={loading}
-                  className="w-full"
-                >
-                  <Upload className="w-4 h-4 mr-2" />
-                  Choose File
-                </Button>
-              ) : (
-                <div className="border rounded-lg p-4">
-                  {proofPreview ? (
-                    <img src={proofPreview} alt="Proof preview" className="w-full h-32 object-cover rounded mb-2" />
-                  ) : (
-                    <div className="flex items-center justify-center h-32 bg-muted rounded mb-2">
-                      <span className="text-sm text-muted-foreground">{proofFile.name}</span>
-                    </div>
-                  )}
-                  <Button
-                    type="button"
-                    variant="destructive"
-                    size="sm"
-                    onClick={() => {
-                      setProofFile(null);
-                      setProofPreview(null);
-                    }}
-                    disabled={loading}
-                    className="w-full"
-                  >
-                    <X className="w-4 h-4 mr-2" />
-                    Remove File
-                  </Button>
-                </div>
-              )}
             </div>
-          </div>
 
-          <div className="flex justify-end gap-2">
-            <Button 
-              type="button" 
-              variant="outline" 
-              onClick={() => onOpenChange(false)}
-              disabled={loading}
-            >
+            <div className="space-y-2">
+              <Label htmlFor="description">Description *</Label>
+              <Textarea
+                id="description"
+                placeholder="Describe your project in detail (min 20 characters)"
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
+                rows={4}
+                required
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="project-link">Project Link (Optional)</Label>
+              <Input
+                id="project-link"
+                type="url"
+                placeholder="https://github.com/..."
+                value={projectLink}
+                onChange={(e) => setProjectLink(e.target.value)}
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label>Skills *</Label>
+              <SkillSelector
+                selectedSkills={skills}
+                onChange={setSkills}
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="project-size">Project Size *</Label>
+              <Select value={projectSize} onValueChange={setProjectSize}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select project size" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="small">Small (+1.5% Portfolio Health)</SelectItem>
+                  <SelectItem value="medium">Medium (+3% Portfolio Health)</SelectItem>
+                  <SelectItem value="major">Major (+5% Portfolio Health)</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="proof">Proof Upload * (Image or Document)</Label>
+              <div className="border-2 border-dashed rounded-lg p-4">
+                <Input
+                  id="proof"
+                  type="file"
+                  accept="image/*,.pdf,.doc,.docx"
+                  onChange={handleProofFileChange}
+                  className="hidden"
+                />
+                <label
+                  htmlFor="proof"
+                  className="flex flex-col items-center justify-center cursor-pointer"
+                >
+                  {proofPreview ? (
+                    <div className="relative w-full">
+                      <img
+                        src={proofPreview}
+                        alt="Proof preview"
+                        className="max-h-48 mx-auto rounded"
+                      />
+                      <Button
+                        type="button"
+                        variant="destructive"
+                        size="icon"
+                        className="absolute top-2 right-2"
+                        onClick={(e) => {
+                          e.preventDefault();
+                          setProofFile(null);
+                          setProofPreview(null);
+                        }}
+                      >
+                        <X className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  ) : proofFile ? (
+                    <div className="flex items-center gap-2">
+                      <Upload className="h-5 w-5" />
+                      <span>{proofFile.name}</span>
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        onClick={(e) => {
+                          e.preventDefault();
+                          setProofFile(null);
+                        }}
+                      >
+                        <X className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  ) : (
+                    <>
+                      <Upload className="h-8 w-8 mb-2 text-muted-foreground" />
+                      <p className="text-sm text-muted-foreground">
+                        Click to upload proof (max 5MB)
+                      </p>
+                    </>
+                  )}
+                </label>
+              </div>
+            </div>
+
+            <div className="flex justify-end gap-2 pt-4">
+              <Button type="button" variant="outline" onClick={handleClose}>
+                Cancel
+              </Button>
+              <Button type="submit" disabled={loading} className="gradient-primary">
+                {loading ? "Creating..." : "Create Project"}
+              </Button>
+            </div>
+          </form>
+        </DialogContent>
+      </Dialog>
+
+      {/* Major Mismatch Warning Dialog */}
+      <AlertDialog open={showMismatchDialog} onOpenChange={setShowMismatchDialog}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>This project doesn't match your major</AlertDialogTitle>
+            <AlertDialogDescription>
+              This project doesn't seem related to your selected major "{userMajor}". Continue anyway?
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel onClick={() => {
+              setPendingSubmit(false);
+            }}>
               Cancel
-            </Button>
-            <Button type="submit" className="gradient-primary" disabled={loading}>
-              {loading ? "Creating..." : "Create Project"}
-            </Button>
-          </div>
-        </form>
-      </DialogContent>
-    </Dialog>
+            </AlertDialogCancel>
+            <AlertDialogAction onClick={() => {
+              setShowMismatchDialog(false);
+              submitProject();
+            }}>
+              Continue Anyway
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
 
-    <AlertDialog open={showMismatchDialog} onOpenChange={setShowMismatchDialog}>
-      <AlertDialogContent>
-        <AlertDialogHeader>
-          <AlertDialogTitle>Project-Major Mismatch</AlertDialogTitle>
-          <AlertDialogDescription>
-            This project doesn't seem related to your selected major ({userMajor}). Are you sure you want to continue?
-          </AlertDialogDescription>
-        </AlertDialogHeader>
-        <AlertDialogFooter>
-          <AlertDialogCancel>Cancel</AlertDialogCancel>
-          <AlertDialogAction onClick={handleConfirmMismatch}>
-            Continue Anyway
-          </AlertDialogAction>
-        </AlertDialogFooter>
-      </AlertDialogContent>
-    </AlertDialog>
+      {/* Collaboration Opt-In Dialog */}
+      {createdProjectId && (
+        <CollaborationOptInDialog
+          open={showCollabOptIn}
+          projectId={createdProjectId}
+          projectTitle={createdProjectTitle}
+          onClose={() => {
+            setShowCollabOptIn(false);
+            setCreatedProjectId(null);
+            onOpenChange(false);
+          }}
+        />
+      )}
     </>
   );
 };
