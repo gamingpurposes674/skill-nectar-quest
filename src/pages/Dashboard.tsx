@@ -53,7 +53,7 @@ const Dashboard = () => {
       if (profileError) throw profileError;
       setProfile(profileData);
 
-      // Load all projects (feed)
+      // Load all validated, collaboration-open projects (feed)
       const { data: projectsData, error: projectsError } = await supabase
         .from("projects")
         .select(`
@@ -61,6 +61,8 @@ const Dashboard = () => {
           profiles:user_id (full_name, avatar_url)
         `)
         .eq("status", "open")
+        .eq("validation_status", "approved")
+        .eq("collaboration_open", true)
         .order("created_at", { ascending: false })
         .limit(10);
 
@@ -279,16 +281,36 @@ const Dashboard = () => {
                     {myProjects.map((project) => (
                       <Card key={project.id} className="glass-card shadow-card p-6">
                         <div className="flex justify-between items-start">
-                          <div>
-                            <h3 className="font-semibold text-lg">{project.title}</h3>
+                          <div className="flex-1">
+                            <div className="flex items-center gap-2 mb-1">
+                              <h3 className="font-semibold text-lg">{project.title}</h3>
+                              {project.validation_status && (
+                                <Badge 
+                                  variant={project.validation_status === 'approved' ? 'default' : 'destructive'}
+                                  className="text-xs"
+                                >
+                                  {project.validation_status}
+                                </Badge>
+                              )}
+                              {project.collaboration_open && project.validation_status === 'approved' && (
+                                <Badge variant="secondary" className="text-xs">
+                                  Open for Collaboration
+                                </Badge>
+                              )}
+                            </div>
                             <p className="text-sm text-muted-foreground mt-1">{project.description}</p>
+                            {project.validation_status !== 'approved' && (
+                              <p className="text-xs text-destructive mt-2">
+                                Not counted — Invalid or irrelevant submission
+                              </p>
+                            )}
                             <div className="flex flex-wrap gap-2 mt-3">
                               {project.required_skills?.map((skill: string) => (
-                                <Badge key={skill} variant="secondary">{skill}</Badge>
+                                <Badge key={skill} variant="secondary" className="text-xs">{skill}</Badge>
                               ))}
                             </div>
                           </div>
-                          <Badge>{project.status}</Badge>
+                          <Badge variant="outline">{project.status}</Badge>
                         </div>
                       </Card>
                     ))}
