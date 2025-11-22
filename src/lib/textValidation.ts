@@ -1,35 +1,48 @@
 // Text validation utilities for project submissions
 
+// Common filler words/phrases to reject
+const FILLER_PHRASES = [
+  'i dont know', 'i don\'t know', 'idk', 'dont know', 'dunno',
+  'blah blah', 'xyz', 'test test', 'asdf', 'qwerty'
+];
+
 export const isGibberish = (text: string): boolean => {
   if (!text || text.trim().length === 0) return true;
   
-  // Check for repeated characters (e.g., "aaaaa", "asdfgh")
+  const lowerText = text.toLowerCase().trim();
+  
+  // Check for filler phrases
+  if (FILLER_PHRASES.some(phrase => lowerText === phrase || lowerText.includes(phrase))) {
+    return true;
+  }
+  
+  // Check for repeated characters (5+ times: "aaaaa", "hjjjjjj")
   const repeatedPattern = /(.)\1{4,}/;
   if (repeatedPattern.test(text)) return true;
   
-  // Check for random keyboard sequences
-  const keyboardSequences = [
-    'asdf', 'qwer', 'zxcv', 'hjkl', 'uiop',
-    'dfgh', 'jklm', 'erty', 'tyui'
-  ];
-  const lowerText = text.toLowerCase();
-  if (keyboardSequences.some(seq => lowerText.includes(seq))) return true;
+  // Check if text is mostly numbers
+  const numbers = (text.match(/\d/g) || []).length;
+  if (numbers / text.length > 0.5) return true;
   
-  // Check for minimum number of valid words (at least 3)
+  // Split into words
   const words = text.trim().split(/\s+/);
+  
+  // Filter valid words (at least 2 chars, contains at least one vowel)
   const validWords = words.filter(word => {
-    // A valid word has at least 2 characters and contains vowels
-    if (word.length < 2) return false;
-    return /[aeiou]/i.test(word);
+    const cleanWord = word.replace(/[^a-zA-Z]/g, '');
+    if (cleanWord.length < 2) return false;
+    return /[aeiou]/i.test(cleanWord);
   });
   
-  if (validWords.length < 3) return true;
+  // Accept if at least 2 valid words (e.g., "Website Building", "Robotics Project")
+  if (validWords.length < 2) return true;
   
-  // Check consonant-to-vowel ratio (gibberish usually has unusual ratios)
+  // Check consonant-to-vowel ratio (gibberish has unusual ratios)
   const consonants = (text.match(/[bcdfghjklmnpqrstvwxyz]/gi) || []).length;
   const vowels = (text.match(/[aeiou]/gi) || []).length;
   
-  if (vowels === 0 || consonants / vowels > 5) return true;
+  // Reject if no vowels or too many consonants
+  if (vowels === 0 || (vowels > 0 && consonants / vowels > 6)) return true;
   
   return false;
 };

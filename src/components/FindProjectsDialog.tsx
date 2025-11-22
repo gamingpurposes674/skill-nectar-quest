@@ -6,20 +6,28 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Textarea } from "@/components/ui/textarea";
-import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
-import { Search, Users, Clock, Send } from "lucide-react";
+import { Search, Users, Clock, Send, Filter } from "lucide-react";
 
 interface FindProjectsDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
 }
 
+const SKILL_OPTIONS = [
+  "Python", "Java", "C++", "JavaScript", "React", "Node.js", "HTML", "CSS",
+  "Machine Learning", "Data Analysis", "UI/UX Design", "Graphic Design",
+  "Video Editing", "3D Modeling", "Photography", "Creative Writing",
+  "Public Speaking", "Business Strategy", "Marketing", "Research"
+];
+
 const FindProjectsDialog = ({ open, onOpenChange }: FindProjectsDialogProps) => {
   const { user } = useAuth();
   const [searchQuery, setSearchQuery] = useState("");
+  const [skillFilter, setSkillFilter] = useState<string>("all");
   const [projects, setProjects] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
   const [selectedProject, setSelectedProject] = useState<string | null>(null);
@@ -43,9 +51,8 @@ const FindProjectsDialog = ({ open, onOpenChange }: FindProjectsDialogProps) => 
         .eq("status", "open")
         .eq("validation_status", "approved")
         .eq("collaboration_open", true)
-        .neq("user_id", user?.id)
         .order("created_at", { ascending: false })
-        .limit(20);
+        .limit(50);
 
       if (error) throw error;
       setProjects(data || []);
@@ -89,13 +96,38 @@ const FindProjectsDialog = ({ open, onOpenChange }: FindProjectsDialogProps) => 
     }
   };
 
-  const filteredProjects = projects.filter(project =>
-    project.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    project.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    project.required_skills?.some((skill: string) => 
-      skill.toLowerCase().includes(searchQuery.toLowerCase())
-    )
-  );
+  // Fuzzy match helper - allows typos
+  const fuzzyMatch = (str: string, query: string): boolean => {
+    if (!query) return true;
+    const lowerStr = str.toLowerCase();
+    const lowerQuery = query.toLowerCase();
+    
+    // Direct match
+    if (lowerStr.includes(lowerQuery)) return true;
+    
+    // Word-by-word match
+    const queryWords = lowerQuery.split(/\s+/);
+    return queryWords.every(word => lowerStr.includes(word));
+  };
+
+  const filteredProjects = projects.filter(project => {
+    // Apply skill filter
+    if (skillFilter !== "all") {
+      const hasSkill = project.required_skills?.some((skill: string) => 
+        skill.toLowerCase() === skillFilter.toLowerCase()
+      );
+      if (!hasSkill) return false;
+    }
+    
+    // Apply search query with fuzzy matching
+    if (!searchQuery) return true;
+    
+    return (
+      fuzzyMatch(project.title, searchQuery) ||
+      fuzzyMatch(project.description, searchQuery) ||
+      project.required_skills?.some((skill: string) => fuzzyMatch(skill, searchQuery))
+    );
+  });
 
   const getTimeAgo = (date: string) => {
     const seconds = Math.floor((new Date().getTime() - new Date(date).getTime()) / 1000);
@@ -112,14 +144,29 @@ const FindProjectsDialog = ({ open, onOpenChange }: FindProjectsDialogProps) => 
         </DialogHeader>
 
         <div className="space-y-4">
-          <div className="relative">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-            <Input
-              placeholder="Search by title, description, or skills..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-10"
-            />
+          <div className="flex gap-2">
+            <div className="relative flex-1">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <Input
+                placeholder="Search by keyword (e.g., 'research paper', 'robotics')..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="pl-10"
+              />
+            </div>
+            
+            <Select value={skillFilter} onValueChange={setSkillFilter}>
+              <SelectTrigger className="w-[200px]">
+                <Filter className="h-4 w-4 mr-2" />
+                <SelectValue placeholder="Filter by skill" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Skills</SelectItem>
+                {SKILL_OPTIONS.map(skill => (
+                  <SelectItem key={skill} value={skill}>{skill}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
 
           {loading ? (
@@ -177,7 +224,11 @@ const FindProjectsDialog = ({ open, onOpenChange }: FindProjectsDialogProps) => 
                           {getTimeAgo(project.created_at)}
                         </div>
                         
-                        {selectedProject === project.id ? (
+                        {project.user_id === user?.id ? (
+                          <Badge variant="outline" className="text-xs">
+                            Your Project
+                          </Badge>
+                        ) : selectedProject === project.id ? (
                           <div className="flex-1 ml-4 space-y-2">
                             <Textarea
                               placeholder="Why do you want to collaborate on this project?"

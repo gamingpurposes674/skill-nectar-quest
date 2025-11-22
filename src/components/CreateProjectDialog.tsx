@@ -108,25 +108,25 @@ const CreateProjectDialog = ({ open, onOpenChange, onSuccess, userMajor }: Creat
       return;
     }
 
-    // Enhanced validation - Check for gibberish in title
-    if (title.trim().length < 3) {
-      toast.error("Title must be at least 3 characters long");
+    // Title validation - minimum 5 characters, at least 2 real words
+    if (title.trim().length < 5) {
+      toast.error("Invalid project title. Please use a clear, meaningful title.");
       return;
     }
 
     if (isGibberish(title)) {
-      toast.error("Please enter a valid project title with meaningful words");
+      toast.error("Invalid project title. Please use a clear, meaningful title.");
       return;
     }
 
-    // Enhanced validation - Check for gibberish in description
+    // Description validation - minimum 20 characters, meaningful content
     if (description.trim().length < 20) {
-      toast.error("Description must be at least 20 characters long");
+      toast.error("Please provide a meaningful project description (at least 20 characters).");
       return;
     }
 
     if (isGibberish(description)) {
-      toast.error("Please enter a valid project description with clear context");
+      toast.error("Please provide a meaningful project description.");
       return;
     }
 
