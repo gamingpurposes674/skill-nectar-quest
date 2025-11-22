@@ -229,6 +229,7 @@ export type Database = {
       }
       projects: {
         Row: {
+          collaboration_open: boolean | null
           created_at: string | null
           description: string
           id: string
@@ -245,6 +246,7 @@ export type Database = {
             | null
         }
         Insert: {
+          collaboration_open?: boolean | null
           created_at?: string | null
           description: string
           id?: string
@@ -261,6 +263,7 @@ export type Database = {
             | null
         }
         Update: {
+          collaboration_open?: boolean | null
           created_at?: string | null
           description?: string
           id?: string

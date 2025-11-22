@@ -386,14 +386,32 @@ const Profile = () => {
                     <Card key={project.id} className="glass-card shadow-card p-6 hover:shadow-elegant transition-all duration-300">
                       <div className="flex justify-between items-start gap-4">
                         <div className="flex-1">
-                          <div className="flex items-center gap-2 mb-1">
+                          <div className="flex items-center gap-2 mb-1 flex-wrap">
                             <h4 className="font-semibold text-lg">{project.title}</h4>
                             {project.project_size && (
                               <Badge variant="outline" className="text-xs capitalize">
                                 {project.project_size}
                               </Badge>
                             )}
+                            {project.validation_status && (
+                              <Badge 
+                                variant={project.validation_status === 'approved' ? 'default' : 'destructive'}
+                                className="text-xs"
+                              >
+                                {project.validation_status}
+                              </Badge>
+                            )}
+                            {project.collaboration_open && project.validation_status === 'approved' && (
+                              <Badge variant="secondary" className="text-xs">
+                                Open for Collaboration
+                              </Badge>
+                            )}
                           </div>
+                          {project.validation_status !== 'approved' && (
+                            <p className="text-xs text-destructive mb-2">
+                              Not counted — Invalid or irrelevant submission
+                            </p>
+                          )}
                           <p className="text-sm text-muted-foreground mt-1">{project.description}</p>
                           {project.project_link && (
                             <a 
@@ -482,9 +500,24 @@ const Profile = () => {
                         <li key={achievement.id} className="flex items-start gap-3 group">
                           <Award className="h-5 w-5 text-accent mt-0.5 flex-shrink-0" />
                           <div className="flex-1">
-                            <p className="font-medium">{achievement.title}</p>
+                            <div className="flex items-center gap-2 flex-wrap">
+                              <p className="font-medium">{achievement.title}</p>
+                              {achievement.validation_status && (
+                                <Badge 
+                                  variant={achievement.validation_status === 'approved' ? 'default' : 'destructive'}
+                                  className="text-xs"
+                                >
+                                  {achievement.validation_status}
+                                </Badge>
+                              )}
+                            </div>
+                            {achievement.validation_status !== 'approved' && (
+                              <p className="text-xs text-destructive mt-1">
+                                Not counted — Invalid or irrelevant submission
+                              </p>
+                            )}
                             {achievement.description && (
-                              <p className="text-sm text-muted-foreground">{achievement.description}</p>
+                              <p className="text-sm text-muted-foreground mt-1">{achievement.description}</p>
                             )}
                             {achievement.date_achieved && (
                               <p className="text-xs text-muted-foreground mt-1">
@@ -512,14 +545,6 @@ const Profile = () => {
                                   </a>
                                 )}
                               </div>
-                            )}
-                            {achievement.validation_status && achievement.validation_status !== 'approved' && (
-                              <Badge 
-                                variant={achievement.validation_status === 'pending' ? 'outline' : 'destructive'}
-                                className="mt-2"
-                              >
-                                {achievement.validation_status}
-                              </Badge>
                             )}
                           </div>
                           {isOwnProfile && (
