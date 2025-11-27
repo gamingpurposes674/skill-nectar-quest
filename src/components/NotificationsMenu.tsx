@@ -27,23 +27,59 @@ const NotificationsMenu = () => {
     if (!user) return;
 
     try {
-      // Get collaboration requests for user's projects
-      const { data, error } = await supabase
+      // First get user's projects
+      const { data: userProjects, error: projectsError } = await supabase
+        .from("projects")
+        .select("id, title")
+        .eq("user_id", user.id);
+
+      if (projectsError) throw projectsError;
+      
+      if (!userProjects || userProjects.length === 0) {
+        setNotifications([]);
+        setUnreadCount(0);
+        return;
+      }
+
+      const projectIds = userProjects.map(p => p.id);
+      const projectsMap = new Map(userProjects.map(p => [p.id, p]));
+
+      // Get pending collaboration requests for user's projects
+      const { data: requestsData, error: requestsError } = await supabase
         .from("collaboration_requests")
-        .select(`
-          *,
-          projects (title, user_id),
-          profiles:requester_id (full_name, avatar_url)
-        `)
-        .eq("projects.user_id", user.id)
+        .select("*")
+        .in("project_id", projectIds)
         .eq("status", "pending")
         .order("created_at", { ascending: false });
 
-      if (error) throw error;
+      if (requestsError) throw requestsError;
       
-      const validNotifications = (data || []).filter(n => n.projects);
-      setNotifications(validNotifications);
-      setUnreadCount(validNotifications.length);
+      if (!requestsData || requestsData.length === 0) {
+        setNotifications([]);
+        setUnreadCount(0);
+        return;
+      }
+
+      // Get requester profiles
+      const requesterIds = [...new Set(requestsData.map(r => r.requester_id))];
+      const { data: profilesData } = await supabase
+        .from("profiles")
+        .select("id, full_name, avatar_url")
+        .in("id", requesterIds);
+
+      const profilesMap = new Map(
+        (profilesData || []).map(p => [p.id, p])
+      );
+
+      // Merge data
+      const notificationsWithData = requestsData.map(request => ({
+        ...request,
+        projects: projectsMap.get(request.project_id) || null,
+        profiles: profilesMap.get(request.requester_id) || null
+      }));
+
+      setNotifications(notificationsWithData);
+      setUnreadCount(notificationsWithData.length);
     } catch (error: any) {
       console.error("Error loading notifications:", error);
     }

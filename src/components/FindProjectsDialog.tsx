@@ -42,20 +42,44 @@ const FindProjectsDialog = ({ open, onOpenChange }: FindProjectsDialogProps) => 
   const loadProjects = async () => {
     setLoading(true);
     try {
-      const { data, error } = await supabase
+      // Fetch all collaboration-open, approved projects
+      const { data: projectsData, error: projectsError } = await supabase
         .from("projects")
-        .select(`
-          *,
-          profiles:user_id (full_name, avatar_url)
-        `)
+        .select("*")
         .eq("status", "open")
         .eq("validation_status", "approved")
         .eq("collaboration_open", true)
         .order("created_at", { ascending: false })
         .limit(50);
 
-      if (error) throw error;
-      setProjects(data || []);
+      if (projectsError) throw projectsError;
+      
+      if (!projectsData || projectsData.length === 0) {
+        setProjects([]);
+        return;
+      }
+
+      // Get unique user IDs and fetch their profiles
+      const userIds = [...new Set(projectsData.map(p => p.user_id))];
+      const { data: profilesData, error: profilesError } = await supabase
+        .from("profiles")
+        .select("id, full_name, avatar_url")
+        .in("id", userIds);
+
+      if (profilesError) throw profilesError;
+
+      // Create a lookup map for profiles
+      const profilesMap = new Map(
+        (profilesData || []).map(p => [p.id, p])
+      );
+
+      // Merge projects with profile data
+      const projectsWithProfiles = projectsData.map(project => ({
+        ...project,
+        profiles: profilesMap.get(project.user_id) || null
+      }));
+
+      setProjects(projectsWithProfiles);
     } catch (error: any) {
       console.error("Error loading projects:", error);
       toast.error("Failed to load projects");
