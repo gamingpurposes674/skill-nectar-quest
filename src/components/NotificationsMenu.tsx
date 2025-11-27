@@ -106,9 +106,10 @@ const NotificationsMenu = () => {
     };
   };
 
-  const handleResponse = async (requestId: string, status: 'accepted' | 'rejected') => {
+  const handleResponse = async (requestId: string, status: 'accepted' | 'rejected', projectId?: string, requesterId?: string) => {
     setLoading(true);
     try {
+      // Update the request status
       const { error } = await supabase
         .from("collaboration_requests")
         .update({ status, updated_at: new Date().toISOString() })
@@ -116,7 +117,20 @@ const NotificationsMenu = () => {
 
       if (error) throw error;
 
-      toast.success(status === 'accepted' ? "Collaboration request accepted!" : "Request rejected");
+      // If accepted, set the collaborator_id on the project
+      if (status === 'accepted' && projectId && requesterId) {
+        const { error: projectError } = await supabase
+          .from("projects")
+          .update({ 
+            collaborator_id: requesterId,
+            collaboration_open: false // Close to new collaborators
+          })
+          .eq("id", projectId);
+
+        if (projectError) throw projectError;
+      }
+
+      toast.success(status === 'accepted' ? "Collaboration request accepted! You can now chat and work together." : "Request rejected");
       loadNotifications();
     } catch (error: any) {
       console.error("Error updating request:", error);
@@ -200,7 +214,7 @@ const NotificationsMenu = () => {
                         <Button
                           size="sm"
                           className="gradient-primary"
-                          onClick={() => handleResponse(notification.id, 'accepted')}
+                          onClick={() => handleResponse(notification.id, 'accepted', notification.project_id, notification.requester_id)}
                           disabled={loading}
                         >
                           <Check className="h-3 w-3 mr-1" />

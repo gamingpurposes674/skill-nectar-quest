@@ -20,6 +20,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Link, useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import CollaborationCard from "@/components/CollaborationCard";
+import ProjectCollaborationCard from "@/components/ProjectCollaborationCard";
 import CreateProjectDialog from "@/components/CreateProjectDialog";
 import FindProjectsDialog from "@/components/FindProjectsDialog";
 import NotificationsMenu from "@/components/NotificationsMenu";
@@ -31,6 +32,8 @@ const Dashboard = () => {
   const [profile, setProfile] = useState<any>(null);
   const [projects, setProjects] = useState<any[]>([]);
   const [myProjects, setMyProjects] = useState<any[]>([]);
+  const [collaborativeProjects, setCollaborativeProjects] = useState<any[]>([]);
+  const [profilesMap, setProfilesMap] = useState<Map<string, any>>(new Map());
   const [loading, setLoading] = useState(true);
   const [showCreateDialog, setShowCreateDialog] = useState(false);
   const [showFindProjectsDialog, setShowFindProjectsDialog] = useState(false);
@@ -96,6 +99,42 @@ const Dashboard = () => {
       if (myProjectsError) throw myProjectsError;
       setMyProjects(myProjectsData || []);
 
+      // Load projects where user is a collaborator
+      const { data: collabProjectsData, error: collabProjectsError } = await supabase
+        .from("projects")
+        .select("*")
+        .eq("collaborator_id", user?.id)
+        .order("created_at", { ascending: false });
+
+      if (collabProjectsError) throw collabProjectsError;
+
+      // Combine projects where user is creator or collaborator with active collaboration
+      const allCollaborativeProjects = [
+        ...(myProjectsData || []).filter(p => p.collaborator_id),
+        ...(collabProjectsData || [])
+      ];
+
+      setCollaborativeProjects(allCollaborativeProjects);
+
+      // Fetch all profiles needed for collaborative projects
+      const allUserIds = new Set<string>();
+      allCollaborativeProjects.forEach(p => {
+        if (p.user_id) allUserIds.add(p.user_id);
+        if (p.collaborator_id) allUserIds.add(p.collaborator_id);
+      });
+
+      if (allUserIds.size > 0) {
+        const { data: allProfilesData } = await supabase
+          .from("profiles")
+          .select("id, full_name, avatar_url")
+          .in("id", Array.from(allUserIds));
+
+        const newProfilesMap = new Map(
+          (allProfilesData || []).map(p => [p.id, p])
+        );
+        setProfilesMap(newProfilesMap);
+      }
+
     } catch (error: any) {
       console.error("Error loading data:", error);
       toast.error("Failed to load dashboard data");
@@ -116,6 +155,41 @@ const Dashboard = () => {
     }
 
     try {
+      // Check if project already has a collaborator
+      const { data: projectData, error: projectCheckError } = await supabase
+        .from("projects")
+        .select("collaborator_id")
+        .eq("id", projectId)
+        .single();
+
+      if (projectCheckError) throw projectCheckError;
+      
+      if (projectData?.collaborator_id) {
+        toast.error("This project already has a collaborator");
+        return;
+      }
+
+      // Check for existing request from this user
+      const { data: existingRequest, error: checkError } = await supabase
+        .from("collaboration_requests")
+        .select("id, status")
+        .eq("project_id", projectId)
+        .eq("requester_id", user.id)
+        .maybeSingle();
+
+      if (checkError) throw checkError;
+      
+      if (existingRequest) {
+        if (existingRequest.status === 'pending') {
+          toast.error("You already have a pending request for this project");
+        } else if (existingRequest.status === 'accepted') {
+          toast.info("You're already collaborating on this project!");
+        } else {
+          toast.error("Your previous request was rejected");
+        }
+        return;
+      }
+
       const { error } = await supabase
         .from("collaboration_requests")
         .insert({
@@ -229,6 +303,10 @@ const Dashboard = () => {
                     Feed
                   </TabsTrigger>
                   <TabsTrigger value="my-projects">My Projects</TabsTrigger>
+                  <TabsTrigger value="collaborations">
+                    <Users className="h-4 w-4 mr-2" />
+                    Collaborations
+                  </TabsTrigger>
                 </TabsList>
                 
                 <DropdownMenu>
@@ -296,40 +374,80 @@ const Dashboard = () => {
                 ) : (
                   <div className="space-y-4">
                     {myProjects.map((project) => (
-                      <Card key={project.id} className="glass-card shadow-card p-6">
-                        <div className="flex justify-between items-start">
-                          <div className="flex-1">
-                            <div className="flex items-center gap-2 mb-1">
-                              <h3 className="font-semibold text-lg">{project.title}</h3>
-                              {project.validation_status && (
-                                <Badge 
-                                  variant={project.validation_status === 'approved' ? 'default' : 'destructive'}
-                                  className="text-xs"
-                                >
-                                  {project.validation_status}
-                                </Badge>
+                      project.collaborator_id ? (
+                        <ProjectCollaborationCard
+                          key={project.id}
+                          project={project}
+                          creatorProfile={profilesMap.get(project.user_id)}
+                          collaboratorProfile={profilesMap.get(project.collaborator_id)}
+                          onUpdate={loadData}
+                        />
+                      ) : (
+                        <Card key={project.id} className="glass-card shadow-card p-6">
+                          <div className="flex justify-between items-start">
+                            <div className="flex-1">
+                              <div className="flex items-center gap-2 mb-1">
+                                <h3 className="font-semibold text-lg">{project.title}</h3>
+                                {project.validation_status && (
+                                  <Badge 
+                                    variant={project.validation_status === 'approved' ? 'default' : 'destructive'}
+                                    className="text-xs"
+                                  >
+                                    {project.validation_status}
+                                  </Badge>
+                                )}
+                                {project.collaboration_open && project.validation_status === 'approved' && (
+                                  <Badge variant="secondary" className="text-xs">
+                                    Open for Collaboration
+                                  </Badge>
+                                )}
+                              </div>
+                              <p className="text-sm text-muted-foreground mt-1">{project.description}</p>
+                              {project.validation_status !== 'approved' && (
+                                <p className="text-xs text-destructive mt-2">
+                                  Not counted — Invalid or irrelevant submission
+                                </p>
                               )}
-                              {project.collaboration_open && project.validation_status === 'approved' && (
-                                <Badge variant="secondary" className="text-xs">
-                                  Open for Collaboration
-                                </Badge>
-                              )}
+                              <div className="flex flex-wrap gap-2 mt-3">
+                                {project.required_skills?.map((skill: string) => (
+                                  <Badge key={skill} variant="secondary" className="text-xs">{skill}</Badge>
+                                ))}
+                              </div>
                             </div>
-                            <p className="text-sm text-muted-foreground mt-1">{project.description}</p>
-                            {project.validation_status !== 'approved' && (
-                              <p className="text-xs text-destructive mt-2">
-                                Not counted — Invalid or irrelevant submission
-                              </p>
-                            )}
-                            <div className="flex flex-wrap gap-2 mt-3">
-                              {project.required_skills?.map((skill: string) => (
-                                <Badge key={skill} variant="secondary" className="text-xs">{skill}</Badge>
-                              ))}
-                            </div>
+                            <Badge variant="outline">{project.status}</Badge>
                           </div>
-                          <Badge variant="outline">{project.status}</Badge>
-                        </div>
-                      </Card>
+                        </Card>
+                      )
+                    ))}
+                  </div>
+                )}
+              </TabsContent>
+
+              <TabsContent value="collaborations">
+                {collaborativeProjects.length === 0 ? (
+                  <Card className="glass-card shadow-card p-8 text-center">
+                    <Users className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
+                    <h3 className="text-lg font-semibold mb-2">No active collaborations</h3>
+                    <p className="text-sm text-muted-foreground mb-4">
+                      Find projects to collaborate on or wait for requests on your projects
+                    </p>
+                    <Button 
+                      className="gradient-primary"
+                      onClick={() => setShowFindProjectsDialog(true)}
+                    >
+                      Find Projects
+                    </Button>
+                  </Card>
+                ) : (
+                  <div className="space-y-4">
+                    {collaborativeProjects.map((project) => (
+                      <ProjectCollaborationCard
+                        key={project.id}
+                        project={project}
+                        creatorProfile={profilesMap.get(project.user_id)}
+                        collaboratorProfile={profilesMap.get(project.collaborator_id)}
+                        onUpdate={loadData}
+                      />
                     ))}
                   </div>
                 )}
