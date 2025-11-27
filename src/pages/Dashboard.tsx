@@ -54,20 +54,37 @@ const Dashboard = () => {
       setProfile(profileData);
 
       // Load all validated, collaboration-open projects (feed)
-      const { data: projectsData, error: projectsError } = await supabase
+      const { data: feedProjectsData, error: feedProjectsError } = await supabase
         .from("projects")
-        .select(`
-          *,
-          profiles:user_id (full_name, avatar_url)
-        `)
+        .select("*")
         .eq("status", "open")
         .eq("validation_status", "approved")
         .eq("collaboration_open", true)
         .order("created_at", { ascending: false })
         .limit(10);
 
-      if (projectsError) throw projectsError;
-      setProjects(projectsData || []);
+      if (feedProjectsError) throw feedProjectsError;
+
+      // Fetch profiles for feed projects
+      if (feedProjectsData && feedProjectsData.length > 0) {
+        const feedUserIds = [...new Set(feedProjectsData.map(p => p.user_id))];
+        const { data: feedProfilesData } = await supabase
+          .from("profiles")
+          .select("id, full_name, avatar_url")
+          .in("id", feedUserIds);
+
+        const feedProfilesMap = new Map(
+          (feedProfilesData || []).map(p => [p.id, p])
+        );
+
+        const feedWithProfiles = feedProjectsData.map(project => ({
+          ...project,
+          profiles: feedProfilesMap.get(project.user_id) || null
+        }));
+        setProjects(feedWithProfiles);
+      } else {
+        setProjects([]);
+      }
 
       // Load user's own projects
       const { data: myProjectsData, error: myProjectsError } = await supabase
