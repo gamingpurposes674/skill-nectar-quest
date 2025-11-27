@@ -227,12 +227,55 @@ export type Database = {
         }
         Relationships: []
       }
+      project_chat_messages: {
+        Row: {
+          created_at: string
+          id: string
+          message: string
+          project_id: string
+          sender_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          message: string
+          project_id: string
+          sender_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          message?: string
+          project_id?: string
+          sender_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "project_chat_messages_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "project_chat_messages_sender_id_fkey"
+            columns: ["sender_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       projects: {
         Row: {
           collaboration_open: boolean | null
+          collaborator_completed: boolean | null
+          collaborator_id: string | null
           created_at: string | null
+          creator_completed: boolean | null
           description: string
           id: string
+          is_complete: boolean | null
           project_link: string | null
           project_size: string | null
           proof_file_url: string | null
@@ -247,9 +290,13 @@ export type Database = {
         }
         Insert: {
           collaboration_open?: boolean | null
+          collaborator_completed?: boolean | null
+          collaborator_id?: string | null
           created_at?: string | null
+          creator_completed?: boolean | null
           description: string
           id?: string
+          is_complete?: boolean | null
           project_link?: string | null
           project_size?: string | null
           proof_file_url?: string | null
@@ -264,9 +311,13 @@ export type Database = {
         }
         Update: {
           collaboration_open?: boolean | null
+          collaborator_completed?: boolean | null
+          collaborator_id?: string | null
           created_at?: string | null
+          creator_completed?: boolean | null
           description?: string
           id?: string
+          is_complete?: boolean | null
           project_link?: string | null
           project_size?: string | null
           proof_file_url?: string | null
@@ -279,7 +330,15 @@ export type Database = {
             | Database["public"]["Enums"]["validation_status"]
             | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "projects_collaborator_id_fkey"
+            columns: ["collaborator_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
       }
     }
     Views: {
