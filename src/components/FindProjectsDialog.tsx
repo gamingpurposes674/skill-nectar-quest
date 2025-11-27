@@ -96,25 +96,57 @@ const FindProjectsDialog = ({ open, onOpenChange }: FindProjectsDialogProps) => 
     }
   };
 
-  // Fuzzy match helper - allows typos
+  // Levenshtein distance for typo tolerance
+  const levenshteinDistance = (a: string, b: string): number => {
+    const dp: number[][] = Array(a.length + 1).fill(null).map(() => Array(b.length + 1).fill(0));
+    
+    for (let i = 0; i <= a.length; i++) dp[i][0] = i;
+    for (let j = 0; j <= b.length; j++) dp[0][j] = j;
+    
+    for (let i = 1; i <= a.length; i++) {
+      for (let j = 1; j <= b.length; j++) {
+        const cost = a[i - 1] === b[j - 1] ? 0 : 1;
+        dp[i][j] = Math.min(
+          dp[i - 1][j] + 1,
+          dp[i][j - 1] + 1,
+          dp[i - 1][j - 1] + cost
+        );
+      }
+    }
+    return dp[a.length][b.length];
+  };
+
+  // Fuzzy match helper with Levenshtein distance
   const fuzzyMatch = (str: string, query: string): boolean => {
     if (!query) return true;
+    if (!str) return false;
+    
     const lowerStr = str.toLowerCase();
     const lowerQuery = query.toLowerCase();
     
-    // Direct match
+    // Direct substring match
     if (lowerStr.includes(lowerQuery)) return true;
     
-    // Word-by-word match
-    const queryWords = lowerQuery.split(/\s+/);
-    return queryWords.every(word => lowerStr.includes(word));
+    // Word-by-word partial match
+    const queryWords = lowerQuery.split(/\s+/).filter(w => w.length > 0);
+    const strWords = lowerStr.split(/\s+/).filter(w => w.length > 0);
+    
+    // Check if all query words match (with typo tolerance)
+    return queryWords.every(queryWord => 
+      strWords.some(strWord => 
+        strWord.includes(queryWord) || 
+        queryWord.includes(strWord) ||
+        levenshteinDistance(strWord, queryWord) <= 2
+      )
+    );
   };
 
   const filteredProjects = projects.filter(project => {
     // Apply skill filter
     if (skillFilter !== "all") {
       const hasSkill = project.required_skills?.some((skill: string) => 
-        skill.toLowerCase() === skillFilter.toLowerCase()
+        skill.toLowerCase() === skillFilter.toLowerCase() ||
+        levenshteinDistance(skill.toLowerCase(), skillFilter.toLowerCase()) <= 2
       );
       if (!hasSkill) return false;
     }
@@ -122,10 +154,14 @@ const FindProjectsDialog = ({ open, onOpenChange }: FindProjectsDialogProps) => 
     // Apply search query with fuzzy matching
     if (!searchQuery) return true;
     
+    const title = project.title || "";
+    const description = project.description || "";
+    const skills = project.required_skills || [];
+    
     return (
-      fuzzyMatch(project.title, searchQuery) ||
-      fuzzyMatch(project.description, searchQuery) ||
-      project.required_skills?.some((skill: string) => fuzzyMatch(skill, searchQuery))
+      fuzzyMatch(title, searchQuery) ||
+      fuzzyMatch(description, searchQuery) ||
+      skills.some((skill: string) => fuzzyMatch(skill, searchQuery))
     );
   });
 
