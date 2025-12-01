@@ -13,7 +13,8 @@ import {
   Sparkles,
   BookOpen,
   LogOut,
-  ChevronDown
+  ChevronDown,
+  Compass
 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
@@ -231,7 +232,7 @@ const Dashboard = () => {
       <nav className="border-b border-border/50 bg-card/50 backdrop-blur-lg sticky top-0 z-50">
         <div className="container mx-auto px-4 h-16 flex items-center justify-between">
           <Link to="/dashboard">
-            <h1 className="text-xl font-bold text-gradient cursor-pointer">ConnectEd</h1>
+            <h1 className="text-xl font-bold text-gradient cursor-pointer">NexStep</h1>
           </Link>
           
           <div className="flex items-center gap-2">
@@ -264,7 +265,9 @@ const Dashboard = () => {
                   </div>
                   <div>
                     <p className="text-sm text-muted-foreground">Connections</p>
-                    <p className="text-2xl font-bold">0</p>
+                    <p className="text-2xl font-bold">
+                      {collaborativeProjects.length}
+                    </p>
                   </div>
                 </div>
               </Card>

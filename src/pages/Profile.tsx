@@ -15,15 +15,23 @@ import {
   ArrowLeft,
   Edit,
   Plus,
-  Trash2
+  Trash2,
+  ThumbsUp,
+  Smile,
+  Heart,
+  Meh,
+  Frown,
+  MessageSquare
 } from "lucide-react";
 import PortfolioHealthIndicator from "@/components/PortfolioHealthIndicator";
-import FeedbackPanel from "@/components/FeedbackPanel";
+import ReactionsAndComments from "@/components/ReactionsAndComments";
 import EditProfileDialog from "@/components/EditProfileDialog";
 import AddAchievementDialog from "@/components/AddAchievementDialog";
+import SendAdviceDialog from "@/components/SendAdviceDialog";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { Textarea } from "@/components/ui/textarea";
 
 const Profile = () => {
   const { id } = useParams();
@@ -31,7 +39,10 @@ const Profile = () => {
   const [profile, setProfile] = useState<any>(null);
   const [projects, setProjects] = useState<any[]>([]);
   const [achievements, setAchievements] = useState<any[]>([]);
-  const [reactions, setReactions] = useState({ thumbsUp: 0, flame: 0, lightbulb: 0, message: 0 });
+  const [reactions, setReactions] = useState<{[key: string]: number}>({});
+  const [comments, setComments] = useState<any[]>([]);
+  const [newComment, setNewComment] = useState("");
+  const [userReaction, setUserReaction] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [showEditDialog, setShowEditDialog] = useState(false);
   const [showAddAchievementDialog, setShowAddAchievementDialog] = useState(false);
@@ -129,9 +140,65 @@ const Profile = () => {
     }
   };
 
-  const handleReact = async (type: string) => {
+  const handleReact = async (reactionType: string) => {
     if (!user) {
       toast.error("Please sign in to react");
+      return;
+    }
+
+    try {
+      // If user already reacted, remove or update reaction
+      if (userReaction) {
+        if (userReaction === reactionType) {
+          // Remove reaction
+          await supabase
+            .from("feedback")
+            .delete()
+            .eq("profile_id", profileId)
+            .eq("author_id", user.id)
+            .eq("reaction_type", userReaction);
+          setUserReaction(null);
+          toast.success("Reaction removed!");
+        } else {
+          // Update reaction
+          await supabase
+            .from("feedback")
+            .update({ reaction_type: reactionType })
+            .eq("profile_id", profileId)
+            .eq("author_id", user.id)
+            .eq("reaction_type", userReaction);
+          setUserReaction(reactionType);
+          toast.success("Reaction updated!");
+        }
+      } else {
+        // Add new reaction
+        const { error } = await supabase
+          .from("feedback")
+          .insert({
+            profile_id: profileId,
+            author_id: user.id,
+            reaction_type: reactionType,
+          });
+
+        if (error) throw error;
+        setUserReaction(reactionType);
+        toast.success("Reaction added!");
+      }
+
+      loadProfileData();
+    } catch (error: any) {
+      toast.error(error.message);
+    }
+  };
+
+  const handlePostComment = async () => {
+    if (!user) {
+      toast.error("Please sign in to comment");
+      return;
+    }
+
+    if (!newComment.trim()) {
+      toast.error("Comment cannot be empty");
       return;
     }
 
@@ -141,16 +208,16 @@ const Profile = () => {
         .insert({
           profile_id: profileId,
           author_id: user.id,
-          reaction_type: type
+          comment: newComment.trim(),
         });
 
       if (error) throw error;
 
-      setReactions(prev => ({ ...prev, [type]: prev[type] + 1 }));
-      toast.success("Reaction added!");
+      toast.success("Comment posted!");
+      setNewComment("");
+      loadProfileData();
     } catch (error: any) {
-      console.error("Error adding reaction:", error);
-      toast.error("Failed to add reaction");
+      toast.error(error.message);
     }
   };
 
@@ -566,7 +633,22 @@ const Profile = () => {
             </Tabs>
 
             {!isOwnProfile && (
-              <FeedbackPanel reactions={reactions} onReact={handleReact} />
+              <>
+                <SendAdviceDialog 
+                  recipientId={profileId}
+                  recipientName={profile.full_name}
+                  currentUserId={user?.id || ""}
+                />
+                <ReactionsAndComments
+                  reactions={reactions}
+                  comments={comments}
+                  userReaction={userReaction}
+                  onReact={handleReact}
+                  onPostComment={handlePostComment}
+                  newComment={newComment}
+                  onCommentChange={setNewComment}
+                />
+              </>
             )}
           </div>
         </div>
