@@ -9,6 +9,7 @@ import Index from "./pages/Index";
 import Auth from "./pages/Auth";
 import Dashboard from "./pages/Dashboard";
 import Profile from "./pages/Profile";
+import Discover from "./pages/Discover";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -36,6 +37,14 @@ const App = () => (
               element={
                 <ProtectedRoute>
                   <Profile />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/discover" 
+              element={
+                <ProtectedRoute>
+                  <Discover />
                 </ProtectedRoute>
               } 
             />

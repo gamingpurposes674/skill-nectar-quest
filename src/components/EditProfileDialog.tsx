@@ -5,6 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
+import { Switch } from "@/components/ui/switch";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
@@ -33,7 +34,8 @@ const EditProfileDialog = ({ open, onOpenChange, profile, onSuccess }: EditProfi
     major: "",
     github_url: "",
     linkedin_url: "",
-    portfolio_url: ""
+    portfolio_url: "",
+    is_public: false
   });
   const [skills, setSkills] = useState<string[]>([]);
   const [avatarFile, setAvatarFile] = useState<File | null>(null);
@@ -52,7 +54,8 @@ const EditProfileDialog = ({ open, onOpenChange, profile, onSuccess }: EditProfi
         major: profile.major || "",
         github_url: profile.github_url || "",
         linkedin_url: profile.linkedin_url || "",
-        portfolio_url: profile.portfolio_url || ""
+        portfolio_url: profile.portfolio_url || "",
+        is_public: profile.is_public || false
       });
       setSkills(profile.skills || []);
       setAvatarPreview(profile.avatar_url || "");
@@ -280,6 +283,19 @@ const EditProfileDialog = ({ open, onOpenChange, profile, onSuccess }: EditProfi
                 disabled={loading}
               />
             </div>
+          </div>
+
+          <div className="flex items-center justify-between p-4 bg-muted/30 rounded-lg">
+            <div>
+              <Label htmlFor="is_public">Make Profile Public</Label>
+              <p className="text-xs text-muted-foreground">Allow others to discover your profile</p>
+            </div>
+            <Switch
+              id="is_public"
+              checked={formData.is_public}
+              onCheckedChange={(checked) => setFormData({ ...formData, is_public: checked })}
+              disabled={loading}
+            />
           </div>
 
           <div className="flex justify-end gap-2 pt-4">
