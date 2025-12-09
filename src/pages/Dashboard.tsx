@@ -25,6 +25,7 @@ import ProjectCollaborationCard from "@/components/ProjectCollaborationCard";
 import CreateProjectDialog from "@/components/CreateProjectDialog";
 import FindProjectsDialog from "@/components/FindProjectsDialog";
 import NotificationsMenu from "@/components/NotificationsMenu";
+import PortfolioGapScanner from "@/components/PortfolioGapScanner";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 
 const Dashboard = () => {
@@ -34,6 +35,7 @@ const Dashboard = () => {
   const [projects, setProjects] = useState<any[]>([]);
   const [myProjects, setMyProjects] = useState<any[]>([]);
   const [collaborativeProjects, setCollaborativeProjects] = useState<any[]>([]);
+  const [achievements, setAchievements] = useState<any[]>([]);
   const [profilesMap, setProfilesMap] = useState<Map<string, any>>(new Map());
   const [loading, setLoading] = useState(true);
   const [showCreateDialog, setShowCreateDialog] = useState(false);
@@ -117,7 +119,14 @@ const Dashboard = () => {
 
       setCollaborativeProjects(allCollaborativeProjects);
 
-      // Fetch all profiles needed for collaborative projects
+      // Load user's achievements
+      const { data: achievementsData, error: achievementsError } = await supabase
+        .from("achievements")
+        .select("*")
+        .eq("profile_id", user?.id);
+
+      if (achievementsError) throw achievementsError;
+      setAchievements(achievementsData || []);
       const allUserIds = new Set<string>();
       allCollaborativeProjects.forEach(p => {
         if (p.user_id) allUserIds.add(p.user_id);
@@ -479,6 +488,13 @@ const Dashboard = () => {
                 </Link>
               </Button>
             </Card>
+
+            <PortfolioGapScanner
+              profile={profile}
+              projects={myProjects}
+              achievements={achievements}
+              collaborativeProjects={collaborativeProjects}
+            />
 
             <Card className="glass-card shadow-card p-6">
               <h3 className="font-semibold mb-4">Quick Actions</h3>
