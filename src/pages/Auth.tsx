@@ -140,6 +140,12 @@ const Auth = () => {
                     required
                     disabled={loading}
                   />
+                  <Link 
+                    to="/forgot-password" 
+                    className="text-xs text-primary hover:underline mt-1 inline-block"
+                  >
+                    Forgot password?
+                  </Link>
                 </div>
                 <Button type="submit" className="w-full gradient-primary shadow-glow" disabled={loading}>
                   {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
