@@ -141,7 +141,7 @@ const Auth = () => {
                     disabled={loading}
                   />
                   <Link 
-                    to="/forgot-password" 
+                    to="/reset-password" 
                     className="text-xs text-primary hover:underline mt-1 inline-block"
                   >
                     Forgot password?
