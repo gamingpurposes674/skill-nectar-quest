@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -11,7 +11,8 @@ import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
 import SkillSelector from "./SkillSelector";
 import CollaborationOptInDialog from "./CollaborationOptInDialog";
-import { Upload, X } from "lucide-react";
+import ProjectHelperDialog from "./ProjectHelperDialog";
+import { Upload, X, Sparkles } from "lucide-react";
 import { isGibberish, checkMajorRelevance } from "@/lib/textValidation";
 
 interface CreateProjectDialogProps {
@@ -19,6 +20,10 @@ interface CreateProjectDialogProps {
   onOpenChange: (open: boolean) => void;
   onSuccess: () => void;
   userMajor?: string | null;
+  userGrade?: string | null;
+  userSkills?: string[] | null;
+  existingProjects?: any[];
+  portfolioGaps?: string[];
 }
 
 const MAJOR_SKILL_MAPPING: Record<string, string[]> = {
@@ -32,7 +37,7 @@ const MAJOR_SKILL_MAPPING: Record<string, string[]> = {
   "Marketing": ["Marketing", "Business Strategy", "Graphic Design", "Video Editing", "Public Speaking"],
 };
 
-const CreateProjectDialog = ({ open, onOpenChange, onSuccess, userMajor }: CreateProjectDialogProps) => {
+const CreateProjectDialog = ({ open, onOpenChange, onSuccess, userMajor, userGrade, userSkills, existingProjects, portfolioGaps }: CreateProjectDialogProps) => {
   const { user } = useAuth();
   const [loading, setLoading] = useState(false);
   const [title, setTitle] = useState("");
@@ -47,6 +52,27 @@ const CreateProjectDialog = ({ open, onOpenChange, onSuccess, userMajor }: Creat
   const [createdProjectId, setCreatedProjectId] = useState<string | null>(null);
   const [showCollabOptIn, setShowCollabOptIn] = useState(false);
   const [createdProjectTitle, setCreatedProjectTitle] = useState("");
+  const [showProjectHelper, setShowProjectHelper] = useState(false);
+
+  // Build user profile for AI helper
+  const userProfile = {
+    grade: userGrade || null,
+    major: userMajor || null,
+    skills: userSkills || [],
+    existingProjects: existingProjects?.length || 0,
+    existingProjectTypes: existingProjects?.map(p => p.project_size) || [],
+    portfolioGaps: portfolioGaps || [],
+    hasResearch: existingProjects?.some(p => p.required_skills?.includes("Research")) || false,
+    hasCollaborative: existingProjects?.some(p => p.collaborator_id) || false,
+    hasLongTerm: existingProjects?.some(p => p.project_size === "major") || false,
+  };
+
+  const handleUseIdea = (project: { title: string; description: string; skills: string[]; size: string }) => {
+    setTitle(project.title);
+    setDescription(project.description);
+    setSkills(project.skills);
+    setProjectSize(project.size);
+  };
 
   const checkSkillMajorAlignment = (): boolean => {
     if (!userMajor || !skills.length) return true;
@@ -216,6 +242,17 @@ const CreateProjectDialog = ({ open, onOpenChange, onSuccess, userMajor }: Creat
           <DialogHeader>
             <DialogTitle>Create New Project</DialogTitle>
           </DialogHeader>
+
+          {/* AI Project Helper Button */}
+          <Button
+            type="button"
+            variant="outline"
+            className="w-full border-dashed border-primary/50 hover:border-primary hover:bg-primary/5"
+            onClick={() => setShowProjectHelper(true)}
+          >
+            <Sparkles className="h-4 w-4 mr-2 text-primary" />
+            Not sure where to start?
+          </Button>
 
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="space-y-2">
@@ -387,6 +424,14 @@ const CreateProjectDialog = ({ open, onOpenChange, onSuccess, userMajor }: Creat
           }}
         />
       )}
+
+      {/* AI Project Helper Dialog */}
+      <ProjectHelperDialog
+        open={showProjectHelper}
+        onOpenChange={setShowProjectHelper}
+        userProfile={userProfile}
+        onUseIdea={handleUseIdea}
+      />
     </>
   );
 };
