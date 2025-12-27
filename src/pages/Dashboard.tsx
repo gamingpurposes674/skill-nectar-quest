@@ -158,6 +158,38 @@ const Dashboard = () => {
     setShowCreateDialog(false);
   };
 
+  // Compute portfolio gaps for AI helper
+  const computePortfolioGaps = (): string[] => {
+    const gaps: string[] = [];
+    
+    // Check for research projects
+    const hasResearch = myProjects.some(p => 
+      p.required_skills?.includes("Research") || 
+      p.description?.toLowerCase().includes("research")
+    );
+    if (!hasResearch) gaps.push("No research-based project");
+    
+    // Check for collaborative projects
+    const hasCollaborative = myProjects.some(p => p.collaborator_id);
+    if (!hasCollaborative) gaps.push("No collaborative project");
+    
+    // Check for long-term/major projects
+    const hasMajorProject = myProjects.some(p => p.project_size === "major");
+    if (!hasMajorProject) gaps.push("No major/long-term project");
+    
+    // Check project count
+    if (myProjects.length < 3) gaps.push("Less than 3 total projects");
+    
+    // Check achievements
+    if (achievements.length === 0) gaps.push("No achievements added");
+    
+    // Check skill count for major
+    const majorSkills = profile?.skills || [];
+    if (majorSkills.length < 2) gaps.push("Less than 2 skills linked to major");
+    
+    return gaps;
+  };
+
   const handleRequestCollaboration = async (projectId: string) => {
     if (!user) {
       toast.error("Please sign in to collaborate");
@@ -528,6 +560,10 @@ const Dashboard = () => {
         onOpenChange={setShowCreateDialog}
         onSuccess={handleProjectCreated}
         userMajor={profile?.major}
+        userGrade={profile?.grade}
+        userSkills={profile?.skills}
+        existingProjects={myProjects}
+        portfolioGaps={computePortfolioGaps()}
       />
       
       <FindProjectsDialog

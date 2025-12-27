@@ -1,1 +1,4 @@
 project_id = "gdnmzobphsrvxwfiulpo"
+
+[functions.project-helper]
+verify_jwt = false
