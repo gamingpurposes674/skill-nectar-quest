@@ -149,4 +149,43 @@ All colors MUST be HSL.
   .shadow-elegant {
     box-shadow: var(--shadow-elegant);
   }
+
+  /* Button hover micro-interactions */
+  .btn-hover-lift {
+    @apply transition-all duration-200;
+  }
+  
+  .btn-hover-lift:hover {
+    transform: translateY(-1px);
+    box-shadow: var(--shadow-elegant);
+  }
+  
+  .btn-hover-lift:active {
+    transform: translateY(0);
+  }
+
+  /* Card hover glow effect */
+  .card-hover-glow {
+    @apply transition-all duration-300;
+  }
+  
+  .card-hover-glow:hover {
+    box-shadow: 0 0 20px hsl(var(--primary) / 0.1), var(--shadow-elegant);
+    border-color: hsl(var(--primary) / 0.2);
+  }
+
+  /* Subtle background noise texture */
+  .bg-noise {
+    position: relative;
+  }
+  
+  .bg-noise::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+    opacity: 0.015;
+    pointer-events: none;
+    z-index: 0;
+  }
 }
