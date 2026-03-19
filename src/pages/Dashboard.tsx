@@ -659,7 +659,7 @@ const Dashboard = () => {
                                 <div className="flex justify-between items-start">
                                   <div className="flex-1">
                                     <div className="flex items-center gap-2 mb-1">
-                                      <h3 className="font-semibold text-lg">{project.title}</h3>
+                                      <h3 className="font-semibold text-lg">{toTitleCase(project.title)}</h3>
                                       {project.validation_status && (
                                         <Badge 
                                           variant={project.validation_status === 'approved' ? 'default' : 'destructive'}
