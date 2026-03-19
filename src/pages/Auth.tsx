@@ -25,9 +25,6 @@ const Auth = () => {
   const [loading, setLoading] = useState(false);
   const [showConfirmDialog, setShowConfirmDialog] = useState(false);
   const [failedAttempts, setFailedAttempts] = useState(0);
-  const [showForgotPassword, setShowForgotPassword] = useState(false);
-  const [resetEmail, setResetEmail] = useState("");
-  const [resetLoading, setResetLoading] = useState(false);
   const [signUpData, setSignUpData] = useState({
     fullName: "",
     email: "",
