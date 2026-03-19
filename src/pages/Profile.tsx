@@ -569,8 +569,14 @@ const ProfilePage = () => {
                 </AvatarFallback>
               </Avatar>
 
-              <h2 className="text-lg font-bold tracking-tight font-['Space_Grotesk',sans-serif] mb-0.5">
+              <h2 className="text-lg font-bold tracking-tight font-['Space_Grotesk',sans-serif] mb-0.5 flex items-center justify-center gap-2">
                 {profile.full_name}
+                {collabScore > 0 && (
+                  <span className={`inline-flex items-center gap-1 text-[10px] font-semibold px-2 py-0.5 rounded-full border ${collabTierColor} bg-muted/30 border-border/50`}>
+                    <Shield className="h-3 w-3" />
+                    {collabTier}
+                  </span>
+                )}
               </h2>
               <Badge variant={status.variant} className="text-[10px] mb-3">
                 {status.label}
