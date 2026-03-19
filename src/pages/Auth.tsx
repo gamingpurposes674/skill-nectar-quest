@@ -25,7 +25,8 @@ const Auth = () => {
   const [loading, setLoading] = useState(false);
   const [showConfirmDialog, setShowConfirmDialog] = useState(false);
   const [failedAttempts, setFailedAttempts] = useState(0);
-  const [showResetOption, setShowResetOption] = useState(false);
+  const [showForgotPassword, setShowForgotPassword] = useState(false);
+  const [resetEmail, setResetEmail] = useState("");
   const [resetLoading, setResetLoading] = useState(false);
   const [signUpData, setSignUpData] = useState({
     fullName: "",
@@ -63,38 +64,83 @@ const Auth = () => {
     try {
       await signIn(signInData.email, signInData.password);
       setFailedAttempts(0);
-      setShowResetOption(false);
     } catch (error: any) {
       const newCount = failedAttempts + 1;
       setFailedAttempts(newCount);
-      if (newCount >= 3) {
-        setShowResetOption(true);
-      }
     } finally {
       setLoading(false);
     }
   };
 
-  const handleResetPassword = async () => {
-    if (!signInData.email) {
-      toast.error("Please enter your email address first");
+  const handleSendResetLink = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!resetEmail) {
+      toast.error("Please enter your email address");
       return;
     }
     setResetLoading(true);
     try {
-      const { error } = await supabase.auth.resetPasswordForEmail(signInData.email, {
-        redirectTo: `${window.location.origin}/auth`,
+      const { error } = await supabase.auth.resetPasswordForEmail(resetEmail, {
+        redirectTo: `${window.location.origin}/reset-password`,
       });
       if (error) throw error;
-      toast.success("Password reset link sent to your email!");
-      setShowResetOption(false);
-      setFailedAttempts(0);
+      toast.success("Password reset link sent! Check your email.");
+      setShowForgotPassword(false);
+      setResetEmail("");
     } catch (error: any) {
       toast.error(error.message || "Failed to send reset link");
     } finally {
       setResetLoading(false);
     }
   };
+
+  if (showForgotPassword) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted flex items-center justify-center p-4">
+        <div className="w-full max-w-md">
+          <button
+            onClick={() => setShowForgotPassword(false)}
+            className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground mb-6 transition-colors"
+          >
+            <ArrowLeft className="h-4 w-4" />
+            Back to Sign In
+          </button>
+
+          <Card className="glass-card shadow-elegant p-8 animate-scale-in">
+            <div className="text-center mb-6">
+              <h1 className="text-2xl font-bold text-foreground mb-2">Reset Password</h1>
+              <p className="text-muted-foreground text-sm">
+                Enter your email and we'll send you a link to reset your password.
+              </p>
+            </div>
+
+            <form onSubmit={handleSendResetLink} className="space-y-4">
+              <div>
+                <Label htmlFor="reset-email">Email Address</Label>
+                <Input
+                  id="reset-email"
+                  type="email"
+                  placeholder="you@school.edu"
+                  value={resetEmail}
+                  onChange={(e) => setResetEmail(e.target.value)}
+                  required
+                  disabled={resetLoading}
+                />
+              </div>
+              <Button
+                type="submit"
+                className="w-full gradient-primary shadow-glow"
+                disabled={resetLoading}
+              >
+                {resetLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                Send Reset Link
+              </Button>
+            </form>
+          </Card>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted flex items-center justify-center p-4">
@@ -194,22 +240,23 @@ const Auth = () => {
                   Sign In
                 </Button>
 
-                {showResetOption && (
-                  <div className="text-center pt-2 border-t border-border mt-4">
-                    <p className="text-sm text-muted-foreground mb-2">
-                      Too many failed attempts. Need to reset your password?
-                    </p>
-                    <Button
-                      type="button"
-                      variant="outline"
-                      size="sm"
-                      onClick={handleResetPassword}
-                      disabled={resetLoading}
-                    >
-                      {resetLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                      Reset Password
-                    </Button>
-                  </div>
+                <div className="text-center pt-1">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setShowForgotPassword(true);
+                      setResetEmail(signInData.email);
+                    }}
+                    className="text-sm text-muted-foreground hover:text-primary transition-colors underline-offset-4 hover:underline"
+                  >
+                    Forgot Password?
+                  </button>
+                </div>
+
+                {failedAttempts >= 3 && (
+                  <p className="text-xs text-center text-muted-foreground">
+                    Multiple failed attempts detected. Try resetting your password above.
+                  </p>
                 )}
               </form>
             </TabsContent>
