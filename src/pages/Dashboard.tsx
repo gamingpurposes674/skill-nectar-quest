@@ -473,10 +473,12 @@ const Dashboard = () => {
                             id={project.id}
                             title={project.title}
                             author={project.profiles?.full_name || "Unknown User"}
+                            authorId={project.user_id}
                             avatar={project.profiles?.avatar_url || ""}
                             description={project.description}
                             skills={project.required_skills || []}
                             timePosted={getTimeAgo(project.created_at)}
+                            coverImageUrl={project.proof_file_url}
                             onRequestCollaboration={() => handleRequestCollaboration(project.id)}
                           />
                         </motion.div>
