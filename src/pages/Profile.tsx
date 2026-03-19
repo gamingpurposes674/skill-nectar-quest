@@ -37,6 +37,7 @@ import ReactionsAndComments from "@/components/ReactionsAndComments";
 import ConnectionButton from "@/components/ConnectionButton";
 import { useVerifiedSkills, useCollabScore } from "@/hooks/use-collab-data";
 import { CheckCircle2, Shield } from "lucide-react";
+import { toTitleCase } from "@/lib/textValidation";
 
 interface Profile {
   id: string;
