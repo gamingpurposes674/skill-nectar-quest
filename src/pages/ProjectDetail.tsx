@@ -285,7 +285,7 @@ const ProjectDetail = () => {
             <div className="flex items-start justify-between gap-4 flex-wrap">
               <div className="space-y-1 flex-1">
                 <h1 className="text-2xl font-bold tracking-tight font-['Space_Grotesk',sans-serif] text-foreground">
-                  {project.title}
+                  {toTitleCase(project.title)}
                 </h1>
                 <div className="flex items-center gap-3 text-[13px] text-muted-foreground">
                   {creator && (
