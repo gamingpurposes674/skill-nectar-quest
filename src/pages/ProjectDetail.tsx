@@ -20,6 +20,7 @@ import {
   X,
 } from "lucide-react";
 import { AnimatedProgress } from "@/components/ui/animated-progress";
+import { ProjectLogSection, MilestoneTimeline } from "@/components/ProjectLogAndMilestones";
 
 const ProjectDetail = () => {
   const { id } = useParams<{ id: string }>();
