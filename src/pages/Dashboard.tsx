@@ -627,6 +627,21 @@ const Dashboard = () => {
                 </TabsContent>
               </Tabs>
             </motion.div>
+
+            {/* Trending This Week */}
+            <motion.div variants={prefersReducedMotion ? undefined : itemVariants}>
+              <TrendingProjects />
+            </motion.div>
+
+            {/* Suggested Collaborators */}
+            {user && profile?.skills && (
+              <motion.div variants={prefersReducedMotion ? undefined : itemVariants}>
+                <SuggestedCollaborators
+                  currentUserId={user.id}
+                  currentUserSkills={profile.skills}
+                />
+              </motion.div>
+            )}
           </div>
 
           {/* Right Sidebar */}
