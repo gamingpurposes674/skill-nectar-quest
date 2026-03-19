@@ -17,6 +17,7 @@ import {
   ChevronDown,
   Compass
 } from "lucide-react";
+import TopNav from "@/components/TopNav";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { Link, useNavigate } from "react-router-dom";
