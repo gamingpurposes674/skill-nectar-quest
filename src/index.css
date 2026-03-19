@@ -2,13 +2,70 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Definition of the design system. All colors, gradients, fonts, etc should be defined here. 
-All colors MUST be HSL.
-*/
+/* NexStep Design System — Dark-first, premium student platform */
 
 @layer base {
+  /* DARK (default) */
   :root {
-    --background: 210 40% 98%;
+    --background: 222 47% 8%;
+    --foreground: 210 40% 96%;
+
+    --card: 222 47% 12%;
+    --card-foreground: 210 40% 96%;
+    --card-glass: 222 47% 12% / 0.6;
+
+    --popover: 222 47% 14%;
+    --popover-foreground: 210 40% 96%;
+
+    /* Primary: Electric Blue */
+    --primary: 217 91% 60%;
+    --primary-foreground: 0 0% 100%;
+    --primary-glow: 217 100% 72%;
+
+    /* Secondary: Vibrant Purple */
+    --secondary: 265 83% 57%;
+    --secondary-foreground: 0 0% 100%;
+
+    /* Accent: Bright Teal */
+    --accent: 174 72% 56%;
+    --accent-foreground: 222 47% 8%;
+
+    --muted: 222 30% 16%;
+    --muted-foreground: 215 20% 55%;
+
+    --destructive: 0 72% 51%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 222 20% 18%;
+    --input: 222 20% 18%;
+    --ring: 217 91% 60%;
+
+    --radius: 0.75rem;
+
+    /* Gradients */
+    --gradient-primary: linear-gradient(135deg, hsl(217 91% 60%) 0%, hsl(265 83% 57%) 100%);
+    --gradient-accent: linear-gradient(135deg, hsl(174 72% 56%) 0%, hsl(217 91% 60%) 100%);
+    --gradient-subtle: linear-gradient(180deg, hsl(222 47% 8%) 0%, hsl(222 47% 10%) 100%);
+    --gradient-card: linear-gradient(135deg, hsl(222 47% 14%) 0%, hsl(222 47% 10%) 100%);
+
+    /* Shadows */
+    --shadow-glow: 0 0 24px hsl(217 91% 60% / 0.25);
+    --shadow-card: 0 4px 24px hsl(0 0% 0% / 0.3);
+    --shadow-elegant: 0 8px 40px hsl(217 91% 60% / 0.15);
+
+    --sidebar-background: 222 47% 10%;
+    --sidebar-foreground: 210 40% 96%;
+    --sidebar-primary: 217 91% 60%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 222 30% 16%;
+    --sidebar-accent-foreground: 210 40% 96%;
+    --sidebar-border: 222 20% 18%;
+    --sidebar-ring: 217 91% 60%;
+  }
+
+  /* LIGHT theme */
+  .light {
+    --background: 220 20% 97%;
     --foreground: 222 47% 11%;
 
     --card: 0 0% 100%;
@@ -18,96 +75,43 @@ All colors MUST be HSL.
     --popover: 0 0% 100%;
     --popover-foreground: 222 47% 11%;
 
-    /* Primary: Electric Blue */
-    --primary: 210 100% 56%;
+    --primary: 217 91% 55%;
     --primary-foreground: 0 0% 100%;
-    --primary-glow: 210 100% 70%;
+    --primary-glow: 217 100% 68%;
 
-    /* Secondary: Vibrant Purple */
-    --secondary: 270 80% 60%;
+    --secondary: 265 83% 57%;
     --secondary-foreground: 0 0% 100%;
 
-    /* Accent: Bright Teal */
-    --accent: 180 80% 50%;
+    --accent: 174 72% 46%;
     --accent-foreground: 0 0% 100%;
 
-    --muted: 210 40% 96%;
+    --muted: 220 14% 93%;
     --muted-foreground: 215 16% 47%;
 
     --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 214 32% 91%;
-    --input: 214 32% 91%;
-    --ring: 210 100% 56%;
+    --border: 220 13% 88%;
+    --input: 220 13% 88%;
+    --ring: 217 91% 55%;
 
-    --radius: 1rem;
+    --gradient-primary: linear-gradient(135deg, hsl(217 91% 55%) 0%, hsl(265 83% 57%) 100%);
+    --gradient-accent: linear-gradient(135deg, hsl(174 72% 46%) 0%, hsl(217 91% 55%) 100%);
+    --gradient-subtle: linear-gradient(180deg, hsl(220 20% 97%) 0%, hsl(220 14% 93%) 100%);
+    --gradient-card: linear-gradient(135deg, hsl(0 0% 100%) 0%, hsl(220 20% 97%) 100%);
 
-    /* Gradients */
-    --gradient-primary: linear-gradient(135deg, hsl(210 100% 56%) 0%, hsl(270 80% 60%) 100%);
-    --gradient-accent: linear-gradient(135deg, hsl(180 80% 50%) 0%, hsl(210 100% 56%) 100%);
-    --gradient-subtle: linear-gradient(180deg, hsl(210 40% 98%) 0%, hsl(210 40% 96%) 100%);
-    
-    /* Shadows */
-    --shadow-glow: 0 8px 32px hsl(210 100% 56% / 0.2);
-    --shadow-card: 0 4px 16px hsl(222 47% 11% / 0.08);
-    --shadow-elegant: 0 10px 40px hsl(210 100% 56% / 0.15);
+    --shadow-glow: 0 0 24px hsl(217 91% 55% / 0.2);
+    --shadow-card: 0 4px 16px hsl(222 47% 11% / 0.06);
+    --shadow-elegant: 0 8px 40px hsl(217 91% 55% / 0.12);
 
     --sidebar-background: 0 0% 98%;
-
     --sidebar-foreground: 240 5.3% 26.1%;
-
-    --sidebar-primary: 240 5.9% 10%;
-
-    --sidebar-primary-foreground: 0 0% 98%;
-
-    --sidebar-accent: 240 4.8% 95.9%;
-
-    --sidebar-accent-foreground: 240 5.9% 10%;
-
-    --sidebar-border: 220 13% 91%;
-
-    --sidebar-ring: 217.2 91.2% 59.8%;
-  }
-
-  .dark {
-    --background: 222 47% 11%;
-    --foreground: 210 40% 98%;
-
-    --card: 222 47% 15%;
-    --card-foreground: 210 40% 98%;
-    --card-glass: 222 47% 15% / 0.7;
-
-    --popover: 222 47% 15%;
-    --popover-foreground: 210 40% 98%;
-
-    --primary: 210 100% 56%;
-    --primary-foreground: 0 0% 100%;
-    --primary-glow: 210 100% 70%;
-
-    --secondary: 270 80% 60%;
-    --secondary-foreground: 0 0% 100%;
-
-    --accent: 180 80% 50%;
-    --accent-foreground: 0 0% 100%;
-
-    --muted: 217 33% 18%;
-    --muted-foreground: 215 20% 65%;
-
-    --destructive: 0 63% 31%;
-    --destructive-foreground: 210 40% 98%;
-
-    --border: 217 33% 18%;
-    --input: 217 33% 18%;
-    --ring: 210 100% 56%;
-    --sidebar-background: 240 5.9% 10%;
-    --sidebar-foreground: 240 4.8% 95.9%;
-    --sidebar-primary: 224.3 76.3% 48%;
+    --sidebar-primary: 217 91% 55%;
     --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 240 3.7% 15.9%;
-    --sidebar-accent-foreground: 240 4.8% 95.9%;
-    --sidebar-border: 240 3.7% 15.9%;
-    --sidebar-ring: 217.2 91.2% 59.8%;
+    --sidebar-accent: 220 14% 93%;
+    --sidebar-accent-foreground: 240 5.9% 10%;
+    --sidebar-border: 220 13% 88%;
+    --sidebar-ring: 217 91% 55%;
   }
 }
 
@@ -117,13 +121,32 @@ All colors MUST be HSL.
   }
 
   body {
-    @apply bg-background text-foreground font-['Inter',sans-serif] antialiased;
+    @apply bg-background text-foreground font-['Plus_Jakarta_Sans',sans-serif] antialiased;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-family: 'Space Grotesk', sans-serif;
+    @apply tracking-tight;
   }
 }
 
 @layer utilities {
   .glass-card {
-    @apply backdrop-blur-xl bg-card/70 border border-border/50;
+    @apply backdrop-blur-xl border border-border/40;
+    background: linear-gradient(
+      135deg,
+      hsl(var(--card) / 0.8) 0%,
+      hsl(var(--card) / 0.4) 100%
+    );
+    box-shadow: 
+      0 0 0 1px hsl(var(--border) / 0.3),
+      inset 0 1px 0 0 hsl(var(--foreground) / 0.03);
+  }
+
+  .glass-nav {
+    @apply backdrop-blur-2xl border-b;
+    background: hsl(var(--background) / 0.8);
+    border-color: hsl(var(--border) / 0.5);
   }
   
   .gradient-primary {
@@ -133,9 +156,14 @@ All colors MUST be HSL.
   .gradient-accent {
     background: var(--gradient-accent);
   }
+
+  .gradient-card {
+    background: var(--gradient-card);
+  }
   
   .text-gradient {
-    @apply bg-gradient-to-r from-primary via-secondary to-accent bg-clip-text text-transparent;
+    @apply bg-clip-text text-transparent;
+    background-image: var(--gradient-primary);
   }
   
   .shadow-glow {
@@ -148,6 +176,20 @@ All colors MUST be HSL.
   
   .shadow-elegant {
     box-shadow: var(--shadow-elegant);
+  }
+
+  /* Stat card gradient backgrounds */
+  .stat-card-blue {
+    background: linear-gradient(135deg, hsl(217 91% 60% / 0.12) 0%, hsl(217 91% 60% / 0.04) 100%);
+    border-color: hsl(217 91% 60% / 0.2);
+  }
+  .stat-card-purple {
+    background: linear-gradient(135deg, hsl(265 83% 57% / 0.12) 0%, hsl(265 83% 57% / 0.04) 100%);
+    border-color: hsl(265 83% 57% / 0.2);
+  }
+  .stat-card-teal {
+    background: linear-gradient(135deg, hsl(174 72% 56% / 0.12) 0%, hsl(174 72% 56% / 0.04) 100%);
+    border-color: hsl(174 72% 56% / 0.2);
   }
 
   /* Button hover micro-interactions */
@@ -170,8 +212,8 @@ All colors MUST be HSL.
   }
   
   .card-hover-glow:hover {
-    box-shadow: 0 0 20px hsl(var(--primary) / 0.1), var(--shadow-elegant);
-    border-color: hsl(var(--primary) / 0.2);
+    box-shadow: 0 0 24px hsl(var(--primary) / 0.12), var(--shadow-elegant);
+    border-color: hsl(var(--primary) / 0.25);
   }
 
   /* Subtle background noise texture */
@@ -187,5 +229,14 @@ All colors MUST be HSL.
     opacity: 0.015;
     pointer-events: none;
     z-index: 0;
+  }
+
+  /* Glow orbs for backgrounds */
+  .glow-orb {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(80px);
+    opacity: 0.15;
+    pointer-events: none;
   }
 }
