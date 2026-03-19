@@ -450,6 +450,19 @@ const ProjectDetail = () => {
             </div>
           </div>
 
+          {/* ── Milestone Timeline ── */}
+          <MilestoneTimeline
+            projectId={id!}
+            isParticipant={isOwner || (user?.id === project.collaborator_id)}
+          />
+
+          {/* ── Project Log ── */}
+          <ProjectLogSection
+            projectId={id!}
+            isParticipant={isOwner || (user?.id === project.collaborator_id)}
+            project={project}
+          />
+
           {/* ── Comments ── */}
           <div className="rounded-xl border border-border/50 bg-card p-5">
             <h2 className="text-[14px] font-semibold text-foreground mb-4">
