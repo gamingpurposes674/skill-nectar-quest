@@ -20,6 +20,7 @@ import {
 import { AnimatedProgress } from "@/components/ui/animated-progress";
 import { ProjectLogSection, MilestoneTimeline } from "@/components/ProjectLogAndMilestones";
 import EditProjectDialog from "@/components/EditProjectDialog";
+import { toTitleCase } from "@/lib/textValidation";
 
 const ProjectDetail = () => {
   const { id } = useParams<{ id: string }>();
@@ -251,7 +252,7 @@ const ProjectDetail = () => {
               <ArrowLeft className="h-4 w-4" />
             </Button>
             <h1 className="text-sm font-semibold text-foreground truncate max-w-[200px]">
-              {project.title}
+              {toTitleCase(project.title)}
             </h1>
           </div>
           <div className="flex items-center gap-2">
@@ -283,7 +284,7 @@ const ProjectDetail = () => {
             <div className="flex items-start justify-between gap-4 flex-wrap">
               <div className="space-y-1 flex-1">
                 <h1 className="text-2xl font-bold tracking-tight font-['Space_Grotesk',sans-serif] text-foreground">
-                  {project.title}
+                  {toTitleCase(project.title)}
                 </h1>
                 <div className="flex items-center gap-3 text-[13px] text-muted-foreground">
                   {creator && (

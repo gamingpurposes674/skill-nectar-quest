@@ -37,6 +37,7 @@ import { SkeletonCard, SkeletonStats } from "@/components/ui/skeleton-card";
 import { CountUp } from "@/components/ui/count-up";
 import { AnimatedProgress } from "@/components/ui/animated-progress";
 import { useReducedMotion } from "@/hooks/use-reduced-motion";
+import { toTitleCase } from "@/lib/textValidation";
 
 const Dashboard = () => {
   const { user, signOut } = useAuth();
@@ -439,21 +440,21 @@ const Dashboard = () => {
             {/* Main Feed */}
             <motion.div variants={prefersReducedMotion ? undefined : itemVariants}>
               <Tabs defaultValue="feed">
-                <div className="flex justify-between items-center mb-5">
-                  <TabsList className="bg-muted/50 backdrop-blur-sm p-1 rounded-xl border border-border/40">
-                    <TabsTrigger value="feed" className="rounded-lg data-[state=active]:bg-accent data-[state=active]:text-accent-foreground data-[state=active]:shadow-[0_0_16px_hsl(var(--accent)/0.4)] transition-all duration-200">
-                      <Sparkles className="h-3.5 w-3.5 mr-1.5" />
+                <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 mb-5">
+                  <TabsList className="bg-muted/50 backdrop-blur-sm p-1 rounded-xl border border-border/40 flex-wrap">
+                    <TabsTrigger value="feed" className="rounded-lg text-xs sm:text-sm data-[state=active]:bg-accent data-[state=active]:text-accent-foreground data-[state=active]:shadow-[0_0_16px_hsl(var(--accent)/0.4)] transition-all duration-200">
+                      <Sparkles className="h-3.5 w-3.5 mr-1 sm:mr-1.5" />
                       Feed
                     </TabsTrigger>
-                    <TabsTrigger value="my-projects" className="rounded-lg data-[state=active]:bg-accent data-[state=active]:text-accent-foreground data-[state=active]:shadow-[0_0_16px_hsl(var(--accent)/0.4)] transition-all duration-200">
+                    <TabsTrigger value="my-projects" className="rounded-lg text-xs sm:text-sm data-[state=active]:bg-accent data-[state=active]:text-accent-foreground data-[state=active]:shadow-[0_0_16px_hsl(var(--accent)/0.4)] transition-all duration-200">
                       My Projects
                     </TabsTrigger>
-                    <TabsTrigger value="collaborations" className="rounded-lg data-[state=active]:bg-accent data-[state=active]:text-accent-foreground data-[state=active]:shadow-[0_0_16px_hsl(var(--accent)/0.4)] transition-all duration-200">
-                      <Users className="h-3.5 w-3.5 mr-1.5" />
-                      Collaborations
+                    <TabsTrigger value="collaborations" className="rounded-lg text-xs sm:text-sm data-[state=active]:bg-accent data-[state=active]:text-accent-foreground data-[state=active]:shadow-[0_0_16px_hsl(var(--accent)/0.4)] transition-all duration-200">
+                      <Users className="h-3.5 w-3.5 mr-1 sm:mr-1.5" />
+                      Collabs
                     </TabsTrigger>
-                    <TabsTrigger value="updates" className="rounded-lg data-[state=active]:bg-accent data-[state=active]:text-accent-foreground data-[state=active]:shadow-[0_0_16px_hsl(var(--accent)/0.4)] transition-all duration-200">
-                      <Clock className="h-3.5 w-3.5 mr-1.5" />
+                    <TabsTrigger value="updates" className="rounded-lg text-xs sm:text-sm data-[state=active]:bg-accent data-[state=active]:text-accent-foreground data-[state=active]:shadow-[0_0_16px_hsl(var(--accent)/0.4)] transition-all duration-200">
+                      <Clock className="h-3.5 w-3.5 mr-1 sm:mr-1.5" />
                       Updates
                     </TabsTrigger>
                   </TabsList>
@@ -486,11 +487,11 @@ const Dashboard = () => {
 
                 <TabsContent value="feed" className="space-y-4">
                   {/* Filter bar */}
-                  <div className="flex flex-wrap gap-2">
+                  <div className="flex flex-wrap gap-2 overflow-x-auto">
                     <select
                       value={filterSkill}
                       onChange={(e) => setFilterSkill(e.target.value)}
-                      className="h-8 rounded-lg border border-border/50 bg-muted/30 px-2.5 text-[11px] text-foreground focus:outline-none focus:ring-2 focus:ring-ring"
+                      className="h-8 rounded-lg border border-border/50 bg-muted/30 px-2.5 text-[11px] text-foreground focus:outline-none focus:ring-2 focus:ring-ring min-w-0"
                     >
                       <option value="All">All Skills</option>
                       {["Python","JavaScript","React","Java","C++","Machine Learning","Data Analysis","UI/UX Design","Graphic Design","Research","Marketing","Business Strategy"].map(s => (
@@ -658,7 +659,7 @@ const Dashboard = () => {
                                 <div className="flex justify-between items-start">
                                   <div className="flex-1">
                                     <div className="flex items-center gap-2 mb-1">
-                                      <h3 className="font-semibold text-lg">{project.title}</h3>
+                                      <h3 className="font-semibold text-lg">{toTitleCase(project.title)}</h3>
                                       {project.validation_status && (
                                         <Badge 
                                           variant={project.validation_status === 'approved' ? 'default' : 'destructive'}
@@ -780,7 +781,7 @@ const Dashboard = () => {
                                   </Link>
                                   <span className="text-muted-foreground">posted an update on</span>
                                   <Link to={`/project/${log.project_id}`} className="font-medium text-accent hover:underline underline-offset-2">
-                                    {log.project?.title || "a project"}
+                                    {toTitleCase(log.project?.title || "a project")}
                                   </Link>
                                 </div>
                                 <p className="text-[13px] text-muted-foreground leading-relaxed">{log.content}</p>

@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { toTitleCase } from "@/lib/textValidation";
 import { Button } from "@/components/ui/button";
 import { Users, Clock, Images, ChevronLeft, ChevronRight, X } from "lucide-react";
 import { useReducedMotion } from "@/hooks/use-reduced-motion";
@@ -136,7 +137,7 @@ const CollaborationCard = ({
             <div className="flex items-start justify-between gap-3">
               <div className="min-w-0 flex-1">
                 <h3 className="text-lg font-bold leading-snug text-foreground tracking-tight font-['Space_Grotesk',sans-serif]">
-                  {title}
+                  {toTitleCase(title)}
                 </h3>
                 <p className="text-[12px] text-muted-foreground mt-0.5">
                   by{" "}

@@ -37,6 +37,7 @@ import ReactionsAndComments from "@/components/ReactionsAndComments";
 import ConnectionButton from "@/components/ConnectionButton";
 import { useVerifiedSkills, useCollabScore } from "@/hooks/use-collab-data";
 import { CheckCircle2, Shield } from "lucide-react";
+import { toTitleCase } from "@/lib/textValidation";
 
 interface Profile {
   id: string;
@@ -438,11 +439,11 @@ const ProfilePage = () => {
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2 mb-1.5 flex-wrap">
             <h3
-              className={`font-bold tracking-tight font-['Space_Grotesk',sans-serif] ${
+              className={`font-bold tracking-tight font-['Space_Grotesk',sans-serif] break-words ${
                 featured ? "text-base" : "text-[14px]"
               }`}
             >
-              {project.title}
+              {toTitleCase(project.title)}
             </h3>
             <span
               className={`px-2 py-0.5 rounded-full text-[10px] font-medium border ${

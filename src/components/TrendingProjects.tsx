@@ -5,6 +5,7 @@ import { TrendingUp, Clock } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { Link } from "react-router-dom";
 import { useReducedMotion } from "@/hooks/use-reduced-motion";
+import { toTitleCase } from "@/lib/textValidation";
 
 interface TrendingProject {
   id: string;
@@ -102,11 +103,11 @@ const TrendingProjects = () => {
         </h2>
       </div>
 
-      <div className="flex gap-4 overflow-x-auto pb-2 scrollbar-hide">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
         {projects.map((project, index) => (
           <motion.div
             key={project.id}
-            className="min-w-[260px] max-w-[280px] flex-shrink-0"
+            className="w-full"
             initial={prefersReducedMotion ? undefined : { opacity: 0, y: 12 }}
             animate={prefersReducedMotion ? undefined : { opacity: 1, y: 0 }}
             transition={{ delay: index * 0.08, duration: 0.3 }}
@@ -132,7 +133,7 @@ const TrendingProjects = () => {
               </div>
 
               <h3 className="text-[14px] font-bold text-foreground leading-snug mb-1.5 line-clamp-2 font-['Space_Grotesk',sans-serif]">
-                {project.title}
+                {toTitleCase(project.title)}
               </h3>
 
               <p className="text-[11px] text-muted-foreground leading-relaxed line-clamp-2 mb-3">

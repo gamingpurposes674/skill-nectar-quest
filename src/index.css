@@ -240,4 +240,15 @@
   .scrollbar-hide::-webkit-scrollbar {
     display: none;
   }
+
+  /* Global mobile overflow prevention */
+  body, html {
+    overflow-x: hidden;
+  }
+
+  /* Ensure text doesn't overflow containers */
+  .break-anywhere {
+    overflow-wrap: anywhere;
+    word-break: break-word;
+  }
 }
