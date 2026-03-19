@@ -14,6 +14,7 @@ import Profile from "./pages/Profile";
 import Discover from "./pages/Discover";
 import NotFound from "./pages/NotFound";
 import ProjectDetail from "./pages/ProjectDetail";
+import BrowseProfiles from "./pages/BrowseProfiles";
 
 const queryClient = new QueryClient();
 
