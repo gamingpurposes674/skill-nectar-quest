@@ -452,6 +452,10 @@ const Dashboard = () => {
                       <Users className="h-3.5 w-3.5 mr-1.5" />
                       Collaborations
                     </TabsTrigger>
+                    <TabsTrigger value="updates" className="rounded-lg data-[state=active]:bg-accent data-[state=active]:text-accent-foreground data-[state=active]:shadow-[0_0_16px_hsl(var(--accent)/0.4)] transition-all duration-200">
+                      <Clock className="h-3.5 w-3.5 mr-1.5" />
+                      Updates
+                    </TabsTrigger>
                   </TabsList>
                   
                   <DropdownMenu>
