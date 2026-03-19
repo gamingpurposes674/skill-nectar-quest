@@ -191,6 +191,7 @@ export type Database = {
           id: string
           is_anonymous: boolean | null
           profile_id: string
+          project_id: string | null
           reaction_type: string | null
         }
         Insert: {
@@ -200,6 +201,7 @@ export type Database = {
           id?: string
           is_anonymous?: boolean | null
           profile_id: string
+          project_id?: string | null
           reaction_type?: string | null
         }
         Update: {
@@ -209,6 +211,7 @@ export type Database = {
           id?: string
           is_anonymous?: boolean | null
           profile_id?: string
+          project_id?: string | null
           reaction_type?: string | null
         }
         Relationships: [
@@ -217,6 +220,13 @@ export type Database = {
             columns: ["profile_id"]
             isOneToOne: false
             referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "feedback_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
             referencedColumns: ["id"]
           },
         ]
