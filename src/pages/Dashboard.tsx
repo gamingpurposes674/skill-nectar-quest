@@ -284,16 +284,8 @@ const Dashboard = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted">
-        <nav className="border-b border-border/50 bg-card/50 backdrop-blur-lg sticky top-0 z-50">
-          <div className="container mx-auto px-4 h-16 flex items-center justify-between">
-            <div className="h-6 w-24 bg-muted rounded animate-pulse" />
-            <div className="flex items-center gap-2">
-              <div className="h-8 w-8 rounded-full bg-muted animate-pulse" />
-              <div className="h-8 w-8 rounded-full bg-muted animate-pulse" />
-            </div>
-          </div>
-        </nav>
+      <div className="min-h-screen bg-background">
+        <TopNav profile={null} />
         <div className="container mx-auto px-4 py-8 max-w-7xl">
           <div className="grid gap-6 lg:grid-cols-3">
             <div className="lg:col-span-2 space-y-6">
