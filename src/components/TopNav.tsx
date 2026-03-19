@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import { Search, LogOut, Compass, Users as UsersIcon, FolderOpen } from "lucide-react";
+import { Search, LogOut, Compass, Users as UsersIcon, FolderOpen, Shield } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Input } from "@/components/ui/input";
@@ -28,6 +28,14 @@ export default function TopNav({ profile }: TopNavProps) {
   const navigate = useNavigate();
   const prefersReducedMotion = useReducedMotion();
   const [searchQuery, setSearchQuery] = useState("");
+  const [isAdmin, setIsAdmin] = useState(false);
+
+  useEffect(() => {
+    if (!user) return;
+    supabase.rpc("has_role", { _user_id: user.id, _role: "admin" }).then(({ data }) => {
+      if (data) setIsAdmin(true);
+    });
+  }, [user]);
   const [results, setResults] = useState<SearchResult>({ projects: [], people: [] });
   const [showResults, setShowResults] = useState(false);
   const [searching, setSearching] = useState(false);
@@ -226,6 +234,19 @@ export default function TopNav({ profile }: TopNavProps) {
               </Link>
             </Button>
           </motion.div>
+
+          {isAdmin && (
+            <motion.div
+              whileHover={prefersReducedMotion ? undefined : { scale: 1.05 }}
+              whileTap={prefersReducedMotion ? undefined : { scale: 0.95 }}
+            >
+              <Button variant="ghost" size="icon" asChild>
+                <Link to="/admin">
+                  <Shield className="h-5 w-5 text-primary" />
+                </Link>
+              </Button>
+            </motion.div>
+          )}
 
           <NotificationsMenu />
           <ThemeToggle />

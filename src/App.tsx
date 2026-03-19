@@ -15,6 +15,7 @@ import Discover from "./pages/Discover";
 import NotFound from "./pages/NotFound";
 import ProjectDetail from "./pages/ProjectDetail";
 import BrowseProfiles from "./pages/BrowseProfiles";
+import Admin from "./pages/Admin";
 
 const queryClient = new QueryClient();
 
@@ -66,6 +67,14 @@ const App = () => (
                 element={
                   <ProtectedRoute>
                     <BrowseProfiles />
+                  </ProtectedRoute>
+                } 
+              />
+              <Route 
+                path="/admin" 
+                element={
+                  <ProtectedRoute>
+                    <Admin />
                   </ProtectedRoute>
                 } 
               />

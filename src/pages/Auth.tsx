@@ -6,8 +6,10 @@ import { Label } from "@/components/ui/label";
 import { Card } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useAuth } from "@/contexts/AuthContext";
+import { supabase } from "@/integrations/supabase/client";
 import { Loader2, ArrowLeft } from "lucide-react";
 import { Link } from "react-router-dom";
+import { toast } from "sonner";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -22,6 +24,9 @@ import {
 const Auth = () => {
   const [loading, setLoading] = useState(false);
   const [showConfirmDialog, setShowConfirmDialog] = useState(false);
+  const [failedAttempts, setFailedAttempts] = useState(0);
+  const [showResetOption, setShowResetOption] = useState(false);
+  const [resetLoading, setResetLoading] = useState(false);
   const [signUpData, setSignUpData] = useState({
     fullName: "",
     email: "",
@@ -57,10 +62,37 @@ const Auth = () => {
     setLoading(true);
     try {
       await signIn(signInData.email, signInData.password);
-    } catch (error) {
-      console.error("Sign in error:", error);
+      setFailedAttempts(0);
+      setShowResetOption(false);
+    } catch (error: any) {
+      const newCount = failedAttempts + 1;
+      setFailedAttempts(newCount);
+      if (newCount >= 3) {
+        setShowResetOption(true);
+      }
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleResetPassword = async () => {
+    if (!signInData.email) {
+      toast.error("Please enter your email address first");
+      return;
+    }
+    setResetLoading(true);
+    try {
+      const { error } = await supabase.auth.resetPasswordForEmail(signInData.email, {
+        redirectTo: `${window.location.origin}/auth`,
+      });
+      if (error) throw error;
+      toast.success("Password reset link sent to your email!");
+      setShowResetOption(false);
+      setFailedAttempts(0);
+    } catch (error: any) {
+      toast.error(error.message || "Failed to send reset link");
+    } finally {
+      setResetLoading(false);
     }
   };
 
@@ -74,7 +106,7 @@ const Auth = () => {
         
         <Card className="glass-card shadow-elegant p-8 animate-scale-in">
           <div className="text-center mb-6">
-            <h1 className="text-3xl font-bold text-gradient mb-2">Welcome to ConnectEd</h1>
+            <h1 className="text-3xl font-bold text-gradient mb-2">Welcome to NexStep</h1>
             <p className="text-muted-foreground">Join thousands of students building their future</p>
           </div>
 
@@ -161,6 +193,24 @@ const Auth = () => {
                   {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                   Sign In
                 </Button>
+
+                {showResetOption && (
+                  <div className="text-center pt-2 border-t border-border mt-4">
+                    <p className="text-sm text-muted-foreground mb-2">
+                      Too many failed attempts. Need to reset your password?
+                    </p>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={handleResetPassword}
+                      disabled={resetLoading}
+                    >
+                      {resetLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                      Reset Password
+                    </Button>
+                  </div>
+                )}
               </form>
             </TabsContent>
           </Tabs>
