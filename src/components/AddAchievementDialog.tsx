@@ -212,7 +212,11 @@ const AddAchievementDialog = ({ open, onOpenChange, onSuccess }: AddAchievementD
                 <Calendar
                   mode="single"
                   selected={date}
-                  onSelect={setDate}
+                  onSelect={(selected) => {
+                    setDate(selected);
+                    setDateError(validateOptionalDate(selected));
+                  }}
+                  disabled={(d) => !!validateOptionalDate(d)}
                   initialFocus
                   className="pointer-events-auto"
                 />
