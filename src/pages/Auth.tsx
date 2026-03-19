@@ -237,22 +237,9 @@ const Auth = () => {
                   Sign In
                 </Button>
 
-                <div className="text-center pt-1">
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setShowForgotPassword(true);
-                      setResetEmail(signInData.email);
-                    }}
-                    className="text-sm text-muted-foreground hover:text-primary transition-colors underline-offset-4 hover:underline"
-                  >
-                    Forgot Password?
-                  </button>
-                </div>
-
                 {failedAttempts >= 3 && (
                   <p className="text-xs text-center text-muted-foreground">
-                    Multiple failed attempts detected. Try resetting your password above.
+                    Sign in to your account, then change your password from Edit Profile.
                   </p>
                 )}
               </form>
