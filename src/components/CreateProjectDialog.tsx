@@ -131,6 +131,41 @@ const CreateProjectDialog = ({ open, onOpenChange, onSuccess, userMajor, userGra
     return publicUrl;
   };
 
+  const uploadCoverImage = async (): Promise<string | null> => {
+    if (!coverFile || !user) return null;
+
+    const fileExt = coverFile.name.split('.').pop();
+    const fileName = `${user.id}/cover_${Date.now()}.${fileExt}`;
+
+    const { error: uploadError } = await supabase.storage
+      .from('project-proofs')
+      .upload(fileName, coverFile);
+
+    if (uploadError) {
+      console.error("Error uploading cover:", uploadError);
+      throw uploadError;
+    }
+
+    const { data: { publicUrl } } = supabase.storage
+      .from('project-proofs')
+      .getPublicUrl(fileName);
+
+    return publicUrl;
+  };
+
+  const handleCoverFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (file.size > 5 * 1024 * 1024) {
+      toast.error("Cover image must be less than 5MB");
+      return;
+    }
+    setCoverFile(file);
+    const reader = new FileReader();
+    reader.onloadend = () => setCoverPreview(reader.result as string);
+    reader.readAsDataURL(file);
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
