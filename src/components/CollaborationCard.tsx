@@ -12,6 +12,7 @@ interface CollaborationCardProps {
   title: string;
   author: string;
   authorId?: string;
+  ownerId?: string;
   avatar: string;
   description: string;
   skills: string[];
