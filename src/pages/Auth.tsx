@@ -8,9 +8,20 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useAuth } from "@/contexts/AuthContext";
 import { Loader2, ArrowLeft } from "lucide-react";
 import { Link } from "react-router-dom";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 const Auth = () => {
   const [loading, setLoading] = useState(false);
+  const [showConfirmDialog, setShowConfirmDialog] = useState(false);
   const [signUpData, setSignUpData] = useState({
     fullName: "",
     email: "",
@@ -24,8 +35,13 @@ const Auth = () => {
   const { signUp, signIn } = useAuth();
   const navigate = useNavigate();
 
-  const handleSignUp = async (e: React.FormEvent) => {
+  const handleSignUpSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    setShowConfirmDialog(true);
+  };
+
+  const handleConfirmSignUp = async () => {
+    setShowConfirmDialog(false);
     setLoading(true);
     try {
       await signUp(signUpData.email, signUpData.password, signUpData.fullName);

@@ -622,13 +622,12 @@ const Profile = () => {
             open={editDialogOpen}
             onOpenChange={setEditDialogOpen}
             profile={profile}
-            onProfileUpdate={loadProfileData}
+            onSuccess={loadProfileData}
           />
           <AddAchievementDialog
             open={achievementDialogOpen}
             onOpenChange={setAchievementDialogOpen}
-            profileId={profile.id}
-            onAchievementAdded={loadProfileData}
+            onSuccess={loadProfileData}
           />
         </>
       )}

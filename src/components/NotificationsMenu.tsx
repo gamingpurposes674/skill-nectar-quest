@@ -160,15 +160,26 @@ const NotificationsMenu = () => {
       .from("collaboration_requests")
       .select(`
         *,
-        projects:project_id(title, user_id),
-        profiles:requester_id(full_name, avatar_url)
+        projects:project_id(title, user_id)
       `)
       .eq("status", "pending");
 
     if (!error && data) {
-      // Filter to only include requests for the user's projects
-      const myRequests = data.filter((req: any) => req.projects?.user_id === user.id);
-      setCollaborationRequests(myRequests);
+      const myRequests = (data as any[]).filter((req) => req.projects?.user_id === user.id);
+      const requestsWithProfiles = await Promise.all(
+        myRequests.map(async (req) => {
+          const { data: profileData } = await supabase
+            .from("profiles")
+            .select("full_name, avatar_url")
+            .eq("id", req.requester_id)
+            .single();
+          return {
+            ...req,
+            profiles: profileData || { full_name: "Unknown", avatar_url: "" },
+          };
+        })
+      );
+      setCollaborationRequests(requestsWithProfiles);
     }
   };
 
