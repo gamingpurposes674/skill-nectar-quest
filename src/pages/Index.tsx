@@ -144,10 +144,10 @@ const Index = () => {
             {features.map((feature, idx) => (
               <Card 
                 key={idx} 
-                className="glass-card shadow-card p-6 hover:shadow-elegant transition-all duration-300 group animate-scale-in"
+                className="glass-card shadow-card p-6 card-hover-glow group animate-scale-in"
                 style={{ animationDelay: `${idx * 100}ms` }}
               >
-                <div className="p-3 rounded-xl bg-gradient-primary w-fit mb-4 group-hover:scale-110 transition-transform">
+                <div className="p-3 rounded-xl gradient-primary w-fit mb-4 group-hover:scale-110 transition-transform">
                   <feature.icon className="h-6 w-6 text-primary-foreground" />
                 </div>
                 <h3 className="text-xl font-semibold mb-2">{feature.title}</h3>
