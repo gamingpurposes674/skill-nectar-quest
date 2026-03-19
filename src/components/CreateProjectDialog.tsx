@@ -53,6 +53,7 @@ const CreateProjectDialog = ({ open, onOpenChange, onSuccess, userMajor, userGra
   const [coverFile, setCoverFile] = useState<File | null>(null);
   const [coverPreview, setCoverPreview] = useState<string | null>(null);
   const [showMismatchDialog, setShowMismatchDialog] = useState(false);
+  const [showNoProofDialog, setShowNoProofDialog] = useState(false);
   const [pendingSubmit, setPendingSubmit] = useState(false);
   const [createdProjectId, setCreatedProjectId] = useState<string | null>(null);
   const [showCollabOptIn, setShowCollabOptIn] = useState(false);
