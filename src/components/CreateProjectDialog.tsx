@@ -201,8 +201,10 @@ const CreateProjectDialog = ({ open, onOpenChange, onSuccess, userMajor, userGra
       return;
     }
 
-    if (!proofFile) {
-      toast.error("Upload a valid proof before submitting your project");
+    // If no proof file, show friendly warning but allow proceeding
+    if (!proofFile && !pendingSubmit) {
+      setShowNoProofDialog(true);
+      setPendingSubmit(true);
       return;
     }
 
