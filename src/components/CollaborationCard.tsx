@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { toTitleCase } from "@/lib/textValidation";
 import { Button } from "@/components/ui/button";
 import { Users, Clock, Images, ChevronLeft, ChevronRight, X } from "lucide-react";
 import { useReducedMotion } from "@/hooks/use-reduced-motion";
