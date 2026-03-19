@@ -6,6 +6,8 @@ import { Label } from "@/components/ui/label";
 import { Card } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useAuth } from "@/contexts/AuthContext";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
 import { Loader2, ArrowLeft } from "lucide-react";
 import { Link } from "react-router-dom";
 import {
@@ -23,6 +25,11 @@ const Auth = () => {
   const [loading, setLoading] = useState(false);
   const [showConfirmDialog, setShowConfirmDialog] = useState(false);
   const [failedAttempts, setFailedAttempts] = useState(0);
+  const [changePasswordData, setChangePasswordData] = useState({
+    email: "",
+    newPassword: "",
+    confirmPassword: "",
+  });
   const [signUpData, setSignUpData] = useState({
     fullName: "",
     email: "",
@@ -67,6 +74,40 @@ const Auth = () => {
     }
   };
 
+  const handleChangePassword = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (changePasswordData.newPassword.length < 6) {
+      toast.error("Password must be at least 6 characters");
+      return;
+    }
+    if (changePasswordData.newPassword !== changePasswordData.confirmPassword) {
+      toast.error("Passwords do not match");
+      return;
+    }
+    setLoading(true);
+    try {
+      const { error: signInError } = await supabase.auth.signInWithPassword({
+        email: changePasswordData.email,
+        password: changePasswordData.newPassword,
+      });
+      // Try to get existing session or sign in won't matter - we use updateUser
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) {
+        toast.error("Please sign in first, then change your password from Edit Profile.");
+        return;
+      }
+      const { error } = await supabase.auth.updateUser({ password: changePasswordData.newPassword });
+      if (error) throw error;
+      await supabase.auth.signOut();
+      setChangePasswordData({ email: "", newPassword: "", confirmPassword: "" });
+      toast.success("Password changed successfully! Please sign in with your new password.");
+    } catch (error: any) {
+      toast.error(error.message || "Failed to change password");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted flex items-center justify-center p-4">
       <div className="w-full max-w-md">
@@ -82,9 +123,10 @@ const Auth = () => {
           </div>
 
           <Tabs defaultValue="signup" className="w-full">
-            <TabsList className="grid w-full grid-cols-2">
+            <TabsList className="grid w-full grid-cols-3">
               <TabsTrigger value="signup">Sign Up</TabsTrigger>
               <TabsTrigger value="signin">Sign In</TabsTrigger>
+              <TabsTrigger value="change">Change Password</TabsTrigger>
             </TabsList>
 
             <TabsContent value="signup">
@@ -170,6 +212,54 @@ const Auth = () => {
                     Sign in to your account, then change your password from Edit Profile.
                   </p>
                 )}
+              </form>
+            </TabsContent>
+
+            <TabsContent value="change">
+              <form onSubmit={handleChangePassword} className="space-y-4 mt-4">
+                <div>
+                  <Label htmlFor="change-email">Email</Label>
+                  <Input
+                    id="change-email"
+                    type="email"
+                    placeholder="you@school.edu"
+                    value={changePasswordData.email}
+                    onChange={(e) => setChangePasswordData({ ...changePasswordData, email: e.target.value })}
+                    required
+                    disabled={loading}
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="change-new-password">New Password</Label>
+                  <Input
+                    id="change-new-password"
+                    type="password"
+                    placeholder="••••••••"
+                    value={changePasswordData.newPassword}
+                    onChange={(e) => setChangePasswordData({ ...changePasswordData, newPassword: e.target.value })}
+                    required
+                    minLength={6}
+                    disabled={loading}
+                  />
+                  <p className="text-xs text-muted-foreground mt-1">At least 6 characters</p>
+                </div>
+                <div>
+                  <Label htmlFor="change-confirm-password">Confirm New Password</Label>
+                  <Input
+                    id="change-confirm-password"
+                    type="password"
+                    placeholder="••••••••"
+                    value={changePasswordData.confirmPassword}
+                    onChange={(e) => setChangePasswordData({ ...changePasswordData, confirmPassword: e.target.value })}
+                    required
+                    minLength={6}
+                    disabled={loading}
+                  />
+                </div>
+                <Button type="submit" className="w-full gradient-primary shadow-glow" disabled={loading}>
+                  {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                  Save
+                </Button>
               </form>
             </TabsContent>
           </Tabs>
