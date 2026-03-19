@@ -162,6 +162,33 @@ const Dashboard = () => {
         setProfilesMap(newProfilesMap);
       }
 
+      // Load recent project logs for Updates tab
+      const { data: logsData } = await supabase
+        .from("project_logs")
+        .select("*")
+        .order("created_at", { ascending: false })
+        .limit(30);
+
+      if (logsData) {
+        // Load author and project info
+        const logAuthorIds = [...new Set(logsData.map((l: any) => l.author_id))];
+        const logProjectIds = [...new Set(logsData.map((l: any) => l.project_id))];
+        
+        const [{ data: logProfiles }, { data: logProjectsData }] = await Promise.all([
+          supabase.from("profiles").select("id, full_name, avatar_url").in("id", logAuthorIds.length ? logAuthorIds : ["_"]),
+          supabase.from("projects").select("id, title").in("id", logProjectIds.length ? logProjectIds : ["_"]),
+        ]);
+
+        const profileMap = new Map((logProfiles || []).map((p: any) => [p.id, p]));
+        const projectMap = new Map((logProjectsData || []).map((p: any) => [p.id, p]));
+
+        setProjectLogs(logsData.map((l: any) => ({
+          ...l,
+          author: profileMap.get(l.author_id),
+          project: projectMap.get(l.project_id),
+        })));
+      }
+
     } catch (error: any) {
       console.error("Error loading data:", error);
       toast.error("Failed to load dashboard data");
