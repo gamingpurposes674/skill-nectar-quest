@@ -143,7 +143,13 @@ const ProjectDetail = () => {
           reference_type: "project",
         });
       }
-      setComments((prev) => [...prev, data]);
+      const { data: authorProfile } = await supabase
+        .from("profiles")
+        .select("full_name, avatar_url")
+        .eq("id", user.id)
+        .single();
+
+      setComments((prev) => [...prev, { ...data, author: authorProfile }]);
       setNewComment("");
       toast.success("Comment posted");
     } catch (err: any) {
