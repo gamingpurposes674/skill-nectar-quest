@@ -133,7 +133,7 @@ const TrendingProjects = () => {
               </div>
 
               <h3 className="text-[14px] font-bold text-foreground leading-snug mb-1.5 line-clamp-2 font-['Space_Grotesk',sans-serif]">
-                {project.title}
+                {toTitleCase(project.title)}
               </h3>
 
               <p className="text-[11px] text-muted-foreground leading-relaxed line-clamp-2 mb-3">

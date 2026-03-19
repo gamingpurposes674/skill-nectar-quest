@@ -781,7 +781,7 @@ const Dashboard = () => {
                                   </Link>
                                   <span className="text-muted-foreground">posted an update on</span>
                                   <Link to={`/project/${log.project_id}`} className="font-medium text-accent hover:underline underline-offset-2">
-                                    {log.project?.title || "a project"}
+                                    {toTitleCase(log.project?.title || "a project")}
                                   </Link>
                                 </div>
                                 <p className="text-[13px] text-muted-foreground leading-relaxed">{log.content}</p>
