@@ -1,11 +1,35 @@
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Users } from "lucide-react";
+import { Puzzle } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { Link } from "react-router-dom";
 import { useReducedMotion } from "@/hooks/use-reduced-motion";
 import ConnectionButton from "@/components/ConnectionButton";
+
+// Complementary skill mapping — each skill maps to skills that pair well with it
+const COMPLEMENTARY_MAP: Record<string, string[]> = {
+  "Python": ["UI/UX Design", "Marketing", "Business Strategy", "Graphic Design", "Public Speaking"],
+  "JavaScript": ["Python", "UI/UX Design", "Business Strategy", "Data Analysis"],
+  "React": ["Python", "Data Analysis", "Machine Learning", "Business Strategy"],
+  "Java": ["UI/UX Design", "Graphic Design", "Marketing", "Data Analysis"],
+  "C++": ["UI/UX Design", "Research", "Data Analysis", "3D Modeling"],
+  "Node.js": ["UI/UX Design", "Graphic Design", "Marketing", "Data Analysis"],
+  "HTML": ["Python", "Data Analysis", "Machine Learning", "Business Strategy"],
+  "CSS": ["Python", "JavaScript", "Data Analysis", "Business Strategy"],
+  "Machine Learning": ["UI/UX Design", "Business Strategy", "Marketing", "Public Speaking"],
+  "Data Analysis": ["UI/UX Design", "Graphic Design", "Creative Writing", "Marketing"],
+  "UI/UX Design": ["Python", "JavaScript", "React", "Data Analysis", "Machine Learning"],
+  "Graphic Design": ["Python", "JavaScript", "Data Analysis", "Marketing", "Business Strategy"],
+  "Video Editing": ["Python", "Marketing", "Creative Writing", "Public Speaking"],
+  "3D Modeling": ["Python", "JavaScript", "Marketing", "Data Analysis"],
+  "Creative Writing": ["Data Analysis", "Python", "Graphic Design", "Marketing"],
+  "Photography": ["Python", "Graphic Design", "Video Editing", "Marketing"],
+  "Public Speaking": ["Python", "Data Analysis", "UI/UX Design", "Research"],
+  "Business Strategy": ["Python", "JavaScript", "React", "Data Analysis", "UI/UX Design"],
+  "Marketing": ["Python", "JavaScript", "Data Analysis", "UI/UX Design"],
+  "Research": ["UI/UX Design", "Python", "Marketing", "Creative Writing"],
+};
 
 interface SuggestedProfile {
   id: string;
@@ -43,12 +67,21 @@ const SuggestedCollaborators = ({
       if (error) throw error;
       if (!profiles) return;
 
-      const mySkills = new Set(currentUserSkills || []);
+      // Build set of complementary skills for current user
+      const mySkills = currentUserSkills || [];
+      const wantedSkills = new Set<string>();
+      mySkills.forEach((s) => {
+        const complements = COMPLEMENTARY_MAP[s] || [];
+        complements.forEach((c) => wantedSkills.add(c));
+      });
+      // Remove skills the user already has
+      mySkills.forEach((s) => wantedSkills.delete(s));
 
-      // Score by overlapping skills, take top 4
+      // Score by how many complementary skills each profile has
       const scored = profiles
         .map((p) => {
-          const overlap = (p.skills || []).filter((s: string) => mySkills.has(s)).length;
+          const theirSkills = p.skills || [];
+          const overlap = theirSkills.filter((s: string) => wantedSkills.has(s)).length;
           return { ...p, score: overlap };
         })
         .filter((p) => p.score > 0)
@@ -68,9 +101,9 @@ const SuggestedCollaborators = ({
   return (
     <div className="space-y-3">
       <div className="flex items-center gap-2">
-        <Users className="h-4 w-4 text-accent" />
+        <Puzzle className="h-4 w-4 text-accent" />
         <h2 className="text-sm font-semibold text-foreground tracking-tight">
-          Suggested Collaborators
+          Find Your Missing Piece
         </h2>
       </div>
 
@@ -108,7 +141,7 @@ const SuggestedCollaborators = ({
 
               <div className="flex items-center justify-between mt-3 gap-2">
                 {(profile.skills || []).length > 0 && (
-                  <span className="px-2 py-0.5 rounded-full text-[10px] font-medium bg-muted/50 text-muted-foreground border border-border/60 truncate max-w-[120px]">
+                  <span className="px-2 py-0.5 rounded-full text-[10px] font-medium bg-accent/10 text-accent border border-accent/25 truncate max-w-[120px]">
                     {profile.skills![0]}
                   </span>
                 )}
