@@ -35,6 +35,8 @@ import AddAchievementDialog from "@/components/AddAchievementDialog";
 import SendAdviceDialog from "@/components/SendAdviceDialog";
 import ReactionsAndComments from "@/components/ReactionsAndComments";
 import ConnectionButton from "@/components/ConnectionButton";
+import { useVerifiedSkills, useCollabScore } from "@/hooks/use-collab-data";
+import { CheckCircle2, Shield } from "lucide-react";
 
 interface Profile {
   id: string;
