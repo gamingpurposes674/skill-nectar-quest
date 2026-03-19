@@ -451,24 +451,101 @@ const Dashboard = () => {
                   </DropdownMenu>
                 </div>
 
-                <TabsContent value="feed" className="space-y-5">
+                <TabsContent value="feed" className="space-y-4">
+                  {/* Filter bar */}
+                  <div className="flex flex-wrap gap-2">
+                    <select
+                      value={filterSkill}
+                      onChange={(e) => setFilterSkill(e.target.value)}
+                      className="h-8 rounded-lg border border-border/50 bg-muted/30 px-2.5 text-[11px] text-foreground focus:outline-none focus:ring-2 focus:ring-ring"
+                    >
+                      <option value="All">All Skills</option>
+                      {["Python","JavaScript","React","Java","C++","Machine Learning","Data Analysis","UI/UX Design","Graphic Design","Research","Marketing","Business Strategy"].map(s => (
+                        <option key={s} value={s}>{s}</option>
+                      ))}
+                    </select>
+                    <select
+                      value={filterCategory}
+                      onChange={(e) => setFilterCategory(e.target.value)}
+                      className="h-8 rounded-lg border border-border/50 bg-muted/30 px-2.5 text-[11px] text-foreground focus:outline-none focus:ring-2 focus:ring-ring"
+                    >
+                      {["All","Coding","Design","Research","Business","Art"].map(c => (
+                        <option key={c} value={c}>{c === "All" ? "All Categories" : c}</option>
+                      ))}
+                    </select>
+                    <select
+                      value={filterStatus}
+                      onChange={(e) => setFilterStatus(e.target.value)}
+                      className="h-8 rounded-lg border border-border/50 bg-muted/30 px-2.5 text-[11px] text-foreground focus:outline-none focus:ring-2 focus:ring-ring"
+                    >
+                      <option value="All">All Status</option>
+                      <option value="open">Open</option>
+                      <option value="in_progress">In Progress</option>
+                      <option value="completed">Completed</option>
+                    </select>
+                    <select
+                      value={filterRecency}
+                      onChange={(e) => setFilterRecency(e.target.value)}
+                      className="h-8 rounded-lg border border-border/50 bg-muted/30 px-2.5 text-[11px] text-foreground focus:outline-none focus:ring-2 focus:ring-ring"
+                    >
+                      <option value="All">Any Time</option>
+                      <option value="day">Past 24h</option>
+                      <option value="week">Past Week</option>
+                      <option value="month">Past Month</option>
+                    </select>
+                  </div>
+
                   <AnimatePresence mode="popLayout">
-                    {projects.length === 0 ? (
-                      <motion.div
-                        initial={{ opacity: 0, y: 10 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        exit={{ opacity: 0, y: -10 }}
-                      >
-                        <Card className="glass-card shadow-card p-8 text-center">
-                          <BookOpen className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
-                          <h3 className="text-lg font-semibold mb-2">No projects yet</h3>
-                          <p className="text-sm text-muted-foreground">
-                            Be the first to post a collaboration opportunity!
-                          </p>
-                        </Card>
-                      </motion.div>
-                    ) : (
-                      projects.map((project, index) => (
+                    {(() => {
+                      const CATEGORY_SKILLS: Record<string, string[]> = {
+                        Coding: ["Python","JavaScript","React","Java","C++","Node.js","HTML","CSS"],
+                        Design: ["UI/UX Design","Graphic Design","3D Modeling","Video Editing"],
+                        Research: ["Research","Data Analysis","Machine Learning"],
+                        Business: ["Business Strategy","Marketing","Public Speaking"],
+                        Art: ["Creative Writing","Photography","Graphic Design","Video Editing"],
+                      };
+
+                      const filteredProjects = projects.filter(p => {
+                        const skills = p.required_skills || [];
+                        if (filterSkill !== "All" && !skills.includes(filterSkill)) return false;
+                        if (filterCategory !== "All") {
+                          const catSkills = CATEGORY_SKILLS[filterCategory] || [];
+                          if (!skills.some((s: string) => catSkills.includes(s))) return false;
+                        }
+                        if (filterStatus !== "All") {
+                          if (filterStatus === "completed" && !p.is_complete) return false;
+                          if (filterStatus === "in_progress" && (!p.collaborator_id || p.is_complete)) return false;
+                          if (filterStatus === "open" && (p.collaborator_id || p.is_complete)) return false;
+                        }
+                        if (filterRecency !== "All") {
+                          const age = Date.now() - new Date(p.created_at).getTime();
+                          const DAY = 86400000;
+                          if (filterRecency === "day" && age > DAY) return false;
+                          if (filterRecency === "week" && age > DAY * 7) return false;
+                          if (filterRecency === "month" && age > DAY * 30) return false;
+                        }
+                        return true;
+                      });
+
+                      if (filteredProjects.length === 0) {
+                        return (
+                          <motion.div
+                            initial={{ opacity: 0, y: 10 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            exit={{ opacity: 0, y: -10 }}
+                          >
+                            <Card className="glass-card shadow-card p-8 text-center">
+                              <BookOpen className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
+                              <h3 className="text-lg font-semibold mb-2">No projects found</h3>
+                              <p className="text-sm text-muted-foreground">
+                                Try adjusting your filters
+                              </p>
+                            </Card>
+                          </motion.div>
+                        );
+                      }
+
+                      return filteredProjects.map((project, index) => (
                         <motion.div
                           key={project.id}
                           initial={prefersReducedMotion ? undefined : { opacity: 0, y: 20 }}
@@ -490,8 +567,8 @@ const Dashboard = () => {
                             onRequestCollaboration={() => handleRequestCollaboration(project.id)}
                           />
                         </motion.div>
-                      ))
-                    )}
+                      ));
+                    })()}
                   </AnimatePresence>
                 </TabsContent>
 
