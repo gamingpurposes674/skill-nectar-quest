@@ -683,14 +683,22 @@ const ProfilePage = () => {
               <div className="rounded-xl border border-border/50 bg-card p-5">
                 <h3 className="text-[13px] font-semibold mb-3 text-foreground">Skills</h3>
                 <div className="flex flex-wrap gap-1.5">
-                  {profile.skills.map((skill, i) => (
-                    <span
-                      key={i}
-                      className="px-2.5 py-1 rounded-full text-[11px] font-medium bg-muted/50 text-muted-foreground border border-border/60"
-                    >
-                      {skill}
-                    </span>
-                  ))}
+                  {profile.skills.map((skill, i) => {
+                    const isVerified = verifiedSkills.has(skill);
+                    return (
+                      <span
+                        key={i}
+                        className={`px-2.5 py-1 rounded-full text-[11px] font-medium inline-flex items-center gap-1 ${
+                          isVerified
+                            ? "bg-accent/15 text-accent border border-accent/40 shadow-[0_0_8px_hsl(var(--accent)/0.2)]"
+                            : "bg-muted/50 text-muted-foreground border border-border/60"
+                        }`}
+                      >
+                        {skill}
+                        {isVerified && <CheckCircle2 className="h-3 w-3" />}
+                      </span>
+                    );
+                  })}
                 </div>
               </div>
             )}
