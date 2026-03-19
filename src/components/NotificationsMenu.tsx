@@ -221,7 +221,8 @@ const NotificationsMenu = () => {
     requestId: string,
     status: "accepted" | "rejected",
     projectId?: string,
-    requesterId?: string
+    requesterId?: string,
+    projectTitle?: string
   ) => {
     setLoading(true);
     try {
@@ -234,6 +235,19 @@ const NotificationsMenu = () => {
 
       if (status === "accepted" && projectId && requesterId) {
         await supabase.from("projects").update({ collaborator_id: requesterId, status: "in_progress" }).eq("id", projectId);
+
+        // Show celebration
+        const { data: myProfile } = await supabase.from("profiles").select("full_name, avatar_url").eq("id", user!.id).single();
+        const { data: requesterProfile } = await supabase.from("profiles").select("full_name, avatar_url").eq("id", requesterId).single();
+
+        setCelebrationData({
+          open: true,
+          projectTitle: projectTitle || "Project",
+          creatorName: myProfile?.full_name || "You",
+          creatorAvatar: myProfile?.avatar_url || null,
+          collaboratorName: requesterProfile?.full_name || "Collaborator",
+          collaboratorAvatar: requesterProfile?.avatar_url || null,
+        });
       }
 
       toast.success(`Request ${status}`);
