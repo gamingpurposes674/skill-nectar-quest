@@ -417,6 +417,90 @@ export type Database = {
           },
         ]
       }
+      project_logs: {
+        Row: {
+          author_id: string
+          content: string
+          created_at: string
+          id: string
+          project_id: string
+        }
+        Insert: {
+          author_id: string
+          content: string
+          created_at?: string
+          id?: string
+          project_id: string
+        }
+        Update: {
+          author_id?: string
+          content?: string
+          created_at?: string
+          id?: string
+          project_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "project_logs_author_id_fkey"
+            columns: ["author_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "project_logs_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      project_milestones: {
+        Row: {
+          author_id: string
+          completed: boolean
+          created_at: string
+          id: string
+          milestone_date: string
+          project_id: string
+          title: string
+        }
+        Insert: {
+          author_id: string
+          completed?: boolean
+          created_at?: string
+          id?: string
+          milestone_date?: string
+          project_id: string
+          title: string
+        }
+        Update: {
+          author_id?: string
+          completed?: boolean
+          created_at?: string
+          id?: string
+          milestone_date?: string
+          project_id?: string
+          title?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "project_milestones_author_id_fkey"
+            columns: ["author_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "project_milestones_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       projects: {
         Row: {
           category: string | null

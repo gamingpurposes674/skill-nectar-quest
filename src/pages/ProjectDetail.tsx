@@ -20,6 +20,7 @@ import {
   X,
 } from "lucide-react";
 import { AnimatedProgress } from "@/components/ui/animated-progress";
+import { ProjectLogSection, MilestoneTimeline } from "@/components/ProjectLogAndMilestones";
 
 const ProjectDetail = () => {
   const { id } = useParams<{ id: string }>();
@@ -448,6 +449,19 @@ const ProjectDetail = () => {
               )}
             </div>
           </div>
+
+          {/* ── Milestone Timeline ── */}
+          <MilestoneTimeline
+            projectId={id!}
+            isParticipant={isOwner || (user?.id === project.collaborator_id)}
+          />
+
+          {/* ── Project Log ── */}
+          <ProjectLogSection
+            projectId={id!}
+            isParticipant={isOwner || (user?.id === project.collaborator_id)}
+            project={project}
+          />
 
           {/* ── Comments ── */}
           <div className="rounded-xl border border-border/50 bg-card p-5">

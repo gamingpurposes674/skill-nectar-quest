@@ -35,6 +35,8 @@ import AddAchievementDialog from "@/components/AddAchievementDialog";
 import SendAdviceDialog from "@/components/SendAdviceDialog";
 import ReactionsAndComments from "@/components/ReactionsAndComments";
 import ConnectionButton from "@/components/ConnectionButton";
+import { useVerifiedSkills, useCollabScore } from "@/hooks/use-collab-data";
+import { CheckCircle2, Shield } from "lucide-react";
 
 interface Profile {
   id: string;
@@ -131,6 +133,8 @@ const ProfilePage = () => {
 
   const profileId = id || user?.id;
   const isOwnProfile = !id || id === user?.id;
+  const { verifiedSkills } = useVerifiedSkills(profileId);
+  const { score: collabScore, tier: collabTier, tierColor: collabTierColor } = useCollabScore(profileId);
 
   useEffect(() => {
     if (profileId) {
@@ -565,8 +569,14 @@ const ProfilePage = () => {
                 </AvatarFallback>
               </Avatar>
 
-              <h2 className="text-lg font-bold tracking-tight font-['Space_Grotesk',sans-serif] mb-0.5">
+              <h2 className="text-lg font-bold tracking-tight font-['Space_Grotesk',sans-serif] mb-0.5 flex items-center justify-center gap-2">
                 {profile.full_name}
+                {collabScore > 0 && (
+                  <span className={`inline-flex items-center gap-1 text-[10px] font-semibold px-2 py-0.5 rounded-full border ${collabTierColor} bg-muted/30 border-border/50`}>
+                    <Shield className="h-3 w-3" />
+                    {collabTier}
+                  </span>
+                )}
               </h2>
               <Badge variant={status.variant} className="text-[10px] mb-3">
                 {status.label}
@@ -631,6 +641,16 @@ const ProfilePage = () => {
                 )}
               </div>
 
+              {/* Collab Score */}
+              {collabScore > 0 && (
+                <div className="mt-5 pt-4 border-t border-border/40">
+                  <div className="flex items-center justify-between text-[12px] mb-1">
+                    <span className="text-muted-foreground font-medium">Collab Score</span>
+                    <span className={`font-bold ${collabTierColor}`}>{collabScore}</span>
+                  </div>
+                </div>
+              )}
+
               {/* Portfolio Health */}
               <div className="mt-5 pt-4 border-t border-border/40">
                 <div className="flex items-center justify-between text-[12px] mb-1.5">
@@ -673,14 +693,22 @@ const ProfilePage = () => {
               <div className="rounded-xl border border-border/50 bg-card p-5">
                 <h3 className="text-[13px] font-semibold mb-3 text-foreground">Skills</h3>
                 <div className="flex flex-wrap gap-1.5">
-                  {profile.skills.map((skill, i) => (
-                    <span
-                      key={i}
-                      className="px-2.5 py-1 rounded-full text-[11px] font-medium bg-muted/50 text-muted-foreground border border-border/60"
-                    >
-                      {skill}
-                    </span>
-                  ))}
+                  {profile.skills.map((skill, i) => {
+                    const isVerified = verifiedSkills.has(skill);
+                    return (
+                      <span
+                        key={i}
+                        className={`px-2.5 py-1 rounded-full text-[11px] font-medium inline-flex items-center gap-1 ${
+                          isVerified
+                            ? "bg-accent/15 text-accent border border-accent/40 shadow-[0_0_8px_hsl(var(--accent)/0.2)]"
+                            : "bg-muted/50 text-muted-foreground border border-border/60"
+                        }`}
+                      >
+                        {skill}
+                        {isVerified && <CheckCircle2 className="h-3 w-3" />}
+                      </span>
+                    );
+                  })}
                 </div>
               </div>
             )}

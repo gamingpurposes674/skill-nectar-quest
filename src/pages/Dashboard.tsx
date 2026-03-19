@@ -15,7 +15,8 @@ import {
   BookOpen,
   LogOut,
   ChevronDown,
-  Compass
+  Compass,
+  Clock,
 } from "lucide-react";
 import TopNav from "@/components/TopNav";
 import { useAuth } from "@/contexts/AuthContext";
@@ -49,6 +50,7 @@ const Dashboard = () => {
   const [loading, setLoading] = useState(true);
   const [showCreateDialog, setShowCreateDialog] = useState(false);
   const [showFindProjectsDialog, setShowFindProjectsDialog] = useState(false);
+  const [projectLogs, setProjectLogs] = useState<any[]>([]);
   const prefersReducedMotion = useReducedMotion();
 
   // Feed filters
@@ -159,6 +161,33 @@ const Dashboard = () => {
           (allProfilesData || []).map(p => [p.id, p])
         );
         setProfilesMap(newProfilesMap);
+      }
+
+      // Load recent project logs for Updates tab
+      const { data: logsData } = await supabase
+        .from("project_logs")
+        .select("*")
+        .order("created_at", { ascending: false })
+        .limit(30);
+
+      if (logsData) {
+        // Load author and project info
+        const logAuthorIds = [...new Set(logsData.map((l: any) => l.author_id))];
+        const logProjectIds = [...new Set(logsData.map((l: any) => l.project_id))];
+        
+        const [{ data: logProfiles }, { data: logProjectsData }] = await Promise.all([
+          supabase.from("profiles").select("id, full_name, avatar_url").in("id", logAuthorIds.length ? logAuthorIds : ["_"]),
+          supabase.from("projects").select("id, title").in("id", logProjectIds.length ? logProjectIds : ["_"]),
+        ]);
+
+        const profileMap = new Map((logProfiles || []).map((p: any) => [p.id, p]));
+        const projectMap = new Map((logProjectsData || []).map((p: any) => [p.id, p]));
+
+        setProjectLogs(logsData.map((l: any) => ({
+          ...l,
+          author: profileMap.get(l.author_id),
+          project: projectMap.get(l.project_id),
+        })));
       }
 
     } catch (error: any) {
@@ -422,6 +451,10 @@ const Dashboard = () => {
                     <TabsTrigger value="collaborations" className="rounded-lg data-[state=active]:bg-accent data-[state=active]:text-accent-foreground data-[state=active]:shadow-[0_0_16px_hsl(var(--accent)/0.4)] transition-all duration-200">
                       <Users className="h-3.5 w-3.5 mr-1.5" />
                       Collaborations
+                    </TabsTrigger>
+                    <TabsTrigger value="updates" className="rounded-lg data-[state=active]:bg-accent data-[state=active]:text-accent-foreground data-[state=active]:shadow-[0_0_16px_hsl(var(--accent)/0.4)] transition-all duration-200">
+                      <Clock className="h-3.5 w-3.5 mr-1.5" />
+                      Updates
                     </TabsTrigger>
                   </TabsList>
                   
@@ -706,6 +739,54 @@ const Dashboard = () => {
                           </motion.div>
                         ))}
                       </div>
+                    )}
+                  </AnimatePresence>
+                </TabsContent>
+
+                <TabsContent value="updates" className="space-y-4">
+                  <AnimatePresence mode="popLayout">
+                    {projectLogs.length === 0 ? (
+                      <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
+                        <Card className="glass-card shadow-card p-8 text-center">
+                          <Clock className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
+                          <h3 className="text-lg font-semibold mb-2">No updates yet</h3>
+                          <p className="text-sm text-muted-foreground">Project progress updates will appear here</p>
+                        </Card>
+                      </motion.div>
+                    ) : (
+                      projectLogs.map((log, index) => (
+                        <motion.div
+                          key={log.id}
+                          initial={prefersReducedMotion ? undefined : { opacity: 0, y: 20 }}
+                          animate={prefersReducedMotion ? undefined : { opacity: 1, y: 0 }}
+                          transition={{ delay: index * 0.04, duration: 0.3 }}
+                          layout
+                        >
+                          <div className="rounded-xl border border-border/50 bg-card p-4 transition-all duration-300 hover:border-accent/50">
+                            <div className="flex items-start gap-3">
+                              <Link to={`/profile/${log.author_id}`}>
+                                <Avatar className="h-9 w-9 ring-1 ring-border">
+                                  <AvatarImage src={log.author?.avatar_url || ""} />
+                                  <AvatarFallback className="text-xs">{log.author?.full_name?.[0] || "U"}</AvatarFallback>
+                                </Avatar>
+                              </Link>
+                              <div className="flex-1 min-w-0">
+                                <div className="flex items-center gap-2 text-[12px] mb-1">
+                                  <Link to={`/profile/${log.author_id}`} className="font-semibold text-foreground hover:text-accent transition-colors">
+                                    {log.author?.full_name || "User"}
+                                  </Link>
+                                  <span className="text-muted-foreground">posted an update on</span>
+                                  <Link to={`/project/${log.project_id}`} className="font-medium text-accent hover:underline underline-offset-2">
+                                    {log.project?.title || "a project"}
+                                  </Link>
+                                </div>
+                                <p className="text-[13px] text-muted-foreground leading-relaxed">{log.content}</p>
+                                <p className="text-[10px] text-muted-foreground/50 mt-1">{new Date(log.created_at).toLocaleDateString()}</p>
+                              </div>
+                            </div>
+                          </div>
+                        </motion.div>
+                      ))
                     )}
                   </AnimatePresence>
                 </TabsContent>
