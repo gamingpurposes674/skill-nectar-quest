@@ -37,6 +37,8 @@ const MAJOR_SKILL_MAPPING: Record<string, string[]> = {
   "Marketing": ["Marketing", "Business Strategy", "Graphic Design", "Video Editing", "Public Speaking"],
 };
 
+const PROJECT_CATEGORIES = ["Coding", "Design", "Research", "Business", "Art"] as const;
+
 const CreateProjectDialog = ({ open, onOpenChange, onSuccess, userMajor, userGrade, userSkills, existingProjects, portfolioGaps }: CreateProjectDialogProps) => {
   const { user } = useAuth();
   const [loading, setLoading] = useState(false);
@@ -45,8 +47,11 @@ const CreateProjectDialog = ({ open, onOpenChange, onSuccess, userMajor, userGra
   const [projectLink, setProjectLink] = useState("");
   const [skills, setSkills] = useState<string[]>([]);
   const [projectSize, setProjectSize] = useState<string>("small");
+  const [category, setCategory] = useState<string>("Coding");
   const [proofFile, setProofFile] = useState<File | null>(null);
   const [proofPreview, setProofPreview] = useState<string | null>(null);
+  const [coverFile, setCoverFile] = useState<File | null>(null);
+  const [coverPreview, setCoverPreview] = useState<string | null>(null);
   const [showMismatchDialog, setShowMismatchDialog] = useState(false);
   const [pendingSubmit, setPendingSubmit] = useState(false);
   const [createdProjectId, setCreatedProjectId] = useState<string | null>(null);
@@ -126,6 +131,41 @@ const CreateProjectDialog = ({ open, onOpenChange, onSuccess, userMajor, userGra
     return publicUrl;
   };
 
+  const uploadCoverImage = async (): Promise<string | null> => {
+    if (!coverFile || !user) return null;
+
+    const fileExt = coverFile.name.split('.').pop();
+    const fileName = `${user.id}/cover_${Date.now()}.${fileExt}`;
+
+    const { error: uploadError } = await supabase.storage
+      .from('project-proofs')
+      .upload(fileName, coverFile);
+
+    if (uploadError) {
+      console.error("Error uploading cover:", uploadError);
+      throw uploadError;
+    }
+
+    const { data: { publicUrl } } = supabase.storage
+      .from('project-proofs')
+      .getPublicUrl(fileName);
+
+    return publicUrl;
+  };
+
+  const handleCoverFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (file.size > 5 * 1024 * 1024) {
+      toast.error("Cover image must be less than 5MB");
+      return;
+    }
+    setCoverFile(file);
+    const reader = new FileReader();
+    reader.onloadend = () => setCoverPreview(reader.result as string);
+    reader.readAsDataURL(file);
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
@@ -182,6 +222,8 @@ const CreateProjectDialog = ({ open, onOpenChange, onSuccess, userMajor, userGra
       const proofUrl = await uploadProofFile();
       if (!proofUrl) throw new Error("Failed to upload proof");
 
+      const coverUrl = await uploadCoverImage();
+
       const { data: newProject, error } = await supabase
         .from('projects')
         .insert({
@@ -192,7 +234,9 @@ const CreateProjectDialog = ({ open, onOpenChange, onSuccess, userMajor, userGra
           required_skills: skills,
           project_size: projectSize,
           proof_file_url: proofUrl,
-          validation_status: "approved", // Auto-approve validated projects
+          cover_image_url: coverUrl,
+          category,
+          validation_status: "approved",
           status: "open"
         })
         .select()
@@ -202,12 +246,10 @@ const CreateProjectDialog = ({ open, onOpenChange, onSuccess, userMajor, userGra
 
       toast.success("Project created successfully!");
       
-      // Show collaboration opt-in dialog
       setCreatedProjectId(newProject.id);
-      setCreatedProjectTitle(title); // Save title for collab dialog
+      setCreatedProjectTitle(title);
       setShowCollabOptIn(true);
       
-      // Reset form
       resetForm();
       onSuccess();
     } catch (error: any) {
@@ -225,8 +267,11 @@ const CreateProjectDialog = ({ open, onOpenChange, onSuccess, userMajor, userGra
     setProjectLink("");
     setSkills([]);
     setProjectSize("small");
+    setCategory("Coding");
     setProofFile(null);
     setProofPreview(null);
+    setCoverFile(null);
+    setCoverPreview(null);
     setPendingSubmit(false);
   };
 
@@ -297,18 +342,65 @@ const CreateProjectDialog = ({ open, onOpenChange, onSuccess, userMajor, userGra
               />
             </div>
 
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="project-size">Project Size *</Label>
+                <Select value={projectSize} onValueChange={setProjectSize}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select project size" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="small">Small (+1.5%)</SelectItem>
+                    <SelectItem value="medium">Medium (+3%)</SelectItem>
+                    <SelectItem value="major">Major (+5%)</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="category">Category *</Label>
+                <Select value={category} onValueChange={setCategory}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select category" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {PROJECT_CATEGORIES.map((cat) => (
+                      <SelectItem key={cat} value={cat}>{cat}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+
             <div className="space-y-2">
-              <Label htmlFor="project-size">Project Size *</Label>
-              <Select value={projectSize} onValueChange={setProjectSize}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Select project size" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="small">Small (+1.5% Portfolio Health)</SelectItem>
-                  <SelectItem value="medium">Medium (+3% Portfolio Health)</SelectItem>
-                  <SelectItem value="major">Major (+5% Portfolio Health)</SelectItem>
-                </SelectContent>
-              </Select>
+              <Label htmlFor="cover-image">Cover Image (Optional)</Label>
+              <div className="border-2 border-dashed rounded-lg p-3">
+                <Input
+                  id="cover-image"
+                  type="file"
+                  accept="image/*"
+                  onChange={handleCoverFileChange}
+                  className="hidden"
+                />
+                <label htmlFor="cover-image" className="flex items-center justify-center cursor-pointer">
+                  {coverPreview ? (
+                    <div className="relative w-full">
+                      <img src={coverPreview} alt="Cover preview" className="max-h-32 mx-auto rounded" />
+                      <Button
+                        type="button"
+                        variant="destructive"
+                        size="icon"
+                        className="absolute top-1 right-1 h-6 w-6"
+                        onClick={(e) => { e.preventDefault(); setCoverFile(null); setCoverPreview(null); }}
+                      >
+                        <X className="h-3 w-3" />
+                      </Button>
+                    </div>
+                  ) : (
+                    <p className="text-xs text-muted-foreground py-2">Click to upload a cover image</p>
+                  )}
+                </label>
+              </div>
             </div>
 
             <div className="space-y-2">

@@ -24,6 +24,7 @@ import {
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useReducedMotion } from "@/hooks/use-reduced-motion";
+import CollaborationCelebration from "@/components/CollaborationCelebration";
 
 interface Notification {
   id: string;
@@ -69,6 +70,14 @@ const NotificationsMenu = () => {
   const [connectionRequests, setConnectionRequests] = useState<ConnectionRequest[]>([]);
   const [loading, setLoading] = useState(false);
   const [hasNewNotification, setHasNewNotification] = useState(false);
+  const [celebrationData, setCelebrationData] = useState<{
+    open: boolean;
+    projectTitle: string;
+    creatorName: string;
+    creatorAvatar: string | null;
+    collaboratorName: string;
+    collaboratorAvatar: string | null;
+  } | null>(null);
 
   useEffect(() => {
     if (user) {
@@ -212,7 +221,8 @@ const NotificationsMenu = () => {
     requestId: string,
     status: "accepted" | "rejected",
     projectId?: string,
-    requesterId?: string
+    requesterId?: string,
+    projectTitle?: string
   ) => {
     setLoading(true);
     try {
@@ -225,6 +235,19 @@ const NotificationsMenu = () => {
 
       if (status === "accepted" && projectId && requesterId) {
         await supabase.from("projects").update({ collaborator_id: requesterId, status: "in_progress" }).eq("id", projectId);
+
+        // Show celebration
+        const { data: myProfile } = await supabase.from("profiles").select("full_name, avatar_url").eq("id", user!.id).single();
+        const { data: requesterProfile } = await supabase.from("profiles").select("full_name, avatar_url").eq("id", requesterId).single();
+
+        setCelebrationData({
+          open: true,
+          projectTitle: projectTitle || "Project",
+          creatorName: myProfile?.full_name || "You",
+          creatorAvatar: myProfile?.avatar_url || null,
+          collaboratorName: requesterProfile?.full_name || "Collaborator",
+          collaboratorAvatar: requesterProfile?.avatar_url || null,
+        });
       }
 
       toast.success(`Request ${status}`);
@@ -297,6 +320,7 @@ const NotificationsMenu = () => {
     notifications.filter((n) => !n.read).length + collaborationRequests.length + connectionRequests.length;
 
   return (
+    <>
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <Button variant="ghost" size="icon" className="relative">
@@ -413,7 +437,7 @@ const NotificationsMenu = () => {
                           size="sm"
                           className="h-7"
                           onClick={() =>
-                            handleCollaborationResponse(request.id, "accepted", request.project_id, request.requester_id)
+                            handleCollaborationResponse(request.id, "accepted", request.project_id, request.requester_id, request.projects?.title)
                           }
                           disabled={loading}
                         >
@@ -481,6 +505,20 @@ const NotificationsMenu = () => {
         </ScrollArea>
       </DropdownMenuContent>
     </DropdownMenu>
+
+    {/* Collaboration Celebration */}
+    {celebrationData && (
+      <CollaborationCelebration
+        open={celebrationData.open}
+        onClose={() => setCelebrationData(null)}
+        projectTitle={celebrationData.projectTitle}
+        creatorName={celebrationData.creatorName}
+        creatorAvatar={celebrationData.creatorAvatar}
+        collaboratorName={celebrationData.collaboratorName}
+        collaboratorAvatar={celebrationData.collaboratorAvatar}
+      />
+    )}
+    </>
   );
 };
 
