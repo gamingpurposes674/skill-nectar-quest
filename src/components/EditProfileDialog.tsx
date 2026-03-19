@@ -85,44 +85,28 @@ const EditProfileDialog = ({ open, onOpenChange, profile, onSuccess }: EditProfi
   };
 
   const handlePasswordChange = async () => {
-    if (!user?.email) return;
-
     setPasswordError(null);
-    if (!currentPassword || !newPassword || !confirmPassword) {
-      setPasswordError("Fill all password fields");
+    if (!newPassword || !confirmPassword) {
+      setPasswordError("Please fill in both password fields");
       return;
     }
-    if (newPassword.length < 8) {
-      setPasswordError("New password must be at least 8 characters");
+    if (newPassword.length < 6) {
+      setPasswordError("Password must be at least 6 characters");
       return;
     }
     if (newPassword !== confirmPassword) {
-      setPasswordError("New password and confirm password must match");
-      return;
-    }
-    if (newPassword === currentPassword) {
-      setPasswordError("New password must be different from current password");
+      setPasswordError("Passwords do not match");
       return;
     }
 
     setChangingPassword(true);
     try {
-      const { error: reauthError } = await supabase.auth.signInWithPassword({
-        email: user.email,
-        password: currentPassword,
-      });
-      if (reauthError) {
-        setPasswordError("Current password is incorrect");
-        return;
-      }
+      const { error } = await supabase.auth.updateUser({ password: newPassword });
+      if (error) throw error;
 
-      const { error: updateError } = await supabase.auth.updateUser({ password: newPassword });
-      if (updateError) throw updateError;
-
-      setCurrentPassword("");
       setNewPassword("");
       setConfirmPassword("");
-      toast.success("Password changed successfully");
+      toast.success("Password updated successfully");
     } catch (error: any) {
       setPasswordError(error.message || "Failed to change password");
     } finally {
@@ -350,33 +334,26 @@ const EditProfileDialog = ({ open, onOpenChange, profile, onSuccess }: EditProfi
           </div>
 
           <div className="rounded-lg border border-border/50 p-4 space-y-3">
-            <h3 className="text-sm font-semibold text-foreground">Account Security</h3>
+            <h3 className="text-sm font-semibold text-foreground">Change Password</h3>
             <div className="grid grid-cols-1 gap-3">
-              <div>
-                <Label htmlFor="current-password">Current Password</Label>
-                <Input
-                  id="current-password"
-                  type="password"
-                  value={currentPassword}
-                  onChange={(e) => setCurrentPassword(e.target.value)}
-                  disabled={loading || changingPassword}
-                />
-              </div>
               <div>
                 <Label htmlFor="new-password">New Password</Label>
                 <Input
                   id="new-password"
                   type="password"
+                  placeholder="••••••••"
                   value={newPassword}
                   onChange={(e) => setNewPassword(e.target.value)}
                   disabled={loading || changingPassword}
                 />
+                <p className="text-xs text-muted-foreground mt-1">At least 6 characters</p>
               </div>
               <div>
                 <Label htmlFor="confirm-password">Confirm New Password</Label>
                 <Input
                   id="confirm-password"
                   type="password"
+                  placeholder="••••••••"
                   value={confirmPassword}
                   onChange={(e) => setConfirmPassword(e.target.value)}
                   disabled={loading || changingPassword}
@@ -385,7 +362,7 @@ const EditProfileDialog = ({ open, onOpenChange, profile, onSuccess }: EditProfi
             </div>
             {passwordError && <p className="text-xs text-destructive">{passwordError}</p>}
             <Button type="button" variant="outline" onClick={handlePasswordChange} disabled={loading || changingPassword}>
-              {changingPassword ? "Updating Password..." : "Change Password"}
+              {changingPassword ? "Saving..." : "Save Password"}
             </Button>
           </div>
 
