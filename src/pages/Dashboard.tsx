@@ -336,14 +336,14 @@ const Dashboard = () => {
               variants={prefersReducedMotion ? undefined : containerVariants}
             >
               <motion.div variants={prefersReducedMotion ? undefined : itemVariants}>
-                <AnimatedCard className="glass-card shadow-card p-4">
-                  <div className="flex items-center gap-3">
-                    <div className="p-2 rounded-lg bg-primary/10">
+                <AnimatedCard className="glass-card stat-card-blue shadow-card p-5 card-hover-glow">
+                  <div className="flex items-center gap-4">
+                    <div className="p-2.5 rounded-xl bg-primary/20">
                       <Users className="h-5 w-5 text-primary" />
                     </div>
                     <div>
-                      <p className="text-sm text-muted-foreground">Connections</p>
-                      <p className="text-2xl font-bold">
+                      <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground">Connections</p>
+                      <p className="text-2xl font-bold mt-0.5">
                         <CountUp value={collaborativeProjects.length} />
                       </p>
                     </div>
@@ -352,14 +352,14 @@ const Dashboard = () => {
               </motion.div>
               
               <motion.div variants={prefersReducedMotion ? undefined : itemVariants}>
-                <AnimatedCard className="glass-card shadow-card p-4">
-                  <div className="flex items-center gap-3">
-                    <div className="p-2 rounded-lg bg-secondary/10">
+                <AnimatedCard className="glass-card stat-card-purple shadow-card p-5 card-hover-glow">
+                  <div className="flex items-center gap-4">
+                    <div className="p-2.5 rounded-xl bg-secondary/20">
                       <Target className="h-5 w-5 text-secondary" />
                     </div>
                     <div>
-                      <p className="text-sm text-muted-foreground">Active Projects</p>
-                      <p className="text-2xl font-bold">
+                      <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground">Active Projects</p>
+                      <p className="text-2xl font-bold mt-0.5">
                         <CountUp value={myProjects.length} />
                       </p>
                     </div>
@@ -368,14 +368,14 @@ const Dashboard = () => {
               </motion.div>
               
               <motion.div variants={prefersReducedMotion ? undefined : itemVariants}>
-                <AnimatedCard className="glass-card shadow-card p-4">
-                  <div className="flex items-center gap-3">
-                    <div className="p-2 rounded-lg bg-accent/10">
+                <AnimatedCard className="glass-card stat-card-teal shadow-card p-5 card-hover-glow">
+                  <div className="flex items-center gap-4">
+                    <div className="p-2.5 rounded-xl bg-accent/20">
                       <TrendingUp className="h-5 w-5 text-accent" />
                     </div>
                     <div>
-                      <p className="text-sm text-muted-foreground">Portfolio Health</p>
-                      <p className="text-2xl font-bold">
+                      <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground">Portfolio Health</p>
+                      <p className="text-2xl font-bold mt-0.5">
                         <CountUp value={profile?.portfolio_health || 0} suffix="%" />
                       </p>
                     </div>
