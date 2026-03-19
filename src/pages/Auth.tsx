@@ -74,6 +74,40 @@ const Auth = () => {
     }
   };
 
+  const handleChangePassword = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (changePasswordData.newPassword.length < 6) {
+      toast.error("Password must be at least 6 characters");
+      return;
+    }
+    if (changePasswordData.newPassword !== changePasswordData.confirmPassword) {
+      toast.error("Passwords do not match");
+      return;
+    }
+    setLoading(true);
+    try {
+      const { error: signInError } = await supabase.auth.signInWithPassword({
+        email: changePasswordData.email,
+        password: changePasswordData.newPassword,
+      });
+      // Try to get existing session or sign in won't matter - we use updateUser
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) {
+        toast.error("Please sign in first, then change your password from Edit Profile.");
+        return;
+      }
+      const { error } = await supabase.auth.updateUser({ password: changePasswordData.newPassword });
+      if (error) throw error;
+      await supabase.auth.signOut();
+      setChangePasswordData({ email: "", newPassword: "", confirmPassword: "" });
+      toast.success("Password changed successfully! Please sign in with your new password.");
+    } catch (error: any) {
+      toast.error(error.message || "Failed to change password");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted flex items-center justify-center p-4">
       <div className="w-full max-w-md">
