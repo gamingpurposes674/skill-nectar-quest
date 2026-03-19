@@ -222,8 +222,7 @@ const CreateProjectDialog = ({ open, onOpenChange, onSuccess, userMajor, userGra
   const submitProject = async () => {
     setLoading(true);
     try {
-      const proofUrl = await uploadProofFile();
-      if (!proofUrl) throw new Error("Failed to upload proof");
+      const proofUrl = proofFile ? await uploadProofFile() : null;
 
       const coverUrl = await uploadCoverImage();
 
