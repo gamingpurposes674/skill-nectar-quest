@@ -269,7 +269,11 @@ export const MilestoneTimeline = ({ projectId, isParticipant }: MilestoneTimelin
               <Input
                 type="date"
                 value={newDate}
-                onChange={(e) => setNewDate(e.target.value)}
+                onChange={(e) => {
+                  const value = e.target.value;
+                  setNewDate(value);
+                  setDateError(value ? validateDateInput(value) : "Date is required");
+                }}
                 className="text-[13px] h-9 w-36 bg-muted/30"
               />
               <Button size="sm" className="h-9" onClick={handleAdd} disabled={!newTitle.trim() || !newDate || submitting}>
