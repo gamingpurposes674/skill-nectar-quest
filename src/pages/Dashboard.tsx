@@ -368,7 +368,7 @@ const Dashboard = () => {
                       </div>
                     </div>
                     <div>
-                      <p className="text-[11px] font-semibold uppercase tracking-widest text-muted-foreground">Active Projects</p>
+                      <p className="text-[11px] font-semibold tracking-widest text-muted-foreground">Active Projects</p>
                       <p className="text-2xl font-bold mt-0.5 tracking-tight">
                         <CountUp value={myProjects.length} />
                       </p>
