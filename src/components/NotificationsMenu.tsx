@@ -70,6 +70,14 @@ const NotificationsMenu = () => {
   const [connectionRequests, setConnectionRequests] = useState<ConnectionRequest[]>([]);
   const [loading, setLoading] = useState(false);
   const [hasNewNotification, setHasNewNotification] = useState(false);
+  const [celebrationData, setCelebrationData] = useState<{
+    open: boolean;
+    projectTitle: string;
+    creatorName: string;
+    creatorAvatar: string | null;
+    collaboratorName: string;
+    collaboratorAvatar: string | null;
+  } | null>(null);
 
   useEffect(() => {
     if (user) {
