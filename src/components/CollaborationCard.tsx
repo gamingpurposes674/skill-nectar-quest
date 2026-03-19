@@ -40,6 +40,7 @@ const CollaborationCard = ({
   onRequestCollaboration,
 }: CollaborationCardProps) => {
   const prefersReducedMotion = useReducedMotion();
+  const navigate = useNavigate();
   const [reactions, setReactions] = useState<Record<string, number>>({});
   const [userReaction, setUserReaction] = useState<string | null>(null);
   const [expanded, setExpanded] = useState(false);
