@@ -16,6 +16,14 @@ import {
   Target,
   Loader2 
 } from "lucide-react";
+import {
+  RadarChart,
+  PolarGrid,
+  PolarAngleAxis,
+  PolarRadiusAxis,
+  Radar,
+  ResponsiveContainer,
+} from "recharts";
 
 interface PortfolioGapScannerProps {
   profile: {
@@ -52,7 +60,6 @@ const MAJOR_COMPETENCIES: Record<string, string[]> = {
   "Pre-Law": ["mock trial", "debate", "legal research", "policy analysis", "writing samples"],
 };
 
-// Skill alignment by major
 const MAJOR_SKILLS: Record<string, string[]> = {
   "Computer Science": ["Python", "Java", "C++", "JavaScript", "React", "Node.js", "Machine Learning", "Data Analysis", "HTML", "CSS"],
   "Business Administration": ["Business Strategy", "Marketing", "Public Speaking", "Data Analysis"],
@@ -80,6 +87,7 @@ interface ScanResults {
   strengths: string[];
   gaps: string[];
   suggestions: string[];
+  radarData: { dimension: string; score: number; fullMark: number }[];
 }
 
 const PortfolioGapScanner = ({ 
@@ -96,7 +104,6 @@ const PortfolioGapScanner = ({
     setIsScanning(true);
     setResults(null);
 
-    // Simulate analysis time for UX
     setTimeout(() => {
       const strengths: string[] = [];
       const gaps: string[] = [];
@@ -107,7 +114,15 @@ const PortfolioGapScanner = ({
       const grade = profile?.grade || "";
       const userSkills = profile?.skills || [];
 
-      // 1. Core Experience for Major Analysis
+      // Radar dimensions scores (0-100)
+      let coreExperience = 0;
+      let projectDepth = 0;
+      let collegeReady = 0;
+      let skillAlignment = 0;
+      let collaboration = 0;
+      let achievements_score = 0;
+
+      // 1. Core Experience
       const majorCompetencies = MAJOR_COMPETENCIES[major] || [];
       const hasRelevantExperience = validProjects.some(p => {
         const desc = (p.description || "").toLowerCase();
@@ -119,18 +134,21 @@ const PortfolioGapScanner = ({
 
       if (hasRelevantExperience) {
         strengths.push(`Projects aligned with ${major || "your major"} field`);
+        coreExperience = 75;
       } else if (major) {
         gaps.push(`No projects directly related to ${major} core competencies`);
         suggestions.push(`Add a project showcasing ${majorCompetencies.slice(0, 2).join(" or ")} for your ${major} major`);
+        coreExperience = 15;
       }
 
-      // 2. Depth of Projects Analysis
+      // 2. Depth of Projects
       const projectsWithProof = validProjects.filter(p => p.proof_file_url);
       const longTermProjects = validProjects.filter(p => p.project_size === 'major');
       const collaborativeCount = collaborativeProjects.filter(p => p.is_complete).length;
 
       if (projectsWithProof.length > 0) {
         strengths.push(`${projectsWithProof.length} project(s) with verified proof of work`);
+        projectDepth += 30;
       } else if (validProjects.length > 0) {
         gaps.push("Projects lack proof-of-work documentation");
         suggestions.push("Upload proof files (images/documents) to strengthen project credibility");
@@ -138,123 +156,80 @@ const PortfolioGapScanner = ({
 
       if (longTermProjects.length > 0) {
         strengths.push(`${longTermProjects.length} major/long-term project(s) showing commitment`);
+        projectDepth += 40;
       } else if (validProjects.length > 0) {
         gaps.push("No major projects demonstrating long-term effort");
         suggestions.push("Complete at least one major project to show sustained commitment");
       }
 
+      projectDepth += Math.min(30, validProjects.length * 10);
+
+      // 3. Collaboration
       if (collaborativeCount > 0) {
         strengths.push(`${collaborativeCount} completed collaborative project(s)`);
+        collaboration = Math.min(100, collaborativeCount * 40 + 20);
+      } else if (collaborativeProjects.length > 0) {
+        collaboration = 30;
       } else {
         gaps.push("No completed collaborative projects");
         suggestions.push("Join or create a collaborative project to demonstrate teamwork skills");
       }
 
-      // 3. Recommended College-Ready Structure
+      // 4. College-Ready Structure
       const hasResearchProject = validProjects.some(p => {
         const desc = (p.description || "").toLowerCase();
         return desc.includes("research") || desc.includes("study") || desc.includes("analysis");
       });
-
-      const hasCollaborativeProject = collaborativeProjects.length > 0;
-      const hasLongTermProject = longTermProjects.length > 0;
       const hasEnoughProjects = validProjects.length >= 3;
       const validAchievements = achievements.filter(a => a.validation_status === 'approved');
-      const hasFieldAchievement = validAchievements.length > 0;
 
+      let readyScore = 0;
+      if (hasResearchProject) { strengths.push("Research-based project present"); readyScore += 20; }
+      else { gaps.push("No research-based project"); suggestions.push("Add a project involving research, data collection, or analysis"); }
+
+      if (hasEnoughProjects) { strengths.push(`${validProjects.length} validated projects in portfolio`); readyScore += 25; }
+      else { gaps.push(`Only ${validProjects.length} of 3 minimum projects`); suggestions.push("Add more projects to reach the recommended minimum of 3"); }
+
+      if (validAchievements.length > 0) { strengths.push(`${validAchievements.length} verified achievement(s)`); readyScore += 25; achievements_score = Math.min(100, validAchievements.length * 35); }
+      else { gaps.push("No verified achievements"); suggestions.push("Add achievements like awards, certifications, or competition placements"); }
+
+      if (longTermProjects.length > 0) readyScore += 15;
+      if (collaborativeProjects.length > 0) readyScore += 15;
+      collegeReady = readyScore;
+
+      // 5. Skill Alignment
       const majorSkills = MAJOR_SKILLS[major] || [];
       const alignedSkills = userSkills.filter((s: string) => 
         majorSkills.some(ms => ms.toLowerCase() === s.toLowerCase())
       );
-      const hasEnoughMajorSkills = alignedSkills.length >= 2;
 
-      if (hasResearchProject) {
-        strengths.push("Research-based project present");
-      } else {
-        gaps.push("No research-based project");
-        suggestions.push("Add a project involving research, data collection, or analysis");
-      }
-
-      if (hasCollaborativeProject) {
-        strengths.push("Collaborative experience demonstrated");
-      }
-
-      if (hasLongTermProject) {
-        strengths.push("Long-term commitment demonstrated");
-      }
-
-      if (hasEnoughProjects) {
-        strengths.push(`${validProjects.length} validated projects in portfolio`);
-      } else {
-        gaps.push(`Only ${validProjects.length} of 3 minimum projects`);
-        const gradeLevel = getGradeLevel(grade);
-        if (gradeLevel === "junior") {
-          suggestions.push("Start with small, achievable projects in your area of interest");
-        } else {
-          suggestions.push("Add more projects to reach the recommended minimum of 3");
-        }
-      }
-
-      if (hasFieldAchievement) {
-        strengths.push(`${validAchievements.length} verified achievement(s)`);
-      } else {
-        gaps.push("No verified achievements");
-        suggestions.push("Add achievements like awards, certifications, or competition placements");
-      }
-
-      if (hasEnoughMajorSkills) {
-        strengths.push(`${alignedSkills.length} skills aligned with ${major || "your major"}`);
+      if (alignedSkills.length >= 2 && major) {
+        strengths.push(`${alignedSkills.length} skills aligned with ${major}`);
+        skillAlignment = Math.min(100, alignedSkills.length * 25);
       } else if (major) {
         gaps.push(`Only ${alignedSkills.length} of 2 minimum major-aligned skills`);
         const suggestedSkills = majorSkills.filter(s => !alignedSkills.includes(s)).slice(0, 2);
-        if (suggestedSkills.length > 0) {
-          suggestions.push(`Develop skills in: ${suggestedSkills.join(", ")}`);
-        }
+        if (suggestedSkills.length > 0) suggestions.push(`Develop skills in: ${suggestedSkills.join(", ")}`);
+        skillAlignment = alignedSkills.length * 20;
       }
 
-      // 4. Skill Alignment Check
-      const projectSkills = validProjects.flatMap(p => p.required_skills || []);
-      const uniqueProjectSkills = [...new Set(projectSkills)];
-      const alignedProjectSkills = uniqueProjectSkills.filter((s: string) =>
-        majorSkills.some(ms => ms.toLowerCase() === s.toLowerCase())
-      );
+      // 6. Achievements
+      if (achievements_score === 0) achievements_score = 10;
 
-      if (alignedProjectSkills.length > 0 && major) {
-        strengths.push(`Project skills match ${major} requirements`);
-      } else if (uniqueProjectSkills.length > 0 && major) {
-        gaps.push("Project skills don't align well with your major");
-        suggestions.push("Focus future projects on skills relevant to your major");
-      }
+      if (strengths.length === 0) strengths.push("Starting your portfolio journey - great first step!");
 
-      // Grade-specific suggestions
-      const gradeLevel = getGradeLevel(grade);
-      if (gradeLevel === "junior" && gaps.length > 3) {
-        suggestions.push("Focus on 1-2 areas first rather than trying to fill all gaps at once");
-      } else if (gradeLevel === "senior" && gaps.length > 0) {
-        suggestions.push("Prioritize completing major projects and gaining collaborative experience");
-      }
+      const radarData = [
+        { dimension: "Core Experience", score: coreExperience, fullMark: 100 },
+        { dimension: "Project Depth", score: projectDepth, fullMark: 100 },
+        { dimension: "Collaboration", score: collaboration, fullMark: 100 },
+        { dimension: "College-Ready", score: collegeReady, fullMark: 100 },
+        { dimension: "Skill Alignment", score: skillAlignment, fullMark: 100 },
+        { dimension: "Achievements", score: achievements_score, fullMark: 100 },
+      ];
 
-      // Ensure we have content in each section
-      if (strengths.length === 0) {
-        strengths.push("Starting your portfolio journey - great first step!");
-      }
-
-      setResults({ strengths, gaps, suggestions });
+      setResults({ strengths, gaps, suggestions, radarData });
       setIsScanning(false);
     }, 1500);
-  };
-
-  const getGradeLevel = (grade: string): "junior" | "mid" | "senior" => {
-    const gradeNum = parseInt(grade);
-    if (!isNaN(gradeNum)) {
-      if (gradeNum <= 8) return "junior";
-      if (gradeNum <= 10) return "mid";
-      return "senior";
-    }
-    if (grade?.toLowerCase().includes("college") || grade?.toLowerCase().includes("university")) {
-      return "senior";
-    }
-    return "mid";
   };
 
   const handleScan = () => {
@@ -298,7 +273,37 @@ const PortfolioGapScanner = ({
           ) : results ? (
             <ScrollArea className="max-h-[60vh] pr-4">
               <div className="space-y-6">
-                {/* Strengths Section */}
+                {/* Radar Chart */}
+                <Card className="p-4 bg-muted/20 border-border/50">
+                  <h4 className="text-sm font-semibold text-foreground mb-2 text-center">Portfolio Strength Overview</h4>
+                  <div className="w-full h-[260px]">
+                    <ResponsiveContainer width="100%" height="100%">
+                      <RadarChart data={results.radarData} outerRadius="75%">
+                        <PolarGrid stroke="hsl(var(--border))" />
+                        <PolarAngleAxis
+                          dataKey="dimension"
+                          tick={{ fill: "hsl(var(--muted-foreground))", fontSize: 11 }}
+                        />
+                        <PolarRadiusAxis
+                          angle={90}
+                          domain={[0, 100]}
+                          tick={{ fill: "hsl(var(--muted-foreground))", fontSize: 9 }}
+                          tickCount={5}
+                        />
+                        <Radar
+                          name="Your Portfolio"
+                          dataKey="score"
+                          stroke="hsl(var(--primary))"
+                          fill="hsl(var(--primary))"
+                          fillOpacity={0.25}
+                          strokeWidth={2}
+                        />
+                      </RadarChart>
+                    </ResponsiveContainer>
+                  </div>
+                </Card>
+
+                {/* Strengths */}
                 <div className="space-y-3">
                   <div className="flex items-center gap-2">
                     <CheckCircle2 className="h-5 w-5 text-green-500" />
@@ -307,16 +312,14 @@ const PortfolioGapScanner = ({
                   <div className="space-y-2 pl-7">
                     {results.strengths.map((strength, idx) => (
                       <div key={idx} className="flex items-start gap-2">
-                        <Badge variant="secondary" className="bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400">
-                          ✓
-                        </Badge>
+                        <Badge variant="secondary" className="bg-green-900/30 text-green-400">✓</Badge>
                         <p className="text-sm">{strength}</p>
                       </div>
                     ))}
                   </div>
                 </div>
 
-                {/* Gaps Section */}
+                {/* Gaps */}
                 {results.gaps.length > 0 && (
                   <div className="space-y-3">
                     <div className="flex items-center gap-2">
@@ -326,9 +329,7 @@ const PortfolioGapScanner = ({
                     <div className="space-y-2 pl-7">
                       {results.gaps.map((gap, idx) => (
                         <div key={idx} className="flex items-start gap-2">
-                          <Badge variant="secondary" className="bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400">
-                            ⚠
-                          </Badge>
+                          <Badge variant="secondary" className="bg-amber-900/30 text-amber-400">⚠</Badge>
                           <p className="text-sm">{gap}</p>
                         </div>
                       ))}
@@ -336,19 +337,17 @@ const PortfolioGapScanner = ({
                   </div>
                 )}
 
-                {/* Suggestions Section */}
+                {/* Suggestions */}
                 {results.suggestions.length > 0 && (
                   <div className="space-y-3">
                     <div className="flex items-center gap-2">
                       <Target className="h-5 w-5 text-primary" />
-                      <h4 className="font-semibold text-lg">Specific Suggestions to Improve</h4>
+                      <h4 className="font-semibold text-lg">Suggestions to Improve</h4>
                     </div>
                     <div className="space-y-2 pl-7">
                       {results.suggestions.map((suggestion, idx) => (
                         <div key={idx} className="flex items-start gap-2">
-                          <Badge variant="secondary" className="bg-primary/10 text-primary">
-                            🎯
-                          </Badge>
+                          <Badge variant="secondary" className="bg-primary/10 text-primary">🎯</Badge>
                           <p className="text-sm">{suggestion}</p>
                         </div>
                       ))}
