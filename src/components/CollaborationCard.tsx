@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Users, Clock, Images, ChevronLeft, ChevronRight, X } from "lucide-react";
 import { useReducedMotion } from "@/hooks/use-reduced-motion";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 interface CollaborationCardProps {
   id: string;
