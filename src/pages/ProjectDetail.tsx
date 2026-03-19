@@ -496,15 +496,15 @@ const ProjectDetail = () => {
                       transition={{ delay: i * 0.03 }}
                     >
                       <Avatar className="h-7 w-7 flex-shrink-0">
-                        <AvatarImage src={comment.profiles?.avatar_url} />
+                        <AvatarImage src={comment.author?.avatar_url} />
                         <AvatarFallback className="text-[10px]">
-                          {comment.profiles?.full_name?.[0] || "U"}
+                          {comment.author?.full_name?.[0] || "U"}
                         </AvatarFallback>
                       </Avatar>
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2 mb-0.5">
                           <span className="text-[12px] font-medium text-foreground">
-                            {comment.profiles?.full_name || "Anonymous"}
+                            {comment.author?.full_name || "Anonymous"}
                           </span>
                           <span className="text-[10px] text-muted-foreground/50">
                             {new Date(comment.created_at).toLocaleDateString()}
