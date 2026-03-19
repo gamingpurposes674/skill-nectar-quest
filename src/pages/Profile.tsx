@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -20,6 +20,11 @@ import {
   Trash2,
   Edit,
   Users,
+  Star,
+  Award,
+  Zap,
+  Trophy,
+  Pin,
 } from "lucide-react";
 import { AnimatedCard } from "@/components/ui/animated-card";
 import { AnimatedProgress } from "@/components/ui/animated-progress";
@@ -59,6 +64,8 @@ interface Project {
   required_skills: string[] | null;
   project_link: string | null;
   created_at: string;
+  collaborator_id: string | null;
+  is_complete: boolean | null;
 }
 
 interface Achievement {
@@ -70,7 +77,38 @@ interface Achievement {
   proof_file_url: string | null;
 }
 
-const Profile = () => {
+// Auto-generated badges based on user data
+const computeBadges = (
+  projects: Project[],
+  achievements: Achievement[],
+  connectionsCount: number
+) => {
+  const badges: { icon: typeof Star; label: string; color: string }[] = [];
+
+  const collabProjects = projects.filter((p) => p.collaborator_id);
+  if (collabProjects.length >= 1) {
+    badges.push({ icon: Zap, label: "First Collaboration", color: "text-accent" });
+  }
+
+  const completedCount = projects.filter((p) => p.is_complete).length;
+  if (completedCount >= 5) {
+    badges.push({ icon: Trophy, label: "5 Projects Completed", color: "text-yellow-400" });
+  } else if (completedCount >= 1) {
+    badges.push({ icon: Award, label: "Project Finisher", color: "text-primary" });
+  }
+
+  if (connectionsCount >= 10) {
+    badges.push({ icon: Users, label: "Top Contributor", color: "text-secondary" });
+  }
+
+  if (achievements.length >= 3) {
+    badges.push({ icon: Star, label: "Achiever", color: "text-yellow-400" });
+  }
+
+  return badges;
+};
+
+const ProfilePage = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const { user } = useAuth();
@@ -83,6 +121,7 @@ const Profile = () => {
   const [loading, setLoading] = useState(true);
   const [editDialogOpen, setEditDialogOpen] = useState(false);
   const [achievementDialogOpen, setAchievementDialogOpen] = useState(false);
+  const [featuredProjectId, setFeaturedProjectId] = useState<string | null>(null);
 
   // Reactions & comments state
   const [reactions, setReactions] = useState<{ [key: string]: number }>({});
@@ -100,9 +139,16 @@ const Profile = () => {
     }
   }, [profileId]);
 
+  // Persist featured project in localStorage per-user
+  useEffect(() => {
+    if (isOwnProfile && user?.id) {
+      const saved = localStorage.getItem(`nexstep_featured_${user.id}`);
+      if (saved) setFeaturedProjectId(saved);
+    }
+  }, [isOwnProfile, user?.id]);
+
   const loadProfileData = async () => {
     try {
-      // Load profile
       const { data: profileData, error: profileError } = await supabase
         .from("profiles")
         .select("*")
@@ -112,7 +158,6 @@ const Profile = () => {
       if (profileError) throw profileError;
       setProfile(profileData);
 
-      // Load projects
       const { data: projectsData } = await supabase
         .from("projects")
         .select("*")
@@ -121,7 +166,6 @@ const Profile = () => {
 
       setProjects(projectsData || []);
 
-      // Load achievements
       const { data: achievementsData } = await supabase
         .from("achievements")
         .select("*")
@@ -142,7 +186,8 @@ const Profile = () => {
 
         feedbackData.forEach((item) => {
           if (item.reaction_type) {
-            reactionCounts[item.reaction_type] = (reactionCounts[item.reaction_type] || 0) + 1;
+            reactionCounts[item.reaction_type] =
+              (reactionCounts[item.reaction_type] || 0) + 1;
             if (user && item.author_id === user.id) {
               setUserReaction(item.reaction_type);
             }
@@ -171,9 +216,7 @@ const Profile = () => {
         .or(`requester_id.eq.${profileId},addressee_id.eq.${profileId}`)
         .eq("status", "accepted");
 
-      if (!error && data) {
-        setConnectionsCount(data.length);
-      }
+      if (!error && data) setConnectionsCount(data.length);
     } catch (error) {
       console.error("Error loading connections count:", error);
     }
@@ -184,11 +227,9 @@ const Profile = () => {
       if (isOwnProfile) toast.error("You cannot react to your own profile");
       return;
     }
-
     try {
       if (userReaction) {
         if (userReaction === reactionType) {
-          // Remove reaction
           await supabase
             .from("feedback")
             .delete()
@@ -200,9 +241,7 @@ const Profile = () => {
             ...prev,
             [reactionType]: Math.max(0, (prev[reactionType] || 0) - 1),
           }));
-          toast.success("Reaction removed");
         } else {
-          // Update reaction
           await supabase
             .from("feedback")
             .update({ reaction_type: reactionType })
@@ -215,10 +254,8 @@ const Profile = () => {
             [reactionType]: (prev[reactionType] || 0) + 1,
           }));
           setUserReaction(reactionType);
-          toast.success("Reaction updated");
         }
       } else {
-        // Add new reaction
         await supabase.from("feedback").insert({
           profile_id: profileId,
           author_id: user.id,
@@ -229,8 +266,6 @@ const Profile = () => {
           [reactionType]: (prev[reactionType] || 0) + 1,
         }));
         setUserReaction(reactionType);
-
-        // Create notification
         if (profileId !== user.id) {
           await supabase.from("notifications").insert({
             user_id: profileId,
@@ -242,8 +277,6 @@ const Profile = () => {
             reference_id: profileId,
           });
         }
-
-        toast.success("Reaction added");
       }
     } catch (error: any) {
       toast.error(error.message || "Failed to react");
@@ -255,7 +288,6 @@ const Profile = () => {
       if (isOwnProfile) toast.error("You cannot comment on your own profile");
       return;
     }
-
     try {
       const { data, error } = await supabase
         .from("feedback")
@@ -266,13 +298,9 @@ const Profile = () => {
         })
         .select("*, profiles(full_name, avatar_url, grade)")
         .single();
-
       if (error) throw error;
-
       setComments((prev) => [data, ...prev]);
       setNewComment("");
-
-      // Create notification
       if (profileId !== user.id) {
         await supabase.from("notifications").insert({
           user_id: profileId,
@@ -284,7 +312,6 @@ const Profile = () => {
           reference_id: profileId,
         });
       }
-
       toast.success("Feedback posted");
     } catch (error: any) {
       toast.error(error.message || "Failed to post feedback");
@@ -296,6 +323,10 @@ const Profile = () => {
       const { error } = await supabase.from("projects").delete().eq("id", projectId);
       if (error) throw error;
       setProjects((prev) => prev.filter((p) => p.id !== projectId));
+      if (featuredProjectId === projectId) {
+        setFeaturedProjectId(null);
+        if (user?.id) localStorage.removeItem(`nexstep_featured_${user.id}`);
+      }
       toast.success("Project deleted");
     } catch (error: any) {
       toast.error(error.message || "Failed to delete project");
@@ -313,21 +344,38 @@ const Profile = () => {
     }
   };
 
-  const getStatusBadge = (grade: string | null) => {
-    if (!grade) return { label: "STUDENT", variant: "secondary" as const };
-    const gradeLower = grade.toLowerCase();
-    if (gradeLower.includes("graduate") || gradeLower.includes("college") || gradeLower.includes("university")) {
-      return { label: "SENIOR", variant: "default" as const };
+  const handleSetFeatured = (projectId: string) => {
+    const newId = featuredProjectId === projectId ? null : projectId;
+    setFeaturedProjectId(newId);
+    if (user?.id) {
+      if (newId) {
+        localStorage.setItem(`nexstep_featured_${user.id}`, newId);
+      } else {
+        localStorage.removeItem(`nexstep_featured_${user.id}`);
+      }
     }
-    return { label: "STUDENT", variant: "secondary" as const };
+    toast.success(newId ? "Project pinned as featured" : "Featured project unpinned");
+  };
+
+  const getStatusBadge = (grade: string | null) => {
+    if (!grade) return { label: "Student", variant: "secondary" as const };
+    const gradeLower = grade.toLowerCase();
+    if (
+      gradeLower.includes("graduate") ||
+      gradeLower.includes("college") ||
+      gradeLower.includes("university")
+    ) {
+      return { label: "Senior", variant: "default" as const };
+    }
+    return { label: "Student", variant: "secondary" as const };
   };
 
   if (loading) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="flex flex-col items-center gap-4">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
-          <p className="text-muted-foreground">Loading profile...</p>
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary" />
+          <p className="text-muted-foreground text-sm">Loading profile...</p>
         </div>
       </div>
     );
@@ -345,96 +393,237 @@ const Profile = () => {
   }
 
   const status = getStatusBadge(profile.grade);
+  const badges = computeBadges(projects, achievements, connectionsCount);
+
+  // Separate featured project
+  const featuredProject = projects.find((p) => p.id === featuredProjectId);
+  const otherProjects = projects.filter((p) => p.id !== featuredProjectId);
+
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: { opacity: 1, transition: { staggerChildren: 0.08 } },
+  };
+  const itemVariants = {
+    hidden: { opacity: 0, y: 14 },
+    visible: { opacity: 1, y: 0, transition: { duration: 0.35 } },
+  };
+
+  const ProjectCard = ({
+    project,
+    featured = false,
+  }: {
+    project: Project;
+    featured?: boolean;
+  }) => (
+    <div
+      className={`rounded-xl border bg-card p-5 transition-all duration-300 hover:border-accent/50 hover:shadow-[0_0_28px_hsl(var(--accent)/0.15)] ${
+        featured
+          ? "border-accent/30 shadow-[0_0_20px_hsl(var(--accent)/0.1)]"
+          : "border-border/50"
+      }`}
+    >
+      {featured && (
+        <div className="flex items-center gap-1.5 mb-3 text-accent">
+          <Pin className="h-3.5 w-3.5" />
+          <span className="text-[11px] font-semibold uppercase tracking-wider">
+            Featured Project
+          </span>
+        </div>
+      )}
+      <div className="flex items-start justify-between gap-3">
+        <div className="flex-1 min-w-0">
+          <div className="flex items-center gap-2 mb-1.5 flex-wrap">
+            <h3
+              className={`font-bold tracking-tight font-['Space_Grotesk',sans-serif] ${
+                featured ? "text-base" : "text-[14px]"
+              }`}
+            >
+              {project.title}
+            </h3>
+            <span
+              className={`px-2 py-0.5 rounded-full text-[10px] font-medium border ${
+                project.is_complete
+                  ? "bg-accent/10 text-accent border-accent/30"
+                  : project.status === "open"
+                  ? "bg-primary/10 text-primary border-primary/30"
+                  : "bg-muted/50 text-muted-foreground border-border/60"
+              }`}
+            >
+              {project.is_complete
+                ? "Completed"
+                : project.status === "open"
+                ? "Active"
+                : project.status}
+            </span>
+          </div>
+          <p className="text-[13px] text-muted-foreground leading-relaxed line-clamp-2 mb-3">
+            {project.description}
+          </p>
+          {project.required_skills && project.required_skills.length > 0 && (
+            <div className="flex flex-wrap gap-1.5 mb-2">
+              {project.required_skills.map((skill, i) => (
+                <span
+                  key={i}
+                  className="px-2 py-0.5 rounded-full text-[10px] font-medium bg-muted/50 text-muted-foreground border border-border/60"
+                >
+                  {skill}
+                </span>
+              ))}
+            </div>
+          )}
+          {project.project_link && (
+            <a
+              href={project.project_link}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-1 text-[12px] text-accent hover:underline underline-offset-2 font-medium"
+            >
+              <LinkIcon className="h-3 w-3" />
+              View Project
+            </a>
+          )}
+        </div>
+        {isOwnProfile && (
+          <div className="flex flex-col gap-1 flex-shrink-0">
+            <button
+              onClick={() => handleSetFeatured(project.id)}
+              className={`p-1.5 rounded-md transition-colors ${
+                featuredProjectId === project.id
+                  ? "text-accent bg-accent/10"
+                  : "text-muted-foreground hover:text-accent hover:bg-accent/10"
+              }`}
+              title={
+                featuredProjectId === project.id ? "Unpin featured" : "Pin as featured"
+              }
+            >
+              <Pin className="h-3.5 w-3.5" />
+            </button>
+            <button
+              onClick={() => handleDeleteProject(project.id)}
+              className="p-1.5 rounded-md text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-colors"
+            >
+              <Trash2 className="h-3.5 w-3.5" />
+            </button>
+          </div>
+        )}
+      </div>
+    </div>
+  );
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background relative">
+      {/* Ambient glow */}
+      <div className="glow-orb w-80 h-80 bg-primary/15 -top-40 -left-40 fixed" />
+      <div className="glow-orb w-60 h-60 bg-secondary/10 top-1/4 -right-32 fixed" />
+
       {/* Header */}
-      <header className="border-b bg-card/50 backdrop-blur-sm sticky top-0 z-50">
-        <div className="container mx-auto px-4 py-4 flex items-center justify-between">
-          <div className="flex items-center gap-4">
-            <Button variant="ghost" size="icon" onClick={() => navigate(-1)}>
-              <ArrowLeft className="h-5 w-5" />
+      <header className="glass-nav sticky top-0 z-50">
+        <div className="container mx-auto px-4 py-3 flex items-center justify-between max-w-6xl">
+          <div className="flex items-center gap-3">
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => navigate(-1)}
+              className="h-8 w-8"
+            >
+              <ArrowLeft className="h-4 w-4" />
             </Button>
-            <h1 className="text-xl font-bold">Profile</h1>
+            <h1 className="text-sm font-semibold text-foreground">Profile</h1>
           </div>
           {isOwnProfile && (
-            <Button variant="outline" onClick={() => setEditDialogOpen(true)} className="gap-2">
-              <Edit className="h-4 w-4" />
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setEditDialogOpen(true)}
+              className="gap-1.5 text-xs h-8"
+            >
+              <Edit className="h-3.5 w-3.5" />
               Edit Profile
             </Button>
           )}
         </div>
       </header>
 
-      <main className="container mx-auto px-4 py-8">
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {/* Left Column - Profile Card */}
+      <main className="container mx-auto px-4 py-8 max-w-6xl">
+        <motion.div
+          className="grid grid-cols-1 lg:grid-cols-3 gap-6"
+          variants={prefersReducedMotion ? undefined : containerVariants}
+          initial="hidden"
+          animate="visible"
+        >
+          {/* ── Left Column: Profile Info ── */}
           <motion.div
-            initial={prefersReducedMotion ? {} : { opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.4 }}
-            className="lg:col-span-1"
+            className="lg:col-span-1 space-y-4"
+            variants={prefersReducedMotion ? undefined : itemVariants}
           >
-            <AnimatedCard className="p-6 text-center">
-              <Avatar className="h-24 w-24 mx-auto mb-4 border-4 border-background shadow-lg">
+            {/* Profile Card */}
+            <div className="rounded-xl border border-border/50 bg-card p-6 text-center">
+              <Avatar className="h-20 w-20 mx-auto mb-4 ring-2 ring-border shadow-lg">
                 <AvatarImage src={profile.avatar_url || undefined} />
-                <AvatarFallback className="text-2xl bg-primary/10">
+                <AvatarFallback className="text-xl bg-primary/10 font-bold">
                   {profile.full_name?.[0] || "U"}
                 </AvatarFallback>
               </Avatar>
 
-              <h2 className="text-xl font-bold mb-1">{profile.full_name}</h2>
-              <Badge variant={status.variant} className="mb-4">
+              <h2 className="text-lg font-bold tracking-tight font-['Space_Grotesk',sans-serif] mb-0.5">
+                {profile.full_name}
+              </h2>
+              <Badge variant={status.variant} className="text-[10px] mb-3">
                 {status.label}
               </Badge>
 
-              {profile.bio && <p className="text-sm text-muted-foreground mb-4">{profile.bio}</p>}
+              {profile.bio && (
+                <p className="text-[13px] text-muted-foreground leading-relaxed mb-4 max-w-[280px] mx-auto">
+                  {profile.bio}
+                </p>
+              )}
 
-              <div className="space-y-2 text-sm text-left">
+              {/* Info rows */}
+              <div className="space-y-1.5 text-[13px] text-left px-2">
                 {profile.grade && (
-                  <div className="flex items-center gap-2">
-                    <GraduationCap className="h-4 w-4 text-muted-foreground" />
+                  <div className="flex items-center gap-2 text-muted-foreground">
+                    <GraduationCap className="h-3.5 w-3.5 flex-shrink-0" />
                     <span>{profile.grade}</span>
                   </div>
                 )}
-                {profile.major && (
-                  <div className="flex items-center gap-2">
-                    <Briefcase className="h-4 w-4 text-muted-foreground" />
-                    <span>{profile.major}</span>
-                  </div>
-                )}
                 {profile.school && (
-                  <div className="flex items-center gap-2">
-                    <GraduationCap className="h-4 w-4 text-muted-foreground" />
+                  <div className="flex items-center gap-2 text-muted-foreground">
+                    <Briefcase className="h-3.5 w-3.5 flex-shrink-0" />
                     <span>{profile.school}</span>
                   </div>
                 )}
+                {profile.major && (
+                  <div className="flex items-center gap-2 text-muted-foreground">
+                    <GraduationCap className="h-3.5 w-3.5 flex-shrink-0" />
+                    <span>{profile.major}</span>
+                  </div>
+                )}
                 {profile.location && (
-                  <div className="flex items-center gap-2">
-                    <MapPin className="h-4 w-4 text-muted-foreground" />
+                  <div className="flex items-center gap-2 text-muted-foreground">
+                    <MapPin className="h-3.5 w-3.5 flex-shrink-0" />
                     <span>{profile.location}</span>
                   </div>
                 )}
               </div>
 
               {/* Social Links */}
-              <div className="flex justify-center gap-2 mt-4">
+              <div className="flex justify-center gap-1.5 mt-4">
                 {profile.github_url && (
-                  <Button variant="outline" size="icon" asChild>
+                  <Button variant="ghost" size="icon" asChild className="h-8 w-8">
                     <a href={profile.github_url} target="_blank" rel="noopener noreferrer">
                       <Github className="h-4 w-4" />
                     </a>
                   </Button>
                 )}
                 {profile.linkedin_url && (
-                  <Button variant="outline" size="icon" asChild>
+                  <Button variant="ghost" size="icon" asChild className="h-8 w-8">
                     <a href={profile.linkedin_url} target="_blank" rel="noopener noreferrer">
                       <Linkedin className="h-4 w-4" />
                     </a>
                   </Button>
                 )}
                 {profile.portfolio_url && (
-                  <Button variant="outline" size="icon" asChild>
+                  <Button variant="ghost" size="icon" asChild className="h-8 w-8">
                     <a href={profile.portfolio_url} target="_blank" rel="noopener noreferrer">
                       <Globe className="h-4 w-4" />
                     </a>
@@ -443,23 +632,27 @@ const Profile = () => {
               </div>
 
               {/* Portfolio Health */}
-              <div className="mt-6 pt-4 border-t">
-                <div className="flex items-center justify-between text-sm mb-2">
-                  <span className="text-muted-foreground">Portfolio Health</span>
-                  <span className="font-bold">{profile.portfolio_health || 0}%</span>
+              <div className="mt-5 pt-4 border-t border-border/40">
+                <div className="flex items-center justify-between text-[12px] mb-1.5">
+                  <span className="text-muted-foreground font-medium">Portfolio Health</span>
+                  <span className="font-bold text-foreground">
+                    {profile.portfolio_health || 0}%
+                  </span>
                 </div>
-                <AnimatedProgress value={profile.portfolio_health || 0} className="h-2" />
+                <AnimatedProgress value={profile.portfolio_health || 0} className="h-1.5" />
               </div>
 
-              {/* Connections Count */}
-              <div className="flex items-center justify-center gap-2 mt-4 text-sm text-muted-foreground">
-                <Users className="h-4 w-4" />
-                <span>{connectionsCount} connection{connectionsCount !== 1 ? 's' : ''}</span>
+              {/* Connections */}
+              <div className="flex items-center justify-center gap-1.5 mt-4 text-[12px] text-muted-foreground">
+                <Users className="h-3.5 w-3.5" />
+                <span>
+                  {connectionsCount} connection{connectionsCount !== 1 ? "s" : ""}
+                </span>
               </div>
 
-              {/* Action Buttons for other profiles */}
+              {/* Action Buttons */}
               {!isOwnProfile && user && (
-                <div className="mt-6 space-y-3">
+                <div className="mt-5 space-y-2">
                   <ConnectionButton
                     currentUserId={user.id}
                     targetUserId={profile.id}
@@ -473,126 +666,169 @@ const Profile = () => {
                   />
                 </div>
               )}
-            </AnimatedCard>
+            </div>
 
             {/* Skills */}
             {profile.skills && profile.skills.length > 0 && (
-              <AnimatedCard className="p-6 mt-4">
-                <h3 className="font-semibold mb-3">Skills</h3>
-                <div className="flex flex-wrap gap-2">
+              <div className="rounded-xl border border-border/50 bg-card p-5">
+                <h3 className="text-[13px] font-semibold mb-3 text-foreground">Skills</h3>
+                <div className="flex flex-wrap gap-1.5">
                   {profile.skills.map((skill, i) => (
-                    <Badge key={i} variant="secondary">
+                    <span
+                      key={i}
+                      className="px-2.5 py-1 rounded-full text-[11px] font-medium bg-muted/50 text-muted-foreground border border-border/60"
+                    >
                       {skill}
-                    </Badge>
+                    </span>
                   ))}
                 </div>
-              </AnimatedCard>
+              </div>
+            )}
+
+            {/* Badges */}
+            {badges.length > 0 && (
+              <div className="rounded-xl border border-border/50 bg-card p-5">
+                <h3 className="text-[13px] font-semibold mb-3 text-foreground">Badges</h3>
+                <div className="space-y-2">
+                  {badges.map((badge, i) => {
+                    const Icon = badge.icon;
+                    return (
+                      <motion.div
+                        key={i}
+                        className="flex items-center gap-2.5 px-3 py-2 rounded-lg bg-muted/30 border border-border/40"
+                        initial={prefersReducedMotion ? undefined : { opacity: 0, x: -8 }}
+                        animate={prefersReducedMotion ? undefined : { opacity: 1, x: 0 }}
+                        transition={{ delay: i * 0.08 }}
+                      >
+                        <Icon className={`h-4 w-4 ${badge.color}`} />
+                        <span className="text-[12px] font-medium text-foreground">
+                          {badge.label}
+                        </span>
+                      </motion.div>
+                    );
+                  })}
+                </div>
+              </div>
             )}
           </motion.div>
 
-          {/* Right Column - Tabs */}
+          {/* ── Right Column: Projects & Content ── */}
           <motion.div
-            initial={prefersReducedMotion ? {} : { opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.4, delay: 0.1 }}
-            className="lg:col-span-2"
+            className="lg:col-span-2 space-y-5"
+            variants={prefersReducedMotion ? undefined : itemVariants}
           >
+            {/* Featured Project */}
+            {featuredProject && (
+              <motion.div
+                initial={prefersReducedMotion ? undefined : { opacity: 0, y: 12 }}
+                animate={prefersReducedMotion ? undefined : { opacity: 1, y: 0 }}
+              >
+                <ProjectCard project={featuredProject} featured />
+              </motion.div>
+            )}
+
+            {/* Tabs */}
             <Tabs defaultValue="projects">
-              <TabsList className="w-full justify-start">
-                <TabsTrigger value="projects">Projects ({projects.length})</TabsTrigger>
-                <TabsTrigger value="achievements">Achievements ({achievements.length})</TabsTrigger>
-                {!isOwnProfile && <TabsTrigger value="feedback">Feedback</TabsTrigger>}
+              <TabsList className="bg-muted/50 backdrop-blur-sm p-1 rounded-xl border border-border/40">
+                <TabsTrigger
+                  value="projects"
+                  className="rounded-lg data-[state=active]:bg-accent data-[state=active]:text-accent-foreground data-[state=active]:shadow-[0_0_16px_hsl(var(--accent)/0.4)] transition-all duration-200 text-[13px]"
+                >
+                  Projects ({projects.length})
+                </TabsTrigger>
+                <TabsTrigger
+                  value="achievements"
+                  className="rounded-lg data-[state=active]:bg-accent data-[state=active]:text-accent-foreground data-[state=active]:shadow-[0_0_16px_hsl(var(--accent)/0.4)] transition-all duration-200 text-[13px]"
+                >
+                  Achievements ({achievements.length})
+                </TabsTrigger>
+                {!isOwnProfile && (
+                  <TabsTrigger
+                    value="feedback"
+                    className="rounded-lg data-[state=active]:bg-accent data-[state=active]:text-accent-foreground data-[state=active]:shadow-[0_0_16px_hsl(var(--accent)/0.4)] transition-all duration-200 text-[13px]"
+                  >
+                    Feedback
+                  </TabsTrigger>
+                )}
               </TabsList>
 
-              <TabsContent value="projects" className="mt-4 space-y-4">
-                {projects.length === 0 ? (
-                  <Card className="p-8 text-center">
-                    <p className="text-muted-foreground">No projects yet</p>
-                  </Card>
+              <TabsContent value="projects" className="mt-4 space-y-3">
+                {otherProjects.length === 0 && !featuredProject ? (
+                  <div className="rounded-xl border border-border/50 bg-card p-8 text-center">
+                    <p className="text-sm text-muted-foreground">No projects yet</p>
+                  </div>
                 ) : (
-                  projects.map((project) => (
-                    <AnimatedCard key={project.id} className="p-6">
-                      <div className="flex items-start justify-between">
-                        <div className="flex-1">
-                          <div className="flex items-center gap-2 mb-2">
-                            <h3 className="font-semibold">{project.title}</h3>
-                            <Badge variant="outline">{project.status}</Badge>
-                          </div>
-                          <p className="text-sm text-muted-foreground mb-3">{project.description}</p>
-                          {project.required_skills && project.required_skills.length > 0 && (
-                            <div className="flex flex-wrap gap-1">
-                              {project.required_skills.map((skill, i) => (
-                                <Badge key={i} variant="secondary" className="text-xs">
-                                  {skill}
-                                </Badge>
-                              ))}
-                            </div>
-                          )}
-                          {project.project_link && (
-                            <a
-                              href={project.project_link}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="inline-flex items-center gap-1 text-sm text-primary mt-2 hover:underline"
-                            >
-                              <LinkIcon className="h-3 w-3" />
-                              View Project
-                            </a>
-                          )}
-                        </div>
-                        {isOwnProfile && (
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            onClick={() => handleDeleteProject(project.id)}
-                            className="text-destructive hover:text-destructive"
-                          >
-                            <Trash2 className="h-4 w-4" />
-                          </Button>
-                        )}
-                      </div>
-                    </AnimatedCard>
+                  otherProjects.map((project, index) => (
+                    <motion.div
+                      key={project.id}
+                      initial={
+                        prefersReducedMotion ? undefined : { opacity: 0, y: 12 }
+                      }
+                      animate={
+                        prefersReducedMotion ? undefined : { opacity: 1, y: 0 }
+                      }
+                      transition={{ delay: index * 0.04, duration: 0.3 }}
+                    >
+                      <ProjectCard project={project} />
+                    </motion.div>
                   ))
                 )}
               </TabsContent>
 
-              <TabsContent value="achievements" className="mt-4 space-y-4">
+              <TabsContent value="achievements" className="mt-4 space-y-3">
                 {isOwnProfile && (
-                  <Button onClick={() => setAchievementDialogOpen(true)} className="mb-4">
+                  <Button
+                    onClick={() => setAchievementDialogOpen(true)}
+                    size="sm"
+                    className="mb-2 gradient-primary text-xs h-8"
+                  >
                     Add Achievement
                   </Button>
                 )}
                 {achievements.length === 0 ? (
-                  <Card className="p-8 text-center">
-                    <p className="text-muted-foreground">No achievements yet</p>
-                  </Card>
+                  <div className="rounded-xl border border-border/50 bg-card p-8 text-center">
+                    <p className="text-sm text-muted-foreground">No achievements yet</p>
+                  </div>
                 ) : (
-                  achievements.map((achievement) => (
-                    <AnimatedCard key={achievement.id} className="p-6">
-                      <div className="flex items-start justify-between">
-                        <div className="flex-1">
-                          <h3 className="font-semibold mb-1">{achievement.title}</h3>
-                          {achievement.description && (
-                            <p className="text-sm text-muted-foreground mb-2">{achievement.description}</p>
-                          )}
-                          {achievement.date_achieved && (
-                            <p className="text-xs text-muted-foreground">
-                              {new Date(achievement.date_achieved).toLocaleDateString()}
-                            </p>
+                  achievements.map((achievement, index) => (
+                    <motion.div
+                      key={achievement.id}
+                      initial={
+                        prefersReducedMotion ? undefined : { opacity: 0, y: 12 }
+                      }
+                      animate={
+                        prefersReducedMotion ? undefined : { opacity: 1, y: 0 }
+                      }
+                      transition={{ delay: index * 0.04, duration: 0.3 }}
+                    >
+                      <div className="rounded-xl border border-border/50 bg-card p-5 transition-all duration-300 hover:border-accent/50 hover:shadow-[0_0_28px_hsl(var(--accent)/0.15)]">
+                        <div className="flex items-start justify-between gap-3">
+                          <div className="flex-1">
+                            <h3 className="text-[14px] font-bold tracking-tight font-['Space_Grotesk',sans-serif] mb-1">
+                              {achievement.title}
+                            </h3>
+                            {achievement.description && (
+                              <p className="text-[13px] text-muted-foreground leading-relaxed mb-1.5">
+                                {achievement.description}
+                              </p>
+                            )}
+                            {achievement.date_achieved && (
+                              <p className="text-[11px] text-muted-foreground/60">
+                                {new Date(achievement.date_achieved).toLocaleDateString()}
+                              </p>
+                            )}
+                          </div>
+                          {isOwnProfile && (
+                            <button
+                              onClick={() => handleDeleteAchievement(achievement.id)}
+                              className="p-1.5 rounded-md text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-colors"
+                            >
+                              <Trash2 className="h-3.5 w-3.5" />
+                            </button>
                           )}
                         </div>
-                        {isOwnProfile && (
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            onClick={() => handleDeleteAchievement(achievement.id)}
-                            className="text-destructive hover:text-destructive"
-                          >
-                            <Trash2 className="h-4 w-4" />
-                          </Button>
-                        )}
                       </div>
-                    </AnimatedCard>
+                    </motion.div>
                   ))
                 )}
               </TabsContent>
@@ -612,7 +848,7 @@ const Profile = () => {
               )}
             </Tabs>
           </motion.div>
-        </div>
+        </motion.div>
       </main>
 
       {/* Dialogs */}
@@ -635,4 +871,4 @@ const Profile = () => {
   );
 };
 
-export default Profile;
+export default ProfilePage;
