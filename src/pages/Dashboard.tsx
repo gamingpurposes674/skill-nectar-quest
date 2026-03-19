@@ -443,7 +443,7 @@ const Dashboard = () => {
                   </DropdownMenu>
                 </div>
 
-                <TabsContent value="feed" className="space-y-4">
+                <TabsContent value="feed" className="space-y-5">
                   <AnimatePresence mode="popLayout">
                     {projects.length === 0 ? (
                       <motion.div

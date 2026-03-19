@@ -1,9 +1,7 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Users, Clock } from "lucide-react";
 import { useReducedMotion } from "@/hooks/use-reduced-motion";
 import { Link } from "react-router-dom";
@@ -22,10 +20,10 @@ interface CollaborationCardProps {
 }
 
 const GRADIENT_PALETTES = [
-  "from-primary/60 via-secondary/40 to-accent/30",
-  "from-secondary/60 via-primary/40 to-accent/30",
-  "from-accent/50 via-primary/40 to-secondary/30",
-  "from-primary/50 via-accent/30 to-secondary/40",
+  "from-[hsl(265,83%,57%)] via-[hsl(217,91%,60%)] to-[hsl(240,70%,35%)]",
+  "from-[hsl(217,91%,55%)] via-[hsl(265,83%,50%)] to-[hsl(222,47%,20%)]",
+  "from-[hsl(265,70%,45%)] via-[hsl(240,60%,50%)] to-[hsl(217,91%,40%)]",
+  "from-[hsl(230,80%,50%)] via-[hsl(265,83%,57%)] to-[hsl(217,60%,30%)]",
 ];
 
 const reactionEmojis = [
@@ -45,18 +43,18 @@ const CollaborationCard = ({
   skills,
   timePosted,
   coverImageUrl,
-  onRequestCollaboration
+  onRequestCollaboration,
 }: CollaborationCardProps) => {
   const prefersReducedMotion = useReducedMotion();
   const [reactions, setReactions] = useState<Record<string, number>>({});
   const [userReaction, setUserReaction] = useState<string | null>(null);
+  const [expanded, setExpanded] = useState(false);
 
-  // Deterministic gradient based on project id
   const gradientIndex = id.charCodeAt(0) % GRADIENT_PALETTES.length;
   const gradientClass = GRADIENT_PALETTES[gradientIndex];
 
   const handleReact = (type: string) => {
-    setReactions(prev => {
+    setReactions((prev) => {
       const updated = { ...prev };
       if (userReaction === type) {
         updated[type] = Math.max(0, (updated[type] || 1) - 1);
@@ -72,16 +70,20 @@ const CollaborationCard = ({
     });
   };
 
+  const shouldTruncate = description.length > 120;
+  const displayDescription = !expanded && shouldTruncate ? description.slice(0, 120) : description;
+
   return (
     <motion.div
-      whileHover={prefersReducedMotion ? undefined : { 
-        y: -2,
-        transition: { duration: 0.2 }
-      }}
+      whileHover={
+        prefersReducedMotion
+          ? undefined
+          : { y: -2, transition: { duration: 0.2 } }
+      }
     >
-      <Card className="glass-card shadow-card overflow-hidden hover:shadow-elegant transition-all duration-300 group hover:border-primary/20">
-        {/* Cover Image / Gradient Placeholder */}
-        <div className="relative h-36 overflow-hidden">
+      <div className="rounded-xl border border-border/50 bg-card overflow-hidden transition-all duration-300 hover:border-accent/40 hover:shadow-[0_0_20px_hsl(var(--accent)/0.08)]">
+        {/* Banner — 160px */}
+        <div className="relative h-40 overflow-hidden">
           {coverImageUrl ? (
             <img
               src={coverImageUrl}
@@ -89,103 +91,113 @@ const CollaborationCard = ({
               className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
             />
           ) : (
-            <div className={`w-full h-full bg-gradient-to-br ${gradientClass} flex items-end`}>
-              <div className="absolute inset-0 bg-gradient-to-t from-card/90 via-card/30 to-transparent" />
-              <h3 className="relative z-10 px-6 pb-4 text-xl font-bold tracking-tight text-foreground/90 line-clamp-2 font-['Space_Grotesk',sans-serif]">
-                {title}
-              </h3>
-            </div>
+            <div className={`w-full h-full bg-gradient-to-br ${gradientClass}`} />
           )}
-          {/* Floating time badge */}
-          <div className="absolute top-3 right-3 flex items-center gap-1 px-2.5 py-1 rounded-full bg-background/70 backdrop-blur-md text-[11px] text-muted-foreground font-medium">
-            <Clock className="h-3 w-3" />
-            {timePosted}
-          </div>
-        </div>
+          {/* Dark gradient overlay at bottom */}
+          <div className="absolute inset-0 bg-gradient-to-t from-card via-card/50 to-transparent" />
 
-        <div className="p-5 space-y-3.5">
-          {/* Header row */}
-          <div className="flex items-start justify-between gap-3">
-            <div className="flex items-center gap-3 min-w-0">
-              <motion.div
-                whileHover={prefersReducedMotion ? undefined : { scale: 1.08 }}
-                transition={{ duration: 0.15 }}
-              >
-                <Avatar className="h-9 w-9 flex-shrink-0 ring-2 ring-border group-hover:ring-primary/30 transition-all">
-                  <AvatarImage src={avatar} alt={author} />
-                  <AvatarFallback className="text-xs">{author[0]}</AvatarFallback>
-                </Avatar>
-              </motion.div>
-              <div className="min-w-0">
-                {coverImageUrl && (
-                  <h3 className="font-semibold text-base leading-snug group-hover:text-primary transition-colors duration-200 truncate">
-                    {title}
-                  </h3>
-                )}
-                <p className="text-[13px] text-muted-foreground">
-                  by{" "}
-                  {authorId ? (
-                    <Link
-                      to={`/profile/${authorId}`}
-                      className="text-accent hover:text-accent/80 hover:underline underline-offset-2 transition-colors duration-150 font-medium"
-                    >
-                      {author}
-                    </Link>
-                  ) : (
-                    <span className="text-accent font-medium">{author}</span>
-                  )}
-                </p>
-              </div>
-            </div>
+          {/* Join button — top right */}
+          <div className="absolute top-3 right-3 z-10">
             <motion.div
-              whileHover={prefersReducedMotion ? undefined : { scale: 1.02 }}
-              whileTap={prefersReducedMotion ? undefined : { scale: 0.98 }}
-              className="flex-shrink-0"
+              whileHover={prefersReducedMotion ? undefined : { scale: 1.04 }}
+              whileTap={prefersReducedMotion ? undefined : { scale: 0.96 }}
             >
-              <Button size="sm" className="gradient-primary shadow-glow text-xs h-8 px-3" onClick={onRequestCollaboration}>
-                <Users className="h-3.5 w-3.5 mr-1.5" />
+              <Button
+                size="sm"
+                onClick={onRequestCollaboration}
+                className="h-7 px-3 text-[11px] font-semibold bg-primary/90 hover:bg-primary text-primary-foreground backdrop-blur-sm border border-primary-foreground/10 shadow-lg"
+              >
+                <Users className="h-3 w-3 mr-1" />
                 Join
               </Button>
             </motion.div>
           </div>
-          
-          <p className="text-sm text-foreground/75 leading-relaxed line-clamp-2">
-            {description}
+
+          {/* Title overlay at bottom */}
+          <div className="absolute bottom-0 left-0 right-0 px-5 pb-3 z-10">
+            <h3 className="text-lg font-bold leading-snug text-foreground tracking-tight font-['Space_Grotesk',sans-serif]">
+              {title}
+            </h3>
+            <p className="text-[12px] text-muted-foreground mt-0.5">
+              by{" "}
+              {authorId ? (
+                <Link
+                  to={`/profile/${authorId}`}
+                  className="text-accent hover:text-accent/80 hover:underline underline-offset-2 transition-colors duration-150 font-medium"
+                >
+                  {author}
+                </Link>
+              ) : (
+                <span className="text-accent font-medium">{author}</span>
+              )}
+              <span className="mx-1.5 text-border">·</span>
+              <Clock className="inline h-3 w-3 -mt-px mr-0.5" />
+              {timePosted}
+            </p>
+          </div>
+        </div>
+
+        {/* Body */}
+        <div className="px-5 pt-3.5 pb-4 space-y-3">
+          {/* Description */}
+          <p className="text-[13px] text-muted-foreground leading-relaxed">
+            {displayDescription}
+            {shouldTruncate && !expanded && (
+              <button
+                onClick={() => setExpanded(true)}
+                className="ml-1 text-accent hover:text-accent/80 font-medium transition-colors text-[12px]"
+              >
+                read more
+              </button>
+            )}
+            {expanded && shouldTruncate && (
+              <button
+                onClick={() => setExpanded(false)}
+                className="ml-1 text-accent hover:text-accent/80 font-medium transition-colors text-[12px]"
+              >
+                show less
+              </button>
+            )}
           </p>
-          
-          {/* Skills */}
+
+          {/* Skill tags */}
           <div className="flex flex-wrap items-center gap-1.5">
-            {skills.slice(0, 5).map((skill) => (
-              <Badge key={skill} variant="secondary" className="text-[11px] px-2 py-0.5 font-medium hover:bg-secondary/80 transition-colors">
+            {skills.slice(0, 6).map((skill) => (
+              <span
+                key={skill}
+                className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-medium bg-muted/50 text-muted-foreground border border-border/60 tracking-wide"
+              >
                 {skill}
-              </Badge>
+              </span>
             ))}
-            {skills.length > 5 && (
-              <span className="text-[11px] text-muted-foreground">+{skills.length - 5}</span>
+            {skills.length > 6 && (
+              <span className="text-[10px] text-muted-foreground/60 font-medium">
+                +{skills.length - 6}
+              </span>
             )}
           </div>
 
           {/* Reaction bar */}
-          <div className="flex items-center gap-1 pt-1 border-t border-border/50">
+          <div className="flex items-center gap-0.5 pt-2.5 border-t border-border/30">
             {reactionEmojis.map(({ type, emoji }) => (
               <button
                 key={type}
                 onClick={() => handleReact(type)}
-                className={`flex items-center gap-1 px-2 py-1 rounded-md text-xs transition-all duration-150 hover:bg-muted/80 ${
+                className={`flex items-center gap-1 px-2 py-1 rounded-md text-[11px] transition-all duration-150 hover:bg-muted/60 ${
                   userReaction === type
-                    ? "bg-primary/15 text-primary"
-                    : "text-muted-foreground"
+                    ? "bg-primary/10 text-primary"
+                    : "text-muted-foreground/70"
                 }`}
               >
-                <span className="text-sm">{emoji}</span>
-                {(reactions[type] || 0) > 0 && (
-                  <span className="font-medium tabular-nums">{reactions[type]}</span>
-                )}
+                <span className="text-[13px] leading-none">{emoji}</span>
+                <span className="font-medium tabular-nums">
+                  {reactions[type] || 0}
+                </span>
               </button>
             ))}
           </div>
         </div>
-      </Card>
+      </div>
     </motion.div>
   );
 };
