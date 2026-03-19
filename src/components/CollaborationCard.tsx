@@ -63,7 +63,7 @@ const CollaborationCard = ({
   ].filter(Boolean);
   const hasImages = allImages.length > 0;
 
-  const handleReact = (type: string) => {
+  const handleReact = async (type: string) => {
     setReactions((prev) => {
       const updated = { ...prev };
       if (userReaction === type) {
@@ -78,6 +78,29 @@ const CollaborationCard = ({
       }
       return updated;
     });
+
+    // Notify project owner on new reaction
+    if (user && ownerId && ownerId !== user.id && userReaction !== type) {
+      try {
+        const { data: myProfile } = await supabase
+          .from("profiles")
+          .select("full_name")
+          .eq("id", user.id)
+          .single();
+
+        await supabase.from("notifications").insert({
+          user_id: ownerId,
+          type: "new_reaction",
+          title: "New Reaction",
+          message: `${myProfile?.full_name || "Someone"} reacted to "${title}"`,
+          from_user_id: user.id,
+          reference_id: id,
+          reference_type: "project",
+        });
+      } catch (err) {
+        console.error("Failed to send reaction notification:", err);
+      }
+    }
   };
 
   const prevImage = () =>
