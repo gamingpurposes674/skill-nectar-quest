@@ -15,7 +15,8 @@ import {
   BookOpen,
   LogOut,
   ChevronDown,
-  Compass
+  Compass,
+  Clock,
 } from "lucide-react";
 import TopNav from "@/components/TopNav";
 import { useAuth } from "@/contexts/AuthContext";
