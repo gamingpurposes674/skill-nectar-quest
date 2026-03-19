@@ -487,11 +487,11 @@ const Dashboard = () => {
 
                 <TabsContent value="feed" className="space-y-4">
                   {/* Filter bar */}
-                  <div className="flex flex-wrap gap-2">
+                  <div className="flex flex-wrap gap-2 overflow-x-auto">
                     <select
                       value={filterSkill}
                       onChange={(e) => setFilterSkill(e.target.value)}
-                      className="h-8 rounded-lg border border-border/50 bg-muted/30 px-2.5 text-[11px] text-foreground focus:outline-none focus:ring-2 focus:ring-ring"
+                      className="h-8 rounded-lg border border-border/50 bg-muted/30 px-2.5 text-[11px] text-foreground focus:outline-none focus:ring-2 focus:ring-ring min-w-0"
                     >
                       <option value="All">All Skills</option>
                       {["Python","JavaScript","React","Java","C++","Machine Learning","Data Analysis","UI/UX Design","Graphic Design","Research","Marketing","Business Strategy"].map(s => (
