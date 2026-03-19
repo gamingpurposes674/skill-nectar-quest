@@ -24,6 +24,10 @@ const reactionEmojis = [
   { type: "fire", emoji: "🔥" },
   { type: "idea", emoji: "💡" },
   { type: "heart", emoji: "❤️" },
+  { type: "clap", emoji: "👏" },
+  { type: "rocket", emoji: "🚀" },
+  { type: "star", emoji: "⭐" },
+  { type: "hundred", emoji: "💯" },
 ];
 
 const CollaborationCard = ({
