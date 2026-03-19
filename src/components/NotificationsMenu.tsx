@@ -24,6 +24,7 @@ import {
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useReducedMotion } from "@/hooks/use-reduced-motion";
+import CollaborationCelebration from "@/components/CollaborationCelebration";
 
 interface Notification {
   id: string;
