@@ -349,6 +349,46 @@ const EditProfileDialog = ({ open, onOpenChange, profile, onSuccess }: EditProfi
             />
           </div>
 
+          <div className="rounded-lg border border-border/50 p-4 space-y-3">
+            <h3 className="text-sm font-semibold text-foreground">Account Security</h3>
+            <div className="grid grid-cols-1 gap-3">
+              <div>
+                <Label htmlFor="current-password">Current Password</Label>
+                <Input
+                  id="current-password"
+                  type="password"
+                  value={currentPassword}
+                  onChange={(e) => setCurrentPassword(e.target.value)}
+                  disabled={loading || changingPassword}
+                />
+              </div>
+              <div>
+                <Label htmlFor="new-password">New Password</Label>
+                <Input
+                  id="new-password"
+                  type="password"
+                  value={newPassword}
+                  onChange={(e) => setNewPassword(e.target.value)}
+                  disabled={loading || changingPassword}
+                />
+              </div>
+              <div>
+                <Label htmlFor="confirm-password">Confirm New Password</Label>
+                <Input
+                  id="confirm-password"
+                  type="password"
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  disabled={loading || changingPassword}
+                />
+              </div>
+            </div>
+            {passwordError && <p className="text-xs text-destructive">{passwordError}</p>}
+            <Button type="button" variant="outline" onClick={handlePasswordChange} disabled={loading || changingPassword}>
+              {changingPassword ? "Updating Password..." : "Change Password"}
+            </Button>
+          </div>
+
           <div className="flex justify-end gap-2 pt-4">
             <Button 
               type="button" 

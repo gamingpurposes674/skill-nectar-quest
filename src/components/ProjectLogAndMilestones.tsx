@@ -321,7 +321,7 @@ export const MilestoneTimeline = ({ projectId, isParticipant }: MilestoneTimelin
                 <div className="flex items-center gap-1 mt-0.5">
                   <Calendar className="h-2.5 w-2.5 text-muted-foreground/50" />
                   <p className="text-[9px] text-muted-foreground/50">
-                    {new Date(ms.milestone_date).toLocaleDateString(undefined, { month: "short", day: "numeric" })}
+                    {validateDateInput(ms.milestone_date) ? "Invalid date" : new Date(ms.milestone_date).toLocaleDateString(undefined, { month: "short", day: "numeric" })}
                   </p>
                 </div>
               </motion.div>
