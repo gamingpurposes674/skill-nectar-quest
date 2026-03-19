@@ -320,6 +320,7 @@ const NotificationsMenu = () => {
     notifications.filter((n) => !n.read).length + collaborationRequests.length + connectionRequests.length;
 
   return (
+    <>
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <Button variant="ghost" size="icon" className="relative">
