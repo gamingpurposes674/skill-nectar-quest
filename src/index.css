@@ -178,18 +178,11 @@
     box-shadow: var(--shadow-elegant);
   }
 
-  /* Stat card gradient backgrounds */
-  .stat-card-blue {
-    background: linear-gradient(135deg, hsl(217 91% 60% / 0.12) 0%, hsl(217 91% 60% / 0.04) 100%);
-    border-color: hsl(217 91% 60% / 0.2);
-  }
-  .stat-card-purple {
-    background: linear-gradient(135deg, hsl(265 83% 57% / 0.12) 0%, hsl(265 83% 57% / 0.04) 100%);
-    border-color: hsl(265 83% 57% / 0.2);
-  }
+  /* Legacy stat card classes — kept for compatibility */
+  .stat-card-blue,
+  .stat-card-purple,
   .stat-card-teal {
-    background: linear-gradient(135deg, hsl(174 72% 56% / 0.12) 0%, hsl(174 72% 56% / 0.04) 100%);
-    border-color: hsl(174 72% 56% / 0.2);
+    /* Replaced by inline glow approach in Dashboard */
   }
 
   /* Button hover micro-interactions */
