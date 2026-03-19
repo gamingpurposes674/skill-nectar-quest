@@ -222,6 +222,8 @@ const CreateProjectDialog = ({ open, onOpenChange, onSuccess, userMajor, userGra
       const proofUrl = await uploadProofFile();
       if (!proofUrl) throw new Error("Failed to upload proof");
 
+      const coverUrl = await uploadCoverImage();
+
       const { data: newProject, error } = await supabase
         .from('projects')
         .insert({
@@ -232,7 +234,9 @@ const CreateProjectDialog = ({ open, onOpenChange, onSuccess, userMajor, userGra
           required_skills: skills,
           project_size: projectSize,
           proof_file_url: proofUrl,
-          validation_status: "approved", // Auto-approve validated projects
+          cover_image_url: coverUrl,
+          category,
+          validation_status: "approved",
           status: "open"
         })
         .select()
@@ -242,12 +246,10 @@ const CreateProjectDialog = ({ open, onOpenChange, onSuccess, userMajor, userGra
 
       toast.success("Project created successfully!");
       
-      // Show collaboration opt-in dialog
       setCreatedProjectId(newProject.id);
-      setCreatedProjectTitle(title); // Save title for collab dialog
+      setCreatedProjectTitle(title);
       setShowCollabOptIn(true);
       
-      // Reset form
       resetForm();
       onSuccess();
     } catch (error: any) {
@@ -265,8 +267,11 @@ const CreateProjectDialog = ({ open, onOpenChange, onSuccess, userMajor, userGra
     setProjectLink("");
     setSkills([]);
     setProjectSize("small");
+    setCategory("Coding");
     setProofFile(null);
     setProofPreview(null);
+    setCoverFile(null);
+    setCoverPreview(null);
     setPendingSubmit(false);
   };
 
