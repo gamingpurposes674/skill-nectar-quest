@@ -89,8 +89,16 @@ const CollaborationCard = ({
             : { y: -2, transition: { duration: 0.2 } }
         }
       >
-        <div className="rounded-xl border border-border/50 bg-card overflow-hidden transition-all duration-300 hover:border-accent/50 hover:shadow-[0_0_28px_hsl(var(--accent)/0.15)]">
-          {/* Body — text-focused, no cover image */}
+        <div
+          className="rounded-xl border border-border/50 bg-card overflow-hidden transition-all duration-300 hover:border-accent/50 hover:shadow-[0_0_28px_hsl(var(--accent)/0.15)] cursor-pointer"
+          onClick={(e) => {
+            // Don't navigate if clicking an interactive element
+            const target = e.target as HTMLElement;
+            if (target.closest("button") || target.closest("a")) return;
+            navigate(`/project/${id}`);
+          }}
+        >
+          {/* Body — text-focused */}
           <div className="px-5 pt-5 pb-4 space-y-3">
             {/* Header */}
             <div className="flex items-start justify-between gap-3">
