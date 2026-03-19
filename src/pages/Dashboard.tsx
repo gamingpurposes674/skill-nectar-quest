@@ -651,7 +651,10 @@ const Dashboard = () => {
                                 onUpdate={loadData}
                               />
                             ) : (
-                              <AnimatedCard className="glass-card shadow-card p-6">
+                              <AnimatedCard 
+                                className="glass-card shadow-card p-6 cursor-pointer"
+                                onClick={() => navigate(`/project/${project.id}`)}
+                              >
                                 <div className="flex justify-between items-start">
                                   <div className="flex-1">
                                     <div className="flex items-center gap-2 mb-1">

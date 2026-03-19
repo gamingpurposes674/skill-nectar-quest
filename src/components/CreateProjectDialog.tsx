@@ -406,7 +406,7 @@ const CreateProjectDialog = ({ open, onOpenChange, onSuccess, userMajor, userGra
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="proof">Proof Upload * (Image or Document)</Label>
+              <Label htmlFor="proof">Proof Upload (Optional)</Label>
               <div className="border-2 border-dashed rounded-lg p-4">
                 <Input
                   id="proof"
