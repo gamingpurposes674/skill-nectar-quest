@@ -46,17 +46,21 @@ const Index = () => {
   ];
 
   return (
-    <div className="min-h-screen">
+    <div className="min-h-screen relative">
+      {/* Ambient glow */}
+      <div className="glow-orb w-96 h-96 bg-primary/20 -top-48 left-1/4 fixed" />
+      <div className="glow-orb w-72 h-72 bg-secondary/15 top-1/2 right-0 fixed" />
+
       {/* Navigation */}
-      <nav className="fixed top-0 w-full z-50 border-b border-border/50 bg-card/50 backdrop-blur-lg">
+      <nav className="fixed top-0 w-full z-50 glass-nav">
         <div className="container mx-auto px-4 h-16 flex items-center justify-between">
-          <h1 className="text-xl font-bold text-gradient">ConnectEd</h1>
+          <span className="text-xl font-bold text-gradient" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>NexStep</span>
           <div className="flex items-center gap-3">
             <Link to="/auth">
               <Button variant="ghost" size="sm">Sign In</Button>
             </Link>
             <Link to="/auth">
-              <Button size="sm" className="gradient-primary shadow-glow">
+              <Button size="sm" className="gradient-primary shadow-glow btn-hover-lift">
                 Get Started
                 <ArrowRight className="ml-2 h-4 w-4" />
               </Button>
