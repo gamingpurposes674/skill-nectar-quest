@@ -222,6 +222,7 @@ const AddAchievementDialog = ({ open, onOpenChange, onSuccess }: AddAchievementD
                 />
               </PopoverContent>
             </Popover>
+            {dateError && <p className="text-xs text-destructive mt-1">{dateError}</p>}
           </div>
 
           <div>
