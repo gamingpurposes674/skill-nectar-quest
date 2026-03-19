@@ -88,7 +88,7 @@ const CollaborationCard = ({
             : { y: -2, transition: { duration: 0.2 } }
         }
       >
-        <div className="rounded-xl border border-border/50 bg-card overflow-hidden transition-all duration-300 hover:border-accent/40 hover:shadow-[0_0_20px_hsl(var(--accent)/0.08)]">
+        <div className="rounded-xl border border-border/50 bg-card overflow-hidden transition-all duration-300 hover:border-accent/50 hover:shadow-[0_0_28px_hsl(var(--accent)/0.15)]">
           {/* Body — text-focused, no cover image */}
           <div className="px-5 pt-5 pb-4 space-y-3">
             {/* Header */}

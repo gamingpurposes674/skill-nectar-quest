@@ -347,7 +347,7 @@ const Dashboard = () => {
                       </div>
                     </div>
                     <div>
-                      <p className="text-[11px] font-semibold uppercase tracking-widest text-muted-foreground">Connections</p>
+                      <p className="text-[11px] font-semibold tracking-widest text-muted-foreground">Connections</p>
                       <p className="text-2xl font-bold mt-0.5 tracking-tight">
                         <CountUp value={collaborativeProjects.length} />
                       </p>
@@ -368,7 +368,7 @@ const Dashboard = () => {
                       </div>
                     </div>
                     <div>
-                      <p className="text-[11px] font-semibold uppercase tracking-widest text-muted-foreground">Active Projects</p>
+                      <p className="text-[11px] font-semibold tracking-widest text-muted-foreground">Active Projects</p>
                       <p className="text-2xl font-bold mt-0.5 tracking-tight">
                         <CountUp value={myProjects.length} />
                       </p>
@@ -389,7 +389,7 @@ const Dashboard = () => {
                       </div>
                     </div>
                     <div>
-                      <p className="text-[11px] font-semibold uppercase tracking-widest text-muted-foreground">Portfolio Health</p>
+                      <p className="text-[11px] font-semibold tracking-widest text-muted-foreground">Portfolio Health</p>
                       <p className="text-2xl font-bold mt-0.5 tracking-tight">
                         <CountUp value={profile?.portfolio_health || 0} suffix="%" />
                       </p>
@@ -404,14 +404,14 @@ const Dashboard = () => {
               <Tabs defaultValue="feed">
                 <div className="flex justify-between items-center mb-5">
                   <TabsList className="bg-muted/50 backdrop-blur-sm p-1 rounded-xl border border-border/40">
-                    <TabsTrigger value="feed" className="rounded-lg data-[state=active]:bg-primary/15 data-[state=active]:text-primary data-[state=active]:shadow-[0_0_12px_hsl(var(--primary)/0.25)] transition-all duration-200">
+                    <TabsTrigger value="feed" className="rounded-lg data-[state=active]:bg-accent data-[state=active]:text-accent-foreground data-[state=active]:shadow-[0_0_16px_hsl(var(--accent)/0.4)] transition-all duration-200">
                       <Sparkles className="h-3.5 w-3.5 mr-1.5" />
                       Feed
                     </TabsTrigger>
-                    <TabsTrigger value="my-projects" className="rounded-lg data-[state=active]:bg-primary/15 data-[state=active]:text-primary data-[state=active]:shadow-[0_0_12px_hsl(var(--primary)/0.25)] transition-all duration-200">
+                    <TabsTrigger value="my-projects" className="rounded-lg data-[state=active]:bg-accent data-[state=active]:text-accent-foreground data-[state=active]:shadow-[0_0_16px_hsl(var(--accent)/0.4)] transition-all duration-200">
                       My Projects
                     </TabsTrigger>
-                    <TabsTrigger value="collaborations" className="rounded-lg data-[state=active]:bg-primary/15 data-[state=active]:text-primary data-[state=active]:shadow-[0_0_12px_hsl(var(--primary)/0.25)] transition-all duration-200">
+                    <TabsTrigger value="collaborations" className="rounded-lg data-[state=active]:bg-accent data-[state=active]:text-accent-foreground data-[state=active]:shadow-[0_0_16px_hsl(var(--accent)/0.4)] transition-all duration-200">
                       <Users className="h-3.5 w-3.5 mr-1.5" />
                       Collaborations
                     </TabsTrigger>
