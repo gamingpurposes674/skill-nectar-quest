@@ -28,6 +28,14 @@ export default function TopNav({ profile }: TopNavProps) {
   const navigate = useNavigate();
   const prefersReducedMotion = useReducedMotion();
   const [searchQuery, setSearchQuery] = useState("");
+  const [isAdmin, setIsAdmin] = useState(false);
+
+  useEffect(() => {
+    if (!user) return;
+    supabase.rpc("has_role", { _user_id: user.id, _role: "admin" }).then(({ data }) => {
+      if (data) setIsAdmin(true);
+    });
+  }, [user]);
   const [results, setResults] = useState<SearchResult>({ projects: [], people: [] });
   const [showResults, setShowResults] = useState(false);
   const [searching, setSearching] = useState(false);
