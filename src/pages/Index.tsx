@@ -172,7 +172,7 @@ const Index = () => {
               Create your profile in minutes and start connecting today.
             </p>
             <Link to="/auth">
-              <Button size="lg" className="gradient-primary shadow-glow text-lg px-12">
+              <Button size="lg" className="gradient-primary shadow-glow text-lg px-12 btn-hover-lift">
                 Create Your Profile
                 <ArrowRight className="ml-2 h-5 w-5" />
               </Button>
