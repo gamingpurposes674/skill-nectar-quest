@@ -419,9 +419,11 @@ export type Database = {
       }
       projects: {
         Row: {
+          category: string | null
           collaboration_open: boolean | null
           collaborator_completed: boolean | null
           collaborator_id: string | null
+          cover_image_url: string | null
           created_at: string | null
           creator_completed: boolean | null
           description: string
@@ -440,9 +442,11 @@ export type Database = {
             | null
         }
         Insert: {
+          category?: string | null
           collaboration_open?: boolean | null
           collaborator_completed?: boolean | null
           collaborator_id?: string | null
+          cover_image_url?: string | null
           created_at?: string | null
           creator_completed?: boolean | null
           description: string
@@ -461,9 +465,11 @@ export type Database = {
             | null
         }
         Update: {
+          category?: string | null
           collaboration_open?: boolean | null
           collaborator_completed?: boolean | null
           collaborator_id?: string | null
+          cover_image_url?: string | null
           created_at?: string | null
           creator_completed?: boolean | null
           description?: string
