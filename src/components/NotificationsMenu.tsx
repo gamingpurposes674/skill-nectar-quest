@@ -504,6 +504,20 @@ const NotificationsMenu = () => {
         </ScrollArea>
       </DropdownMenuContent>
     </DropdownMenu>
+
+    {/* Collaboration Celebration */}
+    {celebrationData && (
+      <CollaborationCelebration
+        open={celebrationData.open}
+        onClose={() => setCelebrationData(null)}
+        projectTitle={celebrationData.projectTitle}
+        creatorName={celebrationData.creatorName}
+        creatorAvatar={celebrationData.creatorAvatar}
+        collaboratorName={celebrationData.collaboratorName}
+        collaboratorAvatar={celebrationData.collaboratorAvatar}
+      />
+    )}
+    </>
   );
 };
 
