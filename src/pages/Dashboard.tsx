@@ -28,6 +28,8 @@ import CreateProjectDialog from "@/components/CreateProjectDialog";
 import FindProjectsDialog from "@/components/FindProjectsDialog";
 import NotificationsMenu from "@/components/NotificationsMenu";
 import PortfolioGapScanner from "@/components/PortfolioGapScanner";
+import TrendingProjects from "@/components/TrendingProjects";
+import SuggestedCollaborators from "@/components/SuggestedCollaborators";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { AnimatedCard } from "@/components/ui/animated-card";
 import { SkeletonCard, SkeletonStats } from "@/components/ui/skeleton-card";
