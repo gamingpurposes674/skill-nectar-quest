@@ -164,7 +164,7 @@ const Index = () => {
       <section className="py-24 relative overflow-hidden">
         <div className="absolute inset-0 gradient-primary opacity-5" />
         <div className="container mx-auto px-4 relative">
-          <Card className="glass-card shadow-elegant p-12 max-w-4xl mx-auto text-center animate-scale-in">
+          <Card className="glass-card shadow-elegant p-12 max-w-4xl mx-auto text-center animate-scale-in card-hover-glow">
             <Award className="h-16 w-16 mx-auto mb-6 text-primary" />
             <h2 className="text-4xl font-bold mb-4">Ready to Level Up?</h2>
             <p className="text-muted-foreground text-lg mb-8 max-w-2xl mx-auto">
