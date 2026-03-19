@@ -53,6 +53,7 @@ const CreateProjectDialog = ({ open, onOpenChange, onSuccess, userMajor, userGra
   const [coverFile, setCoverFile] = useState<File | null>(null);
   const [coverPreview, setCoverPreview] = useState<string | null>(null);
   const [showMismatchDialog, setShowMismatchDialog] = useState(false);
+  const [showNoProofDialog, setShowNoProofDialog] = useState(false);
   const [pendingSubmit, setPendingSubmit] = useState(false);
   const [createdProjectId, setCreatedProjectId] = useState<string | null>(null);
   const [showCollabOptIn, setShowCollabOptIn] = useState(false);
@@ -201,8 +202,10 @@ const CreateProjectDialog = ({ open, onOpenChange, onSuccess, userMajor, userGra
       return;
     }
 
-    if (!proofFile) {
-      toast.error("Upload a valid proof before submitting your project");
+    // If no proof file, show friendly warning but allow proceeding
+    if (!proofFile && !pendingSubmit) {
+      setShowNoProofDialog(true);
+      setPendingSubmit(true);
       return;
     }
 
@@ -219,8 +222,7 @@ const CreateProjectDialog = ({ open, onOpenChange, onSuccess, userMajor, userGra
   const submitProject = async () => {
     setLoading(true);
     try {
-      const proofUrl = await uploadProofFile();
-      if (!proofUrl) throw new Error("Failed to upload proof");
+      const proofUrl = proofFile ? await uploadProofFile() : null;
 
       const coverUrl = await uploadCoverImage();
 
@@ -404,7 +406,7 @@ const CreateProjectDialog = ({ open, onOpenChange, onSuccess, userMajor, userGra
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="proof">Proof Upload * (Image or Document)</Label>
+              <Label htmlFor="proof">Proof Upload (Optional)</Label>
               <div className="border-2 border-dashed rounded-lg p-4">
                 <Input
                   id="proof"
@@ -498,6 +500,31 @@ const CreateProjectDialog = ({ open, onOpenChange, onSuccess, userMajor, userGra
               submitProject();
             }}>
               Continue Anyway
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      {/* No Proof Warning Dialog */}
+      <AlertDialog open={showNoProofDialog} onOpenChange={setShowNoProofDialog}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Heads up!</AlertDialogTitle>
+            <AlertDialogDescription>
+              Adding proof of your work is important for your portfolio. If this is a new project, make sure to edit and add it later!
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel onClick={() => {
+              setPendingSubmit(false);
+            }}>
+              Go Back
+            </AlertDialogCancel>
+            <AlertDialogAction onClick={() => {
+              setShowNoProofDialog(false);
+              submitProject();
+            }}>
+              Continue Without Proof
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
