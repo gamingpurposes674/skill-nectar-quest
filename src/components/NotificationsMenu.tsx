@@ -436,7 +436,7 @@ const NotificationsMenu = () => {
                           size="sm"
                           className="h-7"
                           onClick={() =>
-                            handleCollaborationResponse(request.id, "accepted", request.project_id, request.requester_id)
+                            handleCollaborationResponse(request.id, "accepted", request.project_id, request.requester_id, request.projects?.title)
                           }
                           disabled={loading}
                         >
