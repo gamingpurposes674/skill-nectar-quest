@@ -98,10 +98,48 @@ const ProjectDetail = () => {
           comment: newComment.trim(),
           project_id: id,
         })
-        .select("*, profiles:author_id(full_name, avatar_url)")
+        .select("*, author:author_id!feedback_author_id_fkey(full_name, avatar_url)")
         .single();
 
       if (error) throw error;
+
+      // Notify project owner (if commenter is not the owner)
+      if (project.user_id !== user.id) {
+        const { data: myProfile } = await supabase
+          .from("profiles")
+          .select("full_name")
+          .eq("id", user.id)
+          .single();
+
+        await supabase.from("notifications").insert({
+          user_id: project.user_id,
+          type: "new_feedback",
+          title: "New Comment",
+          message: `${myProfile?.full_name || "Someone"} commented on "${project.title}"`,
+          from_user_id: user.id,
+          reference_id: id,
+          reference_type: "project",
+        });
+      }
+
+      // Notify collaborator (if exists and is not the commenter)
+      if (project.collaborator_id && project.collaborator_id !== user.id) {
+        const { data: myProfile } = await supabase
+          .from("profiles")
+          .select("full_name")
+          .eq("id", user.id)
+          .single();
+
+        await supabase.from("notifications").insert({
+          user_id: project.collaborator_id,
+          type: "new_feedback",
+          title: "New Comment",
+          message: `${myProfile?.full_name || "Someone"} commented on "${project.title}"`,
+          from_user_id: user.id,
+          reference_id: id,
+          reference_type: "project",
+        });
+      }
       setComments((prev) => [...prev, data]);
       setNewComment("");
       toast.success("Comment posted");
