@@ -342,18 +342,65 @@ const CreateProjectDialog = ({ open, onOpenChange, onSuccess, userMajor, userGra
               />
             </div>
 
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="project-size">Project Size *</Label>
+                <Select value={projectSize} onValueChange={setProjectSize}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select project size" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="small">Small (+1.5%)</SelectItem>
+                    <SelectItem value="medium">Medium (+3%)</SelectItem>
+                    <SelectItem value="major">Major (+5%)</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="category">Category *</Label>
+                <Select value={category} onValueChange={setCategory}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select category" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {PROJECT_CATEGORIES.map((cat) => (
+                      <SelectItem key={cat} value={cat}>{cat}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+
             <div className="space-y-2">
-              <Label htmlFor="project-size">Project Size *</Label>
-              <Select value={projectSize} onValueChange={setProjectSize}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Select project size" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="small">Small (+1.5% Portfolio Health)</SelectItem>
-                  <SelectItem value="medium">Medium (+3% Portfolio Health)</SelectItem>
-                  <SelectItem value="major">Major (+5% Portfolio Health)</SelectItem>
-                </SelectContent>
-              </Select>
+              <Label htmlFor="cover-image">Cover Image (Optional)</Label>
+              <div className="border-2 border-dashed rounded-lg p-3">
+                <Input
+                  id="cover-image"
+                  type="file"
+                  accept="image/*"
+                  onChange={handleCoverFileChange}
+                  className="hidden"
+                />
+                <label htmlFor="cover-image" className="flex items-center justify-center cursor-pointer">
+                  {coverPreview ? (
+                    <div className="relative w-full">
+                      <img src={coverPreview} alt="Cover preview" className="max-h-32 mx-auto rounded" />
+                      <Button
+                        type="button"
+                        variant="destructive"
+                        size="icon"
+                        className="absolute top-1 right-1 h-6 w-6"
+                        onClick={(e) => { e.preventDefault(); setCoverFile(null); setCoverPreview(null); }}
+                      >
+                        <X className="h-3 w-3" />
+                      </Button>
+                    </div>
+                  ) : (
+                    <p className="text-xs text-muted-foreground py-2">Click to upload a cover image</p>
+                  )}
+                </label>
+              </div>
             </div>
 
             <div className="space-y-2">
