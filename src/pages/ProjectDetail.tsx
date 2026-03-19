@@ -253,7 +253,7 @@ const ProjectDetail = () => {
               <ArrowLeft className="h-4 w-4" />
             </Button>
             <h1 className="text-sm font-semibold text-foreground truncate max-w-[200px]">
-              {project.title}
+              {toTitleCase(project.title)}
             </h1>
           </div>
           <div className="flex items-center gap-2">
