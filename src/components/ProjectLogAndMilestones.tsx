@@ -280,6 +280,7 @@ export const MilestoneTimeline = ({ projectId, isParticipant }: MilestoneTimelin
                 Add
               </Button>
             </div>
+            {dateError && <p className="text-[10px] text-destructive mt-1">{dateError}</p>}
           </motion.div>
         )}
       </AnimatePresence>
