@@ -133,6 +133,8 @@ const ProfilePage = () => {
 
   const profileId = id || user?.id;
   const isOwnProfile = !id || id === user?.id;
+  const { verifiedSkills } = useVerifiedSkills(profileId);
+  const { score: collabScore, tier: collabTier, tierColor: collabTierColor } = useCollabScore(profileId);
 
   useEffect(() => {
     if (profileId) {
