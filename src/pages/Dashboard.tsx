@@ -17,6 +17,7 @@ import {
   ChevronDown,
   Compass
 } from "lucide-react";
+import TopNav from "@/components/TopNav";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { Link, useNavigate } from "react-router-dom";
@@ -283,16 +284,8 @@ const Dashboard = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted">
-        <nav className="border-b border-border/50 bg-card/50 backdrop-blur-lg sticky top-0 z-50">
-          <div className="container mx-auto px-4 h-16 flex items-center justify-between">
-            <div className="h-6 w-24 bg-muted rounded animate-pulse" />
-            <div className="flex items-center gap-2">
-              <div className="h-8 w-8 rounded-full bg-muted animate-pulse" />
-              <div className="h-8 w-8 rounded-full bg-muted animate-pulse" />
-            </div>
-          </div>
-        </nav>
+      <div className="min-h-screen bg-background">
+        <TopNav profile={null} />
         <div className="container mx-auto px-4 py-8 max-w-7xl">
           <div className="grid gap-6 lg:grid-cols-3">
             <div className="lg:col-span-2 space-y-6">
@@ -317,49 +310,16 @@ const Dashboard = () => {
 
   return (
     <motion.div 
-      className="min-h-screen bg-gradient-to-br from-background via-background to-muted"
+      className="min-h-screen bg-background relative"
       initial={prefersReducedMotion ? undefined : { opacity: 0 }}
       animate={prefersReducedMotion ? undefined : { opacity: 1 }}
       transition={{ duration: 0.3 }}
     >
-      {/* Navigation */}
-      <nav className="border-b border-border/50 bg-card/50 backdrop-blur-lg sticky top-0 z-50">
-        <div className="container mx-auto px-4 h-16 flex items-center justify-between">
-          <Link to="/dashboard">
-            <motion.h1 
-              className="text-xl font-bold text-gradient cursor-pointer"
-              whileHover={prefersReducedMotion ? undefined : { scale: 1.02 }}
-            >
-              NexStep
-            </motion.h1>
-          </Link>
-          
-          <div className="flex items-center gap-2">
-            <NotificationsMenu />
-            
-            <Link to={`/profile/${user?.id}`}>
-              <motion.div
-                whileHover={prefersReducedMotion ? undefined : { scale: 1.05 }}
-                whileTap={prefersReducedMotion ? undefined : { scale: 0.95 }}
-              >
-                <Avatar className="h-8 w-8 cursor-pointer hover:ring-2 hover:ring-primary transition-all">
-                  <AvatarImage src={profile?.avatar_url} />
-                  <AvatarFallback>{profile?.full_name?.[0] || "U"}</AvatarFallback>
-                </Avatar>
-              </motion.div>
-            </Link>
-            
-            <motion.div
-              whileHover={prefersReducedMotion ? undefined : { scale: 1.05 }}
-              whileTap={prefersReducedMotion ? undefined : { scale: 0.95 }}
-            >
-              <Button size="icon" variant="ghost" onClick={signOut}>
-                <LogOut className="h-5 w-5" />
-              </Button>
-            </motion.div>
-          </div>
-        </div>
-      </nav>
+      {/* Ambient glow orbs */}
+      <div className="glow-orb w-96 h-96 bg-primary/20 -top-48 -left-48 fixed" />
+      <div className="glow-orb w-72 h-72 bg-secondary/15 top-1/3 -right-36 fixed" />
+
+      <TopNav profile={profile} />
 
       <div className="container mx-auto px-4 py-8 max-w-7xl">
         <motion.div 
@@ -376,14 +336,14 @@ const Dashboard = () => {
               variants={prefersReducedMotion ? undefined : containerVariants}
             >
               <motion.div variants={prefersReducedMotion ? undefined : itemVariants}>
-                <AnimatedCard className="glass-card shadow-card p-4">
-                  <div className="flex items-center gap-3">
-                    <div className="p-2 rounded-lg bg-primary/10">
+                <AnimatedCard className="glass-card stat-card-blue shadow-card p-5 card-hover-glow">
+                  <div className="flex items-center gap-4">
+                    <div className="p-2.5 rounded-xl bg-primary/20">
                       <Users className="h-5 w-5 text-primary" />
                     </div>
                     <div>
-                      <p className="text-sm text-muted-foreground">Connections</p>
-                      <p className="text-2xl font-bold">
+                      <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground">Connections</p>
+                      <p className="text-2xl font-bold mt-0.5">
                         <CountUp value={collaborativeProjects.length} />
                       </p>
                     </div>
@@ -392,14 +352,14 @@ const Dashboard = () => {
               </motion.div>
               
               <motion.div variants={prefersReducedMotion ? undefined : itemVariants}>
-                <AnimatedCard className="glass-card shadow-card p-4">
-                  <div className="flex items-center gap-3">
-                    <div className="p-2 rounded-lg bg-secondary/10">
+                <AnimatedCard className="glass-card stat-card-purple shadow-card p-5 card-hover-glow">
+                  <div className="flex items-center gap-4">
+                    <div className="p-2.5 rounded-xl bg-secondary/20">
                       <Target className="h-5 w-5 text-secondary" />
                     </div>
                     <div>
-                      <p className="text-sm text-muted-foreground">Active Projects</p>
-                      <p className="text-2xl font-bold">
+                      <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground">Active Projects</p>
+                      <p className="text-2xl font-bold mt-0.5">
                         <CountUp value={myProjects.length} />
                       </p>
                     </div>
@@ -408,14 +368,14 @@ const Dashboard = () => {
               </motion.div>
               
               <motion.div variants={prefersReducedMotion ? undefined : itemVariants}>
-                <AnimatedCard className="glass-card shadow-card p-4">
-                  <div className="flex items-center gap-3">
-                    <div className="p-2 rounded-lg bg-accent/10">
+                <AnimatedCard className="glass-card stat-card-teal shadow-card p-5 card-hover-glow">
+                  <div className="flex items-center gap-4">
+                    <div className="p-2.5 rounded-xl bg-accent/20">
                       <TrendingUp className="h-5 w-5 text-accent" />
                     </div>
                     <div>
-                      <p className="text-sm text-muted-foreground">Portfolio Health</p>
-                      <p className="text-2xl font-bold">
+                      <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground">Portfolio Health</p>
+                      <p className="text-2xl font-bold mt-0.5">
                         <CountUp value={profile?.portfolio_health || 0} suffix="%" />
                       </p>
                     </div>
