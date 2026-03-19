@@ -85,44 +85,28 @@ const EditProfileDialog = ({ open, onOpenChange, profile, onSuccess }: EditProfi
   };
 
   const handlePasswordChange = async () => {
-    if (!user?.email) return;
-
     setPasswordError(null);
-    if (!currentPassword || !newPassword || !confirmPassword) {
-      setPasswordError("Fill all password fields");
+    if (!newPassword || !confirmPassword) {
+      setPasswordError("Please fill in both password fields");
       return;
     }
-    if (newPassword.length < 8) {
-      setPasswordError("New password must be at least 8 characters");
+    if (newPassword.length < 6) {
+      setPasswordError("Password must be at least 6 characters");
       return;
     }
     if (newPassword !== confirmPassword) {
-      setPasswordError("New password and confirm password must match");
-      return;
-    }
-    if (newPassword === currentPassword) {
-      setPasswordError("New password must be different from current password");
+      setPasswordError("Passwords do not match");
       return;
     }
 
     setChangingPassword(true);
     try {
-      const { error: reauthError } = await supabase.auth.signInWithPassword({
-        email: user.email,
-        password: currentPassword,
-      });
-      if (reauthError) {
-        setPasswordError("Current password is incorrect");
-        return;
-      }
+      const { error } = await supabase.auth.updateUser({ password: newPassword });
+      if (error) throw error;
 
-      const { error: updateError } = await supabase.auth.updateUser({ password: newPassword });
-      if (updateError) throw updateError;
-
-      setCurrentPassword("");
       setNewPassword("");
       setConfirmPassword("");
-      toast.success("Password changed successfully");
+      toast.success("Password updated successfully");
     } catch (error: any) {
       setPasswordError(error.message || "Failed to change password");
     } finally {
