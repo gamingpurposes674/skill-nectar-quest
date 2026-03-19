@@ -21,7 +21,6 @@ import { AnimatedProgress } from "@/components/ui/animated-progress";
 import { ProjectLogSection, MilestoneTimeline } from "@/components/ProjectLogAndMilestones";
 import EditProjectDialog from "@/components/EditProjectDialog";
 import { toTitleCase } from "@/lib/textValidation";
-import EditProjectDialog from "@/components/EditProjectDialog";
 
 const ProjectDetail = () => {
   const { id } = useParams<{ id: string }>();
