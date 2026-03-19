@@ -112,6 +112,13 @@ const AddAchievementDialog = ({ open, onOpenChange, onSuccess }: AddAchievementD
       return;
     }
 
+    const selectedDateError = validateOptionalDate(date);
+    if (selectedDateError) {
+      setDateError(selectedDateError);
+      return;
+    }
+
+    setDateError(null);
     setLoading(true);
 
     try {
