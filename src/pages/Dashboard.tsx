@@ -440,21 +440,21 @@ const Dashboard = () => {
             {/* Main Feed */}
             <motion.div variants={prefersReducedMotion ? undefined : itemVariants}>
               <Tabs defaultValue="feed">
-                <div className="flex justify-between items-center mb-5">
-                  <TabsList className="bg-muted/50 backdrop-blur-sm p-1 rounded-xl border border-border/40">
-                    <TabsTrigger value="feed" className="rounded-lg data-[state=active]:bg-accent data-[state=active]:text-accent-foreground data-[state=active]:shadow-[0_0_16px_hsl(var(--accent)/0.4)] transition-all duration-200">
-                      <Sparkles className="h-3.5 w-3.5 mr-1.5" />
+                <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 mb-5">
+                  <TabsList className="bg-muted/50 backdrop-blur-sm p-1 rounded-xl border border-border/40 flex-wrap">
+                    <TabsTrigger value="feed" className="rounded-lg text-xs sm:text-sm data-[state=active]:bg-accent data-[state=active]:text-accent-foreground data-[state=active]:shadow-[0_0_16px_hsl(var(--accent)/0.4)] transition-all duration-200">
+                      <Sparkles className="h-3.5 w-3.5 mr-1 sm:mr-1.5" />
                       Feed
                     </TabsTrigger>
-                    <TabsTrigger value="my-projects" className="rounded-lg data-[state=active]:bg-accent data-[state=active]:text-accent-foreground data-[state=active]:shadow-[0_0_16px_hsl(var(--accent)/0.4)] transition-all duration-200">
+                    <TabsTrigger value="my-projects" className="rounded-lg text-xs sm:text-sm data-[state=active]:bg-accent data-[state=active]:text-accent-foreground data-[state=active]:shadow-[0_0_16px_hsl(var(--accent)/0.4)] transition-all duration-200">
                       My Projects
                     </TabsTrigger>
-                    <TabsTrigger value="collaborations" className="rounded-lg data-[state=active]:bg-accent data-[state=active]:text-accent-foreground data-[state=active]:shadow-[0_0_16px_hsl(var(--accent)/0.4)] transition-all duration-200">
-                      <Users className="h-3.5 w-3.5 mr-1.5" />
-                      Collaborations
+                    <TabsTrigger value="collaborations" className="rounded-lg text-xs sm:text-sm data-[state=active]:bg-accent data-[state=active]:text-accent-foreground data-[state=active]:shadow-[0_0_16px_hsl(var(--accent)/0.4)] transition-all duration-200">
+                      <Users className="h-3.5 w-3.5 mr-1 sm:mr-1.5" />
+                      Collabs
                     </TabsTrigger>
-                    <TabsTrigger value="updates" className="rounded-lg data-[state=active]:bg-accent data-[state=active]:text-accent-foreground data-[state=active]:shadow-[0_0_16px_hsl(var(--accent)/0.4)] transition-all duration-200">
-                      <Clock className="h-3.5 w-3.5 mr-1.5" />
+                    <TabsTrigger value="updates" className="rounded-lg text-xs sm:text-sm data-[state=active]:bg-accent data-[state=active]:text-accent-foreground data-[state=active]:shadow-[0_0_16px_hsl(var(--accent)/0.4)] transition-all duration-200">
+                      <Clock className="h-3.5 w-3.5 mr-1 sm:mr-1.5" />
                       Updates
                     </TabsTrigger>
                   </TabsList>
