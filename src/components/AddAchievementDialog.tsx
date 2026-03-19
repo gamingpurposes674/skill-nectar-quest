@@ -13,6 +13,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
 import { isGibberish } from "@/lib/textValidation";
+import { validateOptionalDate } from "@/lib/dateValidation";
 
 interface AddAchievementDialogProps {
   open: boolean;
