@@ -73,7 +73,7 @@ const ProjectDetail = () => {
       // Load comments (using feedback table with project reference)
       const { data: feedbackData } = await supabase
         .from("feedback")
-        .select("*, profiles:author_id(full_name, avatar_url)")
+        .select("*, author:author_id!feedback_author_id_fkey(full_name, avatar_url)")
         .eq("project_id", id as string)
         .order("created_at", { ascending: true });
 
