@@ -641,6 +641,16 @@ const ProfilePage = () => {
                 )}
               </div>
 
+              {/* Collab Score */}
+              {collabScore > 0 && (
+                <div className="mt-5 pt-4 border-t border-border/40">
+                  <div className="flex items-center justify-between text-[12px] mb-1">
+                    <span className="text-muted-foreground font-medium">Collab Score</span>
+                    <span className={`font-bold ${collabTierColor}`}>{collabScore}</span>
+                  </div>
+                </div>
+              )}
+
               {/* Portfolio Health */}
               <div className="mt-5 pt-4 border-t border-border/40">
                 <div className="flex items-center justify-between text-[12px] mb-1.5">
