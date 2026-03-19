@@ -5,6 +5,7 @@ import { TrendingUp, Clock } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { Link } from "react-router-dom";
 import { useReducedMotion } from "@/hooks/use-reduced-motion";
+import { toTitleCase } from "@/lib/textValidation";
 
 interface TrendingProject {
   id: string;
