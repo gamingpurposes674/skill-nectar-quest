@@ -200,6 +200,13 @@ export const MilestoneTimeline = ({ projectId, isParticipant }: MilestoneTimelin
 
   const handleAdd = async () => {
     if (!user || !newTitle.trim() || !newDate) return;
+
+    const validationError = validateDateInput(newDate);
+    if (validationError) {
+      setDateError(validationError);
+      return;
+    }
+    setDateError(null);
     setSubmitting(true);
     try {
       const { error } = await supabase.from("project_milestones").insert({
