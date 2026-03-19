@@ -1,3 +1,21 @@
+// Text validation and formatting utilities
+
+/** Convert any string to Title Case */
+export const toTitleCase = (str: string): string => {
+  if (!str) return str;
+  const minorWords = new Set(['a','an','the','and','but','or','for','nor','on','at','to','by','in','of','up','as','is','it']);
+  return str
+    .toLowerCase()
+    .split(/\s+/)
+    .map((word, i) => {
+      if (i === 0 || !minorWords.has(word)) {
+        return word.charAt(0).toUpperCase() + word.slice(1);
+      }
+      return word;
+    })
+    .join(' ');
+};
+
 // Text validation utilities for project submissions
 
 // Common filler words/phrases to reject
