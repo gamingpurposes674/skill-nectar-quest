@@ -38,6 +38,7 @@ const CollaborationCard = ({
   title,
   author,
   authorId,
+  ownerId,
   avatar,
   description,
   skills,
