@@ -183,6 +183,7 @@ export const MilestoneTimeline = ({ projectId, isParticipant }: MilestoneTimelin
   const [newTitle, setNewTitle] = useState("");
   const [newDate, setNewDate] = useState("");
   const [submitting, setSubmitting] = useState(false);
+  const [dateError, setDateError] = useState<string | null>(null);
 
   useEffect(() => {
     loadMilestones();
