@@ -335,47 +335,62 @@ const Dashboard = () => {
               className="grid grid-cols-1 md:grid-cols-3 gap-4"
               variants={prefersReducedMotion ? undefined : containerVariants}
             >
+              {/* Connections */}
               <motion.div variants={prefersReducedMotion ? undefined : itemVariants}>
-                <AnimatedCard className="glass-card stat-card-blue shadow-card p-5 card-hover-glow">
-                  <div className="flex items-center gap-4">
-                    <div className="p-2.5 rounded-xl bg-primary/20">
-                      <Users className="h-5 w-5 text-primary" />
+                <AnimatedCard className="glass-card shadow-card p-5 card-hover-glow relative overflow-hidden">
+                  <div className="absolute -top-4 -left-4 w-20 h-20 rounded-full bg-primary/20 blur-2xl pointer-events-none" />
+                  <div className="flex items-center gap-4 relative z-10">
+                    <div className="relative">
+                      <div className="absolute inset-0 rounded-xl bg-primary/30 blur-lg scale-125 animate-glow" />
+                      <div className="relative p-2.5 rounded-xl bg-primary/15 border border-primary/20">
+                        <Users className="h-5 w-5 text-primary" />
+                      </div>
                     </div>
                     <div>
-                      <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground">Connections</p>
-                      <p className="text-2xl font-bold mt-0.5">
+                      <p className="text-[11px] font-semibold uppercase tracking-widest text-muted-foreground">Connections</p>
+                      <p className="text-2xl font-bold mt-0.5 tracking-tight">
                         <CountUp value={collaborativeProjects.length} />
                       </p>
                     </div>
                   </div>
                 </AnimatedCard>
               </motion.div>
-              
+
+              {/* Active Projects */}
               <motion.div variants={prefersReducedMotion ? undefined : itemVariants}>
-                <AnimatedCard className="glass-card stat-card-purple shadow-card p-5 card-hover-glow">
-                  <div className="flex items-center gap-4">
-                    <div className="p-2.5 rounded-xl bg-secondary/20">
-                      <Target className="h-5 w-5 text-secondary" />
+                <AnimatedCard className="glass-card shadow-card p-5 card-hover-glow relative overflow-hidden">
+                  <div className="absolute -top-4 -left-4 w-20 h-20 rounded-full bg-secondary/20 blur-2xl pointer-events-none" />
+                  <div className="flex items-center gap-4 relative z-10">
+                    <div className="relative">
+                      <div className="absolute inset-0 rounded-xl bg-secondary/30 blur-lg scale-125 animate-glow" />
+                      <div className="relative p-2.5 rounded-xl bg-secondary/15 border border-secondary/20">
+                        <Target className="h-5 w-5 text-secondary" />
+                      </div>
                     </div>
                     <div>
-                      <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground">Active Projects</p>
-                      <p className="text-2xl font-bold mt-0.5">
+                      <p className="text-[11px] font-semibold uppercase tracking-widest text-muted-foreground">Active Projects</p>
+                      <p className="text-2xl font-bold mt-0.5 tracking-tight">
                         <CountUp value={myProjects.length} />
                       </p>
                     </div>
                   </div>
                 </AnimatedCard>
               </motion.div>
-              
+
+              {/* Portfolio Health */}
               <motion.div variants={prefersReducedMotion ? undefined : itemVariants}>
-                <AnimatedCard className="glass-card stat-card-teal shadow-card p-5 card-hover-glow">
-                  <div className="flex items-center gap-4">
-                    <div className="p-2.5 rounded-xl bg-accent/20">
-                      <TrendingUp className="h-5 w-5 text-accent" />
+                <AnimatedCard className="glass-card shadow-card p-5 card-hover-glow relative overflow-hidden">
+                  <div className="absolute -top-4 -left-4 w-20 h-20 rounded-full bg-accent/20 blur-2xl pointer-events-none" />
+                  <div className="flex items-center gap-4 relative z-10">
+                    <div className="relative">
+                      <div className="absolute inset-0 rounded-xl bg-accent/30 blur-lg scale-125 animate-glow" />
+                      <div className="relative p-2.5 rounded-xl bg-accent/15 border border-accent/20">
+                        <TrendingUp className="h-5 w-5 text-accent" />
+                      </div>
                     </div>
                     <div>
-                      <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground">Portfolio Health</p>
-                      <p className="text-2xl font-bold mt-0.5">
+                      <p className="text-[11px] font-semibold uppercase tracking-widest text-muted-foreground">Portfolio Health</p>
+                      <p className="text-2xl font-bold mt-0.5 tracking-tight">
                         <CountUp value={profile?.portfolio_health || 0} suffix="%" />
                       </p>
                     </div>
