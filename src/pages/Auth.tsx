@@ -8,9 +8,20 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useAuth } from "@/contexts/AuthContext";
 import { Loader2, ArrowLeft } from "lucide-react";
 import { Link } from "react-router-dom";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 const Auth = () => {
   const [loading, setLoading] = useState(false);
+  const [showConfirmDialog, setShowConfirmDialog] = useState(false);
   const [signUpData, setSignUpData] = useState({
     fullName: "",
     email: "",
@@ -24,8 +35,13 @@ const Auth = () => {
   const { signUp, signIn } = useAuth();
   const navigate = useNavigate();
 
-  const handleSignUp = async (e: React.FormEvent) => {
+  const handleSignUpSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    setShowConfirmDialog(true);
+  };
+
+  const handleConfirmSignUp = async () => {
+    setShowConfirmDialog(false);
     setLoading(true);
     try {
       await signUp(signUpData.email, signUpData.password, signUpData.fullName);
@@ -69,7 +85,7 @@ const Auth = () => {
             </TabsList>
 
             <TabsContent value="signup">
-              <form onSubmit={handleSignUp} className="space-y-4 mt-4">
+              <form onSubmit={handleSignUpSubmit} className="space-y-4 mt-4">
                 <div>
                   <Label htmlFor="fullName">Full Name</Label>
                   <Input
@@ -156,6 +172,23 @@ const Auth = () => {
           </Tabs>
         </Card>
       </div>
+
+      <AlertDialog open={showConfirmDialog} onOpenChange={setShowConfirmDialog}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>New account?</AlertDialogTitle>
+            <AlertDialogDescription>
+              You're about to create a new NexStep account with <strong>{signUpData.email}</strong>. Would you like to continue?
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={handleConfirmSignUp}>
+              Yes, create account
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };
