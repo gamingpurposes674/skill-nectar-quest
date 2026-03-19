@@ -505,6 +505,31 @@ const CreateProjectDialog = ({ open, onOpenChange, onSuccess, userMajor, userGra
         </AlertDialogContent>
       </AlertDialog>
 
+      {/* No Proof Warning Dialog */}
+      <AlertDialog open={showNoProofDialog} onOpenChange={setShowNoProofDialog}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Heads up!</AlertDialogTitle>
+            <AlertDialogDescription>
+              Adding proof of your work is important for your portfolio. If this is a new project, make sure to edit and add it later!
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel onClick={() => {
+              setPendingSubmit(false);
+            }}>
+              Go Back
+            </AlertDialogCancel>
+            <AlertDialogAction onClick={() => {
+              setShowNoProofDialog(false);
+              submitProject();
+            }}>
+              Continue Without Proof
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
       {/* Collaboration Opt-In Dialog */}
       {createdProjectId && (
         <CollaborationOptInDialog
