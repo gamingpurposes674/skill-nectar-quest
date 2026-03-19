@@ -235,6 +235,19 @@ export default function TopNav({ profile }: TopNavProps) {
             </Button>
           </motion.div>
 
+          {isAdmin && (
+            <motion.div
+              whileHover={prefersReducedMotion ? undefined : { scale: 1.05 }}
+              whileTap={prefersReducedMotion ? undefined : { scale: 0.95 }}
+            >
+              <Button variant="ghost" size="icon" asChild>
+                <Link to="/admin">
+                  <Shield className="h-5 w-5 text-primary" />
+                </Link>
+              </Button>
+            </motion.div>
+          )}
+
           <NotificationsMenu />
           <ThemeToggle />
 
