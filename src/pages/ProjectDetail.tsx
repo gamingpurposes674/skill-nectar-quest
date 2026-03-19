@@ -73,7 +73,7 @@ const ProjectDetail = () => {
       // Load comments (using feedback table with project reference)
       const { data: feedbackData } = await supabase
         .from("feedback")
-        .select("*, profiles:author_id(full_name, avatar_url)")
+        .select("*, author:author_id!feedback_author_id_fkey(full_name, avatar_url)")
         .eq("project_id", id as string)
         .order("created_at", { ascending: true });
 
@@ -98,10 +98,48 @@ const ProjectDetail = () => {
           comment: newComment.trim(),
           project_id: id,
         })
-        .select("*, profiles:author_id(full_name, avatar_url)")
+        .select("*, author:author_id!feedback_author_id_fkey(full_name, avatar_url)")
         .single();
 
       if (error) throw error;
+
+      // Notify project owner (if commenter is not the owner)
+      if (project.user_id !== user.id) {
+        const { data: myProfile } = await supabase
+          .from("profiles")
+          .select("full_name")
+          .eq("id", user.id)
+          .single();
+
+        await supabase.from("notifications").insert({
+          user_id: project.user_id,
+          type: "new_feedback",
+          title: "New Comment",
+          message: `${myProfile?.full_name || "Someone"} commented on "${project.title}"`,
+          from_user_id: user.id,
+          reference_id: id,
+          reference_type: "project",
+        });
+      }
+
+      // Notify collaborator (if exists and is not the commenter)
+      if (project.collaborator_id && project.collaborator_id !== user.id) {
+        const { data: myProfile } = await supabase
+          .from("profiles")
+          .select("full_name")
+          .eq("id", user.id)
+          .single();
+
+        await supabase.from("notifications").insert({
+          user_id: project.collaborator_id,
+          type: "new_feedback",
+          title: "New Comment",
+          message: `${myProfile?.full_name || "Someone"} commented on "${project.title}"`,
+          from_user_id: user.id,
+          reference_id: id,
+          reference_type: "project",
+        });
+      }
       setComments((prev) => [...prev, data]);
       setNewComment("");
       toast.success("Comment posted");
@@ -458,15 +496,15 @@ const ProjectDetail = () => {
                       transition={{ delay: i * 0.03 }}
                     >
                       <Avatar className="h-7 w-7 flex-shrink-0">
-                        <AvatarImage src={comment.profiles?.avatar_url} />
+                        <AvatarImage src={comment.author?.avatar_url} />
                         <AvatarFallback className="text-[10px]">
-                          {comment.profiles?.full_name?.[0] || "U"}
+                          {comment.author?.full_name?.[0] || "U"}
                         </AvatarFallback>
                       </Avatar>
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2 mb-0.5">
                           <span className="text-[12px] font-medium text-foreground">
-                            {comment.profiles?.full_name || "Anonymous"}
+                            {comment.author?.full_name || "Anonymous"}
                           </span>
                           <span className="text-[10px] text-muted-foreground/50">
                             {new Date(comment.created_at).toLocaleDateString()}

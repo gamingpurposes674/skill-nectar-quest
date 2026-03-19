@@ -4,12 +4,15 @@ import { Button } from "@/components/ui/button";
 import { Users, Clock, Images, ChevronLeft, ChevronRight, X } from "lucide-react";
 import { useReducedMotion } from "@/hooks/use-reduced-motion";
 import { Link, useNavigate } from "react-router-dom";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/contexts/AuthContext";
 
 interface CollaborationCardProps {
   id: string;
   title: string;
   author: string;
   authorId?: string;
+  ownerId?: string;
   avatar: string;
   description: string;
   skills: string[];
@@ -35,6 +38,7 @@ const CollaborationCard = ({
   title,
   author,
   authorId,
+  ownerId,
   avatar,
   description,
   skills,
@@ -45,6 +49,7 @@ const CollaborationCard = ({
 }: CollaborationCardProps) => {
   const prefersReducedMotion = useReducedMotion();
   const navigate = useNavigate();
+  const { user } = useAuth();
   const [reactions, setReactions] = useState<Record<string, number>>({});
   const [userReaction, setUserReaction] = useState<string | null>(null);
   const [expanded, setExpanded] = useState(false);
@@ -58,7 +63,7 @@ const CollaborationCard = ({
   ].filter(Boolean);
   const hasImages = allImages.length > 0;
 
-  const handleReact = (type: string) => {
+  const handleReact = async (type: string) => {
     setReactions((prev) => {
       const updated = { ...prev };
       if (userReaction === type) {
@@ -73,6 +78,29 @@ const CollaborationCard = ({
       }
       return updated;
     });
+
+    // Notify project owner on new reaction
+    if (user && ownerId && ownerId !== user.id && userReaction !== type) {
+      try {
+        const { data: myProfile } = await supabase
+          .from("profiles")
+          .select("full_name")
+          .eq("id", user.id)
+          .single();
+
+        await supabase.from("notifications").insert({
+          user_id: ownerId,
+          type: "new_reaction",
+          title: "New Reaction",
+          message: `${myProfile?.full_name || "Someone"} reacted to "${title}"`,
+          from_user_id: user.id,
+          reference_id: id,
+          reference_type: "project",
+        });
+      } catch (err) {
+        console.error("Failed to send reaction notification:", err);
+      }
+    }
   };
 
   const prevImage = () =>
