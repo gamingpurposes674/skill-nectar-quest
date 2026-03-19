@@ -214,6 +214,54 @@ const Auth = () => {
                 )}
               </form>
             </TabsContent>
+
+            <TabsContent value="change">
+              <form onSubmit={handleChangePassword} className="space-y-4 mt-4">
+                <div>
+                  <Label htmlFor="change-email">Email</Label>
+                  <Input
+                    id="change-email"
+                    type="email"
+                    placeholder="you@school.edu"
+                    value={changePasswordData.email}
+                    onChange={(e) => setChangePasswordData({ ...changePasswordData, email: e.target.value })}
+                    required
+                    disabled={loading}
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="change-new-password">New Password</Label>
+                  <Input
+                    id="change-new-password"
+                    type="password"
+                    placeholder="••••••••"
+                    value={changePasswordData.newPassword}
+                    onChange={(e) => setChangePasswordData({ ...changePasswordData, newPassword: e.target.value })}
+                    required
+                    minLength={6}
+                    disabled={loading}
+                  />
+                  <p className="text-xs text-muted-foreground mt-1">At least 6 characters</p>
+                </div>
+                <div>
+                  <Label htmlFor="change-confirm-password">Confirm New Password</Label>
+                  <Input
+                    id="change-confirm-password"
+                    type="password"
+                    placeholder="••••••••"
+                    value={changePasswordData.confirmPassword}
+                    onChange={(e) => setChangePasswordData({ ...changePasswordData, confirmPassword: e.target.value })}
+                    required
+                    minLength={6}
+                    disabled={loading}
+                  />
+                </div>
+                <Button type="submit" className="w-full gradient-primary shadow-glow" disabled={loading}>
+                  {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                  Save
+                </Button>
+              </form>
+            </TabsContent>
           </Tabs>
         </Card>
       </div>
