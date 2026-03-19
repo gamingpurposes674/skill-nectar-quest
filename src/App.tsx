@@ -13,6 +13,7 @@ import Dashboard from "./pages/Dashboard";
 import Profile from "./pages/Profile";
 import Discover from "./pages/Discover";
 import NotFound from "./pages/NotFound";
+import ProjectDetail from "./pages/ProjectDetail";
 
 const queryClient = new QueryClient();
 
@@ -49,6 +50,14 @@ const App = () => (
                 element={
                   <ProtectedRoute>
                     <Discover />
+                  </ProtectedRoute>
+                } 
+              />
+              <Route 
+                path="/project/:id" 
+                element={
+                  <ProtectedRoute>
+                    <ProjectDetail />
                   </ProtectedRoute>
                 } 
               />
