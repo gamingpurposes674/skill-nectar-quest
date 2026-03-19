@@ -29,6 +29,7 @@ const AddAchievementDialog = ({ open, onOpenChange, onSuccess }: AddAchievementD
   const [date, setDate] = useState<Date>();
   const [proofFile, setProofFile] = useState<File | null>(null);
   const [proofPreview, setProofPreview] = useState<string | null>(null);
+  const [dateError, setDateError] = useState<string | null>(null);
 
   const handleProofFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
