@@ -73,8 +73,8 @@ const ProjectDetail = () => {
       // Load comments (using feedback table with project reference)
       const { data: feedbackData } = await supabase
         .from("feedback")
-        .select("*, profiles(full_name, avatar_url)")
-        .eq("profile_id", id as string)
+        .select("*, profiles:author_id(full_name, avatar_url)")
+        .eq("project_id", id as string)
         .order("created_at", { ascending: true });
 
       setComments(feedbackData || []);
@@ -93,11 +93,12 @@ const ProjectDetail = () => {
       const { data, error } = await supabase
         .from("feedback")
         .insert({
-          profile_id: id,
+          profile_id: project.user_id,
           author_id: user.id,
           comment: newComment.trim(),
+          project_id: id,
         })
-        .select("*, profiles(full_name, avatar_url)")
+        .select("*, profiles:author_id(full_name, avatar_url)")
         .single();
 
       if (error) throw error;
