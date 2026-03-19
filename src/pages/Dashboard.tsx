@@ -310,49 +310,16 @@ const Dashboard = () => {
 
   return (
     <motion.div 
-      className="min-h-screen bg-gradient-to-br from-background via-background to-muted"
+      className="min-h-screen bg-background relative"
       initial={prefersReducedMotion ? undefined : { opacity: 0 }}
       animate={prefersReducedMotion ? undefined : { opacity: 1 }}
       transition={{ duration: 0.3 }}
     >
-      {/* Navigation */}
-      <nav className="border-b border-border/50 bg-card/50 backdrop-blur-lg sticky top-0 z-50">
-        <div className="container mx-auto px-4 h-16 flex items-center justify-between">
-          <Link to="/dashboard">
-            <motion.h1 
-              className="text-xl font-bold text-gradient cursor-pointer"
-              whileHover={prefersReducedMotion ? undefined : { scale: 1.02 }}
-            >
-              NexStep
-            </motion.h1>
-          </Link>
-          
-          <div className="flex items-center gap-2">
-            <NotificationsMenu />
-            
-            <Link to={`/profile/${user?.id}`}>
-              <motion.div
-                whileHover={prefersReducedMotion ? undefined : { scale: 1.05 }}
-                whileTap={prefersReducedMotion ? undefined : { scale: 0.95 }}
-              >
-                <Avatar className="h-8 w-8 cursor-pointer hover:ring-2 hover:ring-primary transition-all">
-                  <AvatarImage src={profile?.avatar_url} />
-                  <AvatarFallback>{profile?.full_name?.[0] || "U"}</AvatarFallback>
-                </Avatar>
-              </motion.div>
-            </Link>
-            
-            <motion.div
-              whileHover={prefersReducedMotion ? undefined : { scale: 1.05 }}
-              whileTap={prefersReducedMotion ? undefined : { scale: 0.95 }}
-            >
-              <Button size="icon" variant="ghost" onClick={signOut}>
-                <LogOut className="h-5 w-5" />
-              </Button>
-            </motion.div>
-          </div>
-        </div>
-      </nav>
+      {/* Ambient glow orbs */}
+      <div className="glow-orb w-96 h-96 bg-primary/20 -top-48 -left-48 fixed" />
+      <div className="glow-orb w-72 h-72 bg-secondary/15 top-1/3 -right-36 fixed" />
+
+      <TopNav profile={profile} />
 
       <div className="container mx-auto px-4 py-8 max-w-7xl">
         <motion.div 
