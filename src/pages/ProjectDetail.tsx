@@ -103,7 +103,7 @@ const ProjectDetail = () => {
           comment: newComment.trim(),
           project_id: id,
         })
-        .select("*, author:author_id!feedback_author_id_fkey(full_name, avatar_url)")
+        .select("id, author_id, profile_id, project_id, comment, created_at")
         .single();
 
       if (error) throw error;
