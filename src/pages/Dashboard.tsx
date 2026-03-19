@@ -51,6 +51,12 @@ const Dashboard = () => {
   const [showFindProjectsDialog, setShowFindProjectsDialog] = useState(false);
   const prefersReducedMotion = useReducedMotion();
 
+  // Feed filters
+  const [filterSkill, setFilterSkill] = useState("All");
+  const [filterCategory, setFilterCategory] = useState("All");
+  const [filterStatus, setFilterStatus] = useState("All");
+  const [filterRecency, setFilterRecency] = useState("All");
+
   useEffect(() => {
     if (user) {
       loadData();
