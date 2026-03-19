@@ -69,11 +69,20 @@ const ProjectDetail = () => {
 
       const { data: feedbackData } = await supabase
         .from("feedback")
-        .select("*, author:author_id!feedback_author_id_fkey(full_name, avatar_url)")
+        .select("id, author_id, profile_id, project_id, comment, created_at")
         .eq("project_id", id as string)
         .order("created_at", { ascending: true });
 
-      setComments(feedbackData || []);
+      const authorIds = [...new Set((feedbackData || []).map((c: any) => c.author_id).filter(Boolean))];
+      const { data: authorProfiles } = authorIds.length
+        ? await supabase
+            .from("profiles")
+            .select("id, full_name, avatar_url")
+            .in("id", authorIds)
+        : { data: [] as any[] };
+
+      const authorMap = new Map((authorProfiles || []).map((p: any) => [p.id, p]));
+      setComments((feedbackData || []).map((c: any) => ({ ...c, author: authorMap.get(c.author_id) })));
     } catch (err) {
       console.error("Error loading project:", err);
       toast.error("Failed to load project");
