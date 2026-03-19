@@ -6,8 +6,10 @@ import { Label } from "@/components/ui/label";
 import { Card } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useAuth } from "@/contexts/AuthContext";
+import { supabase } from "@/integrations/supabase/client";
 import { Loader2, ArrowLeft } from "lucide-react";
 import { Link } from "react-router-dom";
+import { toast } from "sonner";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -18,6 +20,8 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+
+type ResetStep = "idle" | "email" | "code" | "newPassword";
 
 const Auth = () => {
   const [loading, setLoading] = useState(false);
@@ -32,6 +36,13 @@ const Auth = () => {
     email: "",
     password: "",
   });
+
+  // Forgot password state
+  const [resetStep, setResetStep] = useState<ResetStep>("idle");
+  const [resetEmail, setResetEmail] = useState("");
+  const [resetCode, setResetCode] = useState("");
+  const [newPassword, setNewPassword] = useState("");
+  const [confirmNewPassword, setConfirmNewPassword] = useState("");
   
   const { signUp, signIn } = useAuth();
   const navigate = useNavigate();
@@ -66,6 +77,214 @@ const Auth = () => {
       setLoading(false);
     }
   };
+
+  const handleSendCode = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!resetEmail) {
+      toast.error("Please enter your email");
+      return;
+    }
+    setLoading(true);
+    try {
+      const { error } = await supabase.auth.resetPasswordForEmail(resetEmail);
+      if (error) throw error;
+      toast.success("A verification code has been sent to your email");
+      setResetStep("code");
+    } catch (error: any) {
+      toast.error(error.message || "Failed to send code");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleVerifyCode = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!resetCode || resetCode.length < 6) {
+      toast.error("Please enter the 6-digit code");
+      return;
+    }
+    setLoading(true);
+    try {
+      const { error } = await supabase.auth.verifyOtp({
+        email: resetEmail,
+        token: resetCode,
+        type: "recovery",
+      });
+      if (error) throw error;
+      toast.success("Code verified! Set your new password.");
+      setResetStep("newPassword");
+    } catch (error: any) {
+      toast.error(error.message || "Invalid or expired code");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleSetNewPassword = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (newPassword.length < 6) {
+      toast.error("Password must be at least 6 characters");
+      return;
+    }
+    if (newPassword !== confirmNewPassword) {
+      toast.error("Passwords do not match");
+      return;
+    }
+    setLoading(true);
+    try {
+      const { error } = await supabase.auth.updateUser({ password: newPassword });
+      if (error) throw error;
+      await supabase.auth.signOut();
+      toast.success("Password updated! Please sign in with your new password.");
+      setResetStep("idle");
+      setResetEmail("");
+      setResetCode("");
+      setNewPassword("");
+      setConfirmNewPassword("");
+    } catch (error: any) {
+      toast.error(error.message || "Failed to update password");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleCancelReset = () => {
+    setResetStep("idle");
+    setResetEmail("");
+    setResetCode("");
+    setNewPassword("");
+    setConfirmNewPassword("");
+  };
+
+  // Forgot password flow (replaces main content)
+  if (resetStep !== "idle") {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted flex items-center justify-center p-4">
+        <div className="w-full max-w-md">
+          <button
+            onClick={handleCancelReset}
+            className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground mb-6 transition-colors"
+          >
+            <ArrowLeft className="h-4 w-4" />
+            Back to Sign In
+          </button>
+
+          <Card className="glass-card shadow-elegant p-8 animate-scale-in">
+            {resetStep === "email" && (
+              <>
+                <div className="text-center mb-6">
+                  <h1 className="text-2xl font-bold text-foreground mb-2">Forgot Password</h1>
+                  <p className="text-sm text-muted-foreground">
+                    Enter your email and we'll send you a 6-digit verification code.
+                  </p>
+                </div>
+                <form onSubmit={handleSendCode} className="space-y-4">
+                  <div>
+                    <Label htmlFor="reset-email">Email Address</Label>
+                    <Input
+                      id="reset-email"
+                      type="email"
+                      placeholder="you@school.edu"
+                      value={resetEmail}
+                      onChange={(e) => setResetEmail(e.target.value)}
+                      required
+                      disabled={loading}
+                    />
+                  </div>
+                  <Button type="submit" className="w-full gradient-primary shadow-glow" disabled={loading}>
+                    {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                    Send Code
+                  </Button>
+                </form>
+              </>
+            )}
+
+            {resetStep === "code" && (
+              <>
+                <div className="text-center mb-6">
+                  <h1 className="text-2xl font-bold text-foreground mb-2">Enter Code</h1>
+                  <p className="text-sm text-muted-foreground">
+                    We sent a 6-digit code to <strong>{resetEmail}</strong>. Enter it below.
+                  </p>
+                </div>
+                <form onSubmit={handleVerifyCode} className="space-y-4">
+                  <div>
+                    <Label htmlFor="reset-code">Verification Code</Label>
+                    <Input
+                      id="reset-code"
+                      type="text"
+                      placeholder="123456"
+                      value={resetCode}
+                      onChange={(e) => setResetCode(e.target.value.replace(/\D/g, "").slice(0, 6))}
+                      required
+                      disabled={loading}
+                      className="text-center text-lg tracking-widest"
+                      maxLength={6}
+                    />
+                  </div>
+                  <Button type="submit" className="w-full gradient-primary shadow-glow" disabled={loading || resetCode.length < 6}>
+                    {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                    Verify Code
+                  </Button>
+                  <button
+                    type="button"
+                    onClick={() => setResetStep("email")}
+                    className="w-full text-sm text-muted-foreground hover:text-primary transition-colors text-center"
+                  >
+                    Didn't receive it? Try again
+                  </button>
+                </form>
+              </>
+            )}
+
+            {resetStep === "newPassword" && (
+              <>
+                <div className="text-center mb-6">
+                  <h1 className="text-2xl font-bold text-foreground mb-2">Set New Password</h1>
+                  <p className="text-sm text-muted-foreground">
+                    Enter your new password below.
+                  </p>
+                </div>
+                <form onSubmit={handleSetNewPassword} className="space-y-4">
+                  <div>
+                    <Label htmlFor="new-password">New Password</Label>
+                    <Input
+                      id="new-password"
+                      type="password"
+                      placeholder="••••••••"
+                      value={newPassword}
+                      onChange={(e) => setNewPassword(e.target.value)}
+                      required
+                      minLength={6}
+                      disabled={loading}
+                    />
+                    <p className="text-xs text-muted-foreground mt-1">At least 6 characters</p>
+                  </div>
+                  <div>
+                    <Label htmlFor="confirm-new-password">Confirm New Password</Label>
+                    <Input
+                      id="confirm-new-password"
+                      type="password"
+                      placeholder="••••••••"
+                      value={confirmNewPassword}
+                      onChange={(e) => setConfirmNewPassword(e.target.value)}
+                      required
+                      minLength={6}
+                      disabled={loading}
+                    />
+                  </div>
+                  <Button type="submit" className="w-full gradient-primary shadow-glow" disabled={loading}>
+                    {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                    Update Password
+                  </Button>
+                </form>
+              </>
+            )}
+          </Card>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted flex items-center justify-center p-4">
@@ -165,11 +384,18 @@ const Auth = () => {
                   Sign In
                 </Button>
 
-                {failedAttempts >= 3 && (
-                  <p className="text-xs text-center text-muted-foreground">
-                    Sign in to your account, then change your password from Edit Profile.
-                  </p>
-                )}
+                <div className="text-center pt-1">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setResetStep("email");
+                      setResetEmail(signInData.email);
+                    }}
+                    className="text-sm text-muted-foreground hover:text-primary transition-colors underline-offset-4 hover:underline"
+                  >
+                    Forgot Password?
+                  </button>
+                </div>
               </form>
             </TabsContent>
           </Tabs>
