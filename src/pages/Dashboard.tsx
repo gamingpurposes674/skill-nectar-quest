@@ -49,6 +49,7 @@ const Dashboard = () => {
   const [loading, setLoading] = useState(true);
   const [showCreateDialog, setShowCreateDialog] = useState(false);
   const [showFindProjectsDialog, setShowFindProjectsDialog] = useState(false);
+  const [projectLogs, setProjectLogs] = useState<any[]>([]);
   const prefersReducedMotion = useReducedMotion();
 
   // Feed filters
