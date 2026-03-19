@@ -21,21 +21,47 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
 
-  useEffect(() => {
-    // Set up auth state listener
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      (event, session) => {
-        setSession(session);
-        setUser(session?.user ?? null);
-        setLoading(false);
-      }
-    );
+  const ensureProfile = async (authUser: User | null) => {
+    if (!authUser) return;
 
-    // Check for existing session
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session);
-      setUser(session?.user ?? null);
+    const { data: existingProfile } = await supabase
+      .from("profiles")
+      .select("id")
+      .eq("id", authUser.id)
+      .maybeSingle();
+
+    if (!existingProfile) {
+      await supabase.from("profiles").insert({
+        id: authUser.id,
+        full_name: authUser.user_metadata?.full_name || "New User",
+        avatar_url:
+          authUser.user_metadata?.avatar_url ||
+          `https://api.dicebear.com/7.x/avataaars/svg?seed=${authUser.id}`,
+      });
+    }
+  };
+
+  useEffect(() => {
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((_event, nextSession) => {
+      setSession(nextSession);
+      setUser(nextSession?.user ?? null);
       setLoading(false);
+
+      if (nextSession?.user) {
+        void ensureProfile(nextSession.user);
+      }
+    });
+
+    supabase.auth.getSession().then(({ data: { session: currentSession } }) => {
+      setSession(currentSession);
+      setUser(currentSession?.user ?? null);
+      setLoading(false);
+
+      if (currentSession?.user) {
+        void ensureProfile(currentSession.user);
+      }
     });
 
     return () => subscription.unsubscribe();
@@ -43,7 +69,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   const signUp = async (email: string, password: string, fullName: string) => {
     try {
-      const { error } = await supabase.auth.signUp({
+      const { data, error } = await supabase.auth.signUp({
         email,
         password,
         options: {
@@ -55,7 +81,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       });
 
       if (error) throw error;
-      
+      await ensureProfile(data.user);
+
       toast.success("Account created successfully!");
       navigate("/dashboard");
     } catch (error: any) {
@@ -66,13 +93,14 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   const signIn = async (email: string, password: string) => {
     try {
-      const { error } = await supabase.auth.signInWithPassword({
+      const { data, error } = await supabase.auth.signInWithPassword({
         email,
         password,
       });
 
       if (error) throw error;
-      
+      await ensureProfile(data.user);
+
       toast.success("Signed in successfully!");
       navigate("/dashboard");
     } catch (error: any) {
@@ -85,7 +113,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     try {
       const { error } = await supabase.auth.signOut();
       if (error) throw error;
-      
+
       toast.success("Signed out successfully");
       navigate("/");
     } catch (error: any) {

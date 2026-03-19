@@ -8,6 +8,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
 import { motion, AnimatePresence } from "framer-motion";
 import { useReducedMotion } from "@/hooks/use-reduced-motion";
+import { validateDateInput } from "@/lib/dateValidation";
 import {
   Send,
   Milestone,
@@ -182,6 +183,7 @@ export const MilestoneTimeline = ({ projectId, isParticipant }: MilestoneTimelin
   const [newTitle, setNewTitle] = useState("");
   const [newDate, setNewDate] = useState("");
   const [submitting, setSubmitting] = useState(false);
+  const [dateError, setDateError] = useState<string | null>(null);
 
   useEffect(() => {
     loadMilestones();
@@ -198,6 +200,13 @@ export const MilestoneTimeline = ({ projectId, isParticipant }: MilestoneTimelin
 
   const handleAdd = async () => {
     if (!user || !newTitle.trim() || !newDate) return;
+
+    const validationError = validateDateInput(newDate);
+    if (validationError) {
+      setDateError(validationError);
+      return;
+    }
+    setDateError(null);
     setSubmitting(true);
     try {
       const { error } = await supabase.from("project_milestones").insert({
@@ -260,13 +269,18 @@ export const MilestoneTimeline = ({ projectId, isParticipant }: MilestoneTimelin
               <Input
                 type="date"
                 value={newDate}
-                onChange={(e) => setNewDate(e.target.value)}
+                onChange={(e) => {
+                  const value = e.target.value;
+                  setNewDate(value);
+                  setDateError(value ? validateDateInput(value) : "Date is required");
+                }}
                 className="text-[13px] h-9 w-36 bg-muted/30"
               />
               <Button size="sm" className="h-9" onClick={handleAdd} disabled={!newTitle.trim() || !newDate || submitting}>
                 Add
               </Button>
             </div>
+            {dateError && <p className="text-[10px] text-destructive mt-1">{dateError}</p>}
           </motion.div>
         )}
       </AnimatePresence>
@@ -307,7 +321,7 @@ export const MilestoneTimeline = ({ projectId, isParticipant }: MilestoneTimelin
                 <div className="flex items-center gap-1 mt-0.5">
                   <Calendar className="h-2.5 w-2.5 text-muted-foreground/50" />
                   <p className="text-[9px] text-muted-foreground/50">
-                    {new Date(ms.milestone_date).toLocaleDateString(undefined, { month: "short", day: "numeric" })}
+                    {validateDateInput(ms.milestone_date) ? "Invalid date" : new Date(ms.milestone_date).toLocaleDateString(undefined, { month: "short", day: "numeric" })}
                   </p>
                 </div>
               </motion.div>

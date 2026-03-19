@@ -40,6 +40,11 @@ const EditProfileDialog = ({ open, onOpenChange, profile, onSuccess }: EditProfi
   const [skills, setSkills] = useState<string[]>([]);
   const [avatarFile, setAvatarFile] = useState<File | null>(null);
   const [avatarPreview, setAvatarPreview] = useState<string>("");
+  const [currentPassword, setCurrentPassword] = useState("");
+  const [newPassword, setNewPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [changingPassword, setChangingPassword] = useState(false);
+  const [passwordError, setPasswordError] = useState<string | null>(null);
 
   useEffect(() => {
     if (profile && open) {
@@ -76,6 +81,52 @@ const EditProfileDialog = ({ open, onOpenChange, profile, onSuccess }: EditProfi
         setAvatarPreview(reader.result as string);
       };
       reader.readAsDataURL(file);
+    }
+  };
+
+  const handlePasswordChange = async () => {
+    if (!user?.email) return;
+
+    setPasswordError(null);
+    if (!currentPassword || !newPassword || !confirmPassword) {
+      setPasswordError("Fill all password fields");
+      return;
+    }
+    if (newPassword.length < 8) {
+      setPasswordError("New password must be at least 8 characters");
+      return;
+    }
+    if (newPassword !== confirmPassword) {
+      setPasswordError("New password and confirm password must match");
+      return;
+    }
+    if (newPassword === currentPassword) {
+      setPasswordError("New password must be different from current password");
+      return;
+    }
+
+    setChangingPassword(true);
+    try {
+      const { error: reauthError } = await supabase.auth.signInWithPassword({
+        email: user.email,
+        password: currentPassword,
+      });
+      if (reauthError) {
+        setPasswordError("Current password is incorrect");
+        return;
+      }
+
+      const { error: updateError } = await supabase.auth.updateUser({ password: newPassword });
+      if (updateError) throw updateError;
+
+      setCurrentPassword("");
+      setNewPassword("");
+      setConfirmPassword("");
+      toast.success("Password changed successfully");
+    } catch (error: any) {
+      setPasswordError(error.message || "Failed to change password");
+    } finally {
+      setChangingPassword(false);
     }
   };
 
@@ -296,6 +347,46 @@ const EditProfileDialog = ({ open, onOpenChange, profile, onSuccess }: EditProfi
               onCheckedChange={(checked) => setFormData({ ...formData, is_public: checked })}
               disabled={loading}
             />
+          </div>
+
+          <div className="rounded-lg border border-border/50 p-4 space-y-3">
+            <h3 className="text-sm font-semibold text-foreground">Account Security</h3>
+            <div className="grid grid-cols-1 gap-3">
+              <div>
+                <Label htmlFor="current-password">Current Password</Label>
+                <Input
+                  id="current-password"
+                  type="password"
+                  value={currentPassword}
+                  onChange={(e) => setCurrentPassword(e.target.value)}
+                  disabled={loading || changingPassword}
+                />
+              </div>
+              <div>
+                <Label htmlFor="new-password">New Password</Label>
+                <Input
+                  id="new-password"
+                  type="password"
+                  value={newPassword}
+                  onChange={(e) => setNewPassword(e.target.value)}
+                  disabled={loading || changingPassword}
+                />
+              </div>
+              <div>
+                <Label htmlFor="confirm-password">Confirm New Password</Label>
+                <Input
+                  id="confirm-password"
+                  type="password"
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  disabled={loading || changingPassword}
+                />
+              </div>
+            </div>
+            {passwordError && <p className="text-xs text-destructive">{passwordError}</p>}
+            <Button type="button" variant="outline" onClick={handlePasswordChange} disabled={loading || changingPassword}>
+              {changingPassword ? "Updating Password..." : "Change Password"}
+            </Button>
           </div>
 
           <div className="flex justify-end gap-2 pt-4">

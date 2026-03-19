@@ -13,6 +13,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
 import { isGibberish } from "@/lib/textValidation";
+import { validateOptionalDate } from "@/lib/dateValidation";
 
 interface AddAchievementDialogProps {
   open: boolean;
@@ -28,6 +29,7 @@ const AddAchievementDialog = ({ open, onOpenChange, onSuccess }: AddAchievementD
   const [date, setDate] = useState<Date>();
   const [proofFile, setProofFile] = useState<File | null>(null);
   const [proofPreview, setProofPreview] = useState<string | null>(null);
+  const [dateError, setDateError] = useState<string | null>(null);
 
   const handleProofFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -110,6 +112,13 @@ const AddAchievementDialog = ({ open, onOpenChange, onSuccess }: AddAchievementD
       return;
     }
 
+    const selectedDateError = validateOptionalDate(date);
+    if (selectedDateError) {
+      setDateError(selectedDateError);
+      return;
+    }
+
+    setDateError(null);
     setLoading(true);
 
     try {
@@ -203,12 +212,17 @@ const AddAchievementDialog = ({ open, onOpenChange, onSuccess }: AddAchievementD
                 <Calendar
                   mode="single"
                   selected={date}
-                  onSelect={setDate}
+                  onSelect={(selected) => {
+                    setDate(selected);
+                    setDateError(validateOptionalDate(selected));
+                  }}
+                  disabled={(d) => !!validateOptionalDate(d)}
                   initialFocus
                   className="pointer-events-auto"
                 />
               </PopoverContent>
             </Popover>
+            {dateError && <p className="text-xs text-destructive mt-1">{dateError}</p>}
           </div>
 
           <div>

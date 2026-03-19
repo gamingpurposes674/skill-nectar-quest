@@ -181,7 +181,7 @@ const ProfilePage = () => {
       // Load reactions
       const { data: feedbackData } = await supabase
         .from("feedback")
-        .select("*, profiles(full_name, avatar_url, grade)")
+        .select("*, profiles:author_id!feedback_author_id_fkey(full_name, avatar_url, grade)")
         .eq("profile_id", profileId);
 
       if (feedbackData) {
@@ -300,7 +300,7 @@ const ProfilePage = () => {
           author_id: user.id,
           comment: newComment.trim(),
         })
-        .select("*, profiles(full_name, avatar_url, grade)")
+        .select("*, profiles:author_id!feedback_author_id_fkey(full_name, avatar_url, grade)")
         .single();
       if (error) throw error;
       setComments((prev) => [data, ...prev]);
