@@ -37,6 +37,7 @@ import { SkeletonCard, SkeletonStats } from "@/components/ui/skeleton-card";
 import { CountUp } from "@/components/ui/count-up";
 import { AnimatedProgress } from "@/components/ui/animated-progress";
 import { useReducedMotion } from "@/hooks/use-reduced-motion";
+import { toTitleCase } from "@/lib/textValidation";
 
 const Dashboard = () => {
   const { user, signOut } = useAuth();
