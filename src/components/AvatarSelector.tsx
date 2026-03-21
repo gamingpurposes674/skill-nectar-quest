@@ -33,9 +33,9 @@ const CATEGORIES = [
     ],
   },
   {
-    id: "funny",
-    label: "Funny",
-    icon: Laugh,
+    id: "emojis",
+    label: "Emojis",
+    icon: Smile,
     style: "fun-emoji",
     seeds: [
       "Giggles", "Wacky", "Bonkers", "Silly", "Goofy", "Zany", "Nutty", "Quirky",
@@ -44,9 +44,9 @@ const CATEGORIES = [
     ],
   },
   {
-    id: "animals",
-    label: "Animals",
-    icon: PawPrint,
+    id: "funny",
+    label: "Funny",
+    icon: Laugh,
     style: "croodles",
     seeds: [
       "Kitty", "Puppy", "Panda", "Fox", "Froggy", "Owl", "Bear", "Bunny",
