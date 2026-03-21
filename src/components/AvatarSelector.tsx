@@ -44,14 +44,14 @@ const CATEGORIES = [
     ],
   },
   {
-    id: "funny",
-    label: "Funny",
-    icon: Laugh,
+    id: "doodles",
+    label: "Doodles",
+    icon: Pencil,
     style: "croodles",
     seeds: [
-      "Kitty", "Puppy", "Panda", "Fox", "Froggy", "Owl", "Bear", "Bunny",
-      "Penguin", "Koala", "Tiger", "Lion", "Wolf", "Deer", "Raccoon",
-      "Hedgehog", "Dolphin", "Parrot", "Hamster", "Squirrel",
+      "Scribble", "Doodle", "Sketch", "Blot", "Squiggle", "Smudge", "Wobble", "Zigzag",
+      "Splat", "Swirl", "Dash", "Flick", "Loop", "Scrawl", "Blip",
+      "Nudge", "Twirl", "Speck", "Jot", "Streak",
     ],
   },
   {
