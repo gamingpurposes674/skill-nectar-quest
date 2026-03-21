@@ -111,9 +111,11 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   const signOut = async () => {
     try {
-      const { error } = await supabase.auth.signOut();
+      const { error } = await supabase.auth.signOut({ scope: 'local' });
       if (error) throw error;
 
+      setUser(null);
+      setSession(null);
       toast.success("Signed out successfully");
       navigate("/");
     } catch (error: any) {
