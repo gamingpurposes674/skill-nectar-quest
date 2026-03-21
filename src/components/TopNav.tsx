@@ -439,6 +439,14 @@ export default function TopNav({ profile }: TopNavProps) {
                 <span className="text-sm font-medium">Discover</span>
               </button>
 
+              <button
+                onClick={() => handleMobileNav("/growth")}
+                className="w-full flex items-center gap-3 px-3 py-3 rounded-lg text-foreground hover:bg-muted/40 transition-colors"
+              >
+                <TrendingUp className="h-5 w-5" />
+                <span className="text-sm font-medium">My Growth</span>
+              </button>
+
               {isAdmin && (
                 <button
                   onClick={() => handleMobileNav("/admin")}
