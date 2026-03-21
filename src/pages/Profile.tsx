@@ -32,6 +32,7 @@ import { motion } from "framer-motion";
 import { useReducedMotion } from "@/hooks/use-reduced-motion";
 import EditProfileDialog from "@/components/EditProfileDialog";
 import AddAchievementDialog from "@/components/AddAchievementDialog";
+import AvatarSelector from "@/components/AvatarSelector";
 import SendAdviceDialog from "@/components/SendAdviceDialog";
 import ReactionsAndComments from "@/components/ReactionsAndComments";
 import ConnectionButton from "@/components/ConnectionButton";
@@ -124,6 +125,7 @@ const ProfilePage = () => {
   const [loading, setLoading] = useState(true);
   const [editDialogOpen, setEditDialogOpen] = useState(false);
   const [achievementDialogOpen, setAchievementDialogOpen] = useState(false);
+  const [avatarSelectorOpen, setAvatarSelectorOpen] = useState(false);
   const [featuredProjectId, setFeaturedProjectId] = useState<string | null>(null);
 
   // Reactions & comments state
@@ -563,12 +565,20 @@ const ProfilePage = () => {
           >
             {/* Profile Card */}
             <div className="rounded-xl border border-border/50 bg-card p-6 text-center">
-              <Avatar className="h-20 w-20 mx-auto mb-4 ring-2 ring-border shadow-lg">
+              <Avatar className="h-20 w-20 mx-auto mb-2 ring-2 ring-border shadow-lg">
                 <AvatarImage src={profile.avatar_url || undefined} />
                 <AvatarFallback className="text-xl bg-primary/10 font-bold">
                   {profile.full_name?.[0] || "U"}
                 </AvatarFallback>
               </Avatar>
+              {isOwnProfile && (
+                <button
+                  onClick={() => setAvatarSelectorOpen(true)}
+                  className="text-[11px] text-primary hover:underline mb-3 inline-block"
+                >
+                  Change Avatar
+                </button>
+              )}
 
               <h2 className="text-lg font-bold tracking-tight font-['Space_Grotesk',sans-serif] mb-0.5 flex items-center justify-center gap-2">
                 {profile.full_name}
@@ -892,6 +902,12 @@ const ProfilePage = () => {
           <AddAchievementDialog
             open={achievementDialogOpen}
             onOpenChange={setAchievementDialogOpen}
+            onSuccess={loadProfileData}
+          />
+          <AvatarSelector
+            open={avatarSelectorOpen}
+            onOpenChange={setAvatarSelectorOpen}
+            currentAvatarUrl={profile?.avatar_url || null}
             onSuccess={loadProfileData}
           />
         </>
