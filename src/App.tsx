@@ -17,6 +17,7 @@ import NotFound from "./pages/NotFound";
 import ProjectDetail from "./pages/ProjectDetail";
 import BrowseProfiles from "./pages/BrowseProfiles";
 import Admin from "./pages/Admin";
+import Growth from "./pages/Growth";
 
 const queryClient = new QueryClient();
 
