@@ -32,12 +32,13 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       .maybeSingle();
 
     if (!existingProfile) {
+      const randomStyle = AVATAR_STYLES[Math.floor(Math.random() * AVATAR_STYLES.length)];
+      const randomSeed = AVATAR_SEEDS[Math.floor(Math.random() * AVATAR_SEEDS.length)];
+      const randomAvatar = `https://api.dicebear.com/7.x/${randomStyle}/svg?seed=${randomSeed}`;
       await supabase.from("profiles").insert({
         id: authUser.id,
         full_name: authUser.user_metadata?.full_name || "New User",
-        avatar_url:
-          authUser.user_metadata?.avatar_url ||
-          `https://api.dicebear.com/7.x/avataaars/svg?seed=${authUser.id}`,
+        avatar_url: authUser.user_metadata?.avatar_url || randomAvatar,
       });
     }
   };
