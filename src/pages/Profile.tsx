@@ -125,6 +125,7 @@ const ProfilePage = () => {
   const [loading, setLoading] = useState(true);
   const [editDialogOpen, setEditDialogOpen] = useState(false);
   const [achievementDialogOpen, setAchievementDialogOpen] = useState(false);
+  const [avatarSelectorOpen, setAvatarSelectorOpen] = useState(false);
   const [featuredProjectId, setFeaturedProjectId] = useState<string | null>(null);
 
   // Reactions & comments state
