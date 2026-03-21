@@ -22,9 +22,9 @@ const CATEGORIES = [
     ],
   },
   {
-    id: "professional",
-    label: "Professional",
-    icon: Briefcase,
+    id: "basic",
+    label: "Basic",
+    icon: User,
     style: "avataaars",
     seeds: [
       "Felix", "Aneka", "Liam", "Sophia", "Milo", "Zara", "Oliver", "Chloe",
