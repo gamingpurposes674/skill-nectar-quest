@@ -7,8 +7,8 @@ verify_jwt = false
 verify_jwt = false
 
 [auth]
-site_url = "env(SITE_URL)"
-additional_redirect_urls = ["https://id-preview--dc92c9c1-5be7-43c9-ba89-ba41172f59bf.lovable.app", "https://id-preview--dc92c9c1-5be7-43c9-ba89-ba41172f59bf.lovable.app/reset-password", "https://nexstepedu.com", "https://nexstepedu.com/reset-password"]
+site_url = "https://www.nexstepedu.com"
+additional_redirect_urls = ["https://www.nexstepedu.com/**", "https://nexstepedu.com/**", "https://id-preview--dc92c9c1-5be7-43c9-ba89-ba41172f59bf.lovable.app/**"]
 
 [auth.email]
 enable_signup = true
