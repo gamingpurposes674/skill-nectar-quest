@@ -38,12 +38,6 @@ const Index = () => {
     }
   ];
 
-  const stats = [
-    { value: "5,000+", label: "Active Students" },
-    { value: "1,200+", label: "Projects Launched" },
-    { value: "500+", label: "Mentors Available" },
-    { value: "50+", label: "Schools Connected" }
-  ];
 
   return (
     <div className="min-h-screen relative">
