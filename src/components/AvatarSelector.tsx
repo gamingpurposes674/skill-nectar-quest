@@ -47,9 +47,9 @@ const CATEGORIES = [
     id: "animals",
     label: "Animals",
     icon: PawPrint,
-    style: "thumbs",
+    style: "croodles",
     seeds: [
-      "Cat", "Dog", "Panda", "Fox", "Frog", "Owl", "Bear", "Bunny",
+      "Kitty", "Puppy", "Panda", "Fox", "Froggy", "Owl", "Bear", "Bunny",
       "Penguin", "Koala", "Tiger", "Lion", "Wolf", "Deer", "Raccoon",
       "Hedgehog", "Dolphin", "Parrot", "Hamster", "Squirrel",
     ],
