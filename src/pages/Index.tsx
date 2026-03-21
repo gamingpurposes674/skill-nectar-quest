@@ -165,6 +165,15 @@ const Index = () => {
         </div>
       </section>
 
+      {/* How It Works */}
+      <HowItWorks />
+
+      {/* Demo Cards */}
+      <DemoCards />
+
+      {/* Testimonials */}
+      <Testimonials />
+
       {/* CTA Section */}
       <section className="py-24 relative overflow-hidden">
         <div className="absolute inset-0 gradient-primary opacity-5" />
