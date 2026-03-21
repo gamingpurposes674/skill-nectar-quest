@@ -162,7 +162,7 @@ const AvatarSelector = ({ open, onOpenChange, currentAvatarUrl, onSuccess }: Ava
                     );
                   })}
                 </div>
-              </ScrollArea>
+              </div>
             </TabsContent>
           ))}
         </Tabs>
