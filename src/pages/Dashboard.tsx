@@ -417,7 +417,8 @@ const Dashboard = () => {
 
               {/* Portfolio Health */}
               <motion.div variants={prefersReducedMotion ? undefined : itemVariants}>
-                <AnimatedCard className="glass-card shadow-card p-5 card-hover-glow relative overflow-hidden">
+                <Link to="/growth">
+                <AnimatedCard className="glass-card shadow-card p-5 card-hover-glow relative overflow-hidden cursor-pointer">
                   <div className="absolute -top-4 -left-4 w-20 h-20 rounded-full bg-accent/20 blur-2xl pointer-events-none" />
                   <div className="flex items-center gap-4 relative z-10">
                     <div className="relative">
@@ -433,7 +434,9 @@ const Dashboard = () => {
                       </p>
                     </div>
                   </div>
+                  <p className="text-[10px] text-accent/70 mt-2 relative z-10">View My Growth →</p>
                 </AnimatedCard>
+                </Link>
               </motion.div>
             </motion.div>
 
