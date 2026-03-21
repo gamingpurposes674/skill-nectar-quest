@@ -33,7 +33,13 @@ const Auth = () => {
     fullName: "",
     email: "",
     password: "",
+    dob: "",
+    school: "",
+    grade: "",
+    city: "",
+    studentConfirm: false,
   });
+  const [dobError, setDobError] = useState("");
   const [signInData, setSignInData] = useState({
     email: "",
     password: "",
