@@ -246,6 +246,12 @@ export default function TopNav({ profile }: TopNavProps) {
               </Link>
             </Button>
 
+            <Button variant="ghost" size="icon" asChild>
+              <Link to="/mentorship">
+                <GraduationCap className="h-5 w-5" />
+              </Link>
+            </Button>
+
             {isAdmin && (
               <Button variant="ghost" size="icon" asChild>
                 <Link to="/admin">
