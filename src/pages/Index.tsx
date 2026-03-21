@@ -13,6 +13,9 @@ import {
   Zap
 } from "lucide-react";
 import heroBackground from "@/assets/hero-background.jpg";
+import HowItWorks from "@/components/landing/HowItWorks";
+import DemoCards from "@/components/landing/DemoCards";
+import Testimonials from "@/components/landing/Testimonials";
 
 const Index = () => {
   const features = [
