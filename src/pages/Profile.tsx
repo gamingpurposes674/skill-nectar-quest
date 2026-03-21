@@ -904,6 +904,12 @@ const ProfilePage = () => {
             onOpenChange={setAchievementDialogOpen}
             onSuccess={loadProfileData}
           />
+          <AvatarSelector
+            open={avatarSelectorOpen}
+            onOpenChange={setAvatarSelectorOpen}
+            currentAvatarUrl={profile?.avatar_url || null}
+            onSuccess={loadProfileData}
+          />
         </>
       )}
     </div>
