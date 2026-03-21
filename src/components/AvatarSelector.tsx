@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
-import { Check, Heart, User, Smile, Laugh, Shapes } from "lucide-react";
+import { Check, Heart, User, Smile, Pencil, Shapes } from "lucide-react";
 import { ScrollArea } from "@/components/ui/scroll-area";
 
 const CATEGORIES = [
@@ -44,14 +44,14 @@ const CATEGORIES = [
     ],
   },
   {
-    id: "funny",
-    label: "Funny",
-    icon: Laugh,
+    id: "doodles",
+    label: "Doodles",
+    icon: Pencil,
     style: "croodles",
     seeds: [
-      "Kitty", "Puppy", "Panda", "Fox", "Froggy", "Owl", "Bear", "Bunny",
-      "Penguin", "Koala", "Tiger", "Lion", "Wolf", "Deer", "Raccoon",
-      "Hedgehog", "Dolphin", "Parrot", "Hamster", "Squirrel",
+      "Scribble", "Doodle", "Sketch", "Blot", "Squiggle", "Smudge", "Wobble", "Zigzag",
+      "Splat", "Swirl", "Dash", "Flick", "Loop", "Scrawl", "Blip",
+      "Nudge", "Twirl", "Speck", "Jot", "Streak",
     ],
   },
   {
