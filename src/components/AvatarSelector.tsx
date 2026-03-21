@@ -132,8 +132,8 @@ const AvatarSelector = ({ open, onOpenChange, currentAvatarUrl, onSuccess }: Ava
           </TabsList>
 
           {CATEGORIES.map((cat) => (
-            <TabsContent key={cat.id} value={cat.id} className="flex-1 min-h-0 mt-3 overflow-hidden">
-              <ScrollArea className="h-full max-h-[320px] pr-3">
+            <TabsContent key={cat.id} value={cat.id} className="mt-3" style={{ height: '320px', overflow: 'hidden' }}>
+              <div className="h-full overflow-y-auto pr-3" style={{ maxHeight: '320px' }}>
                 <div className="grid grid-cols-4 sm:grid-cols-5 gap-3 pb-2">
                   {cat.seeds.map((seed) => {
                     const url = getAvatarUrl(cat.style, seed);
