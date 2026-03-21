@@ -38,12 +38,6 @@ const Index = () => {
     }
   ];
 
-  const stats = [
-    { value: "5,000+", label: "Active Students" },
-    { value: "1,200+", label: "Projects Launched" },
-    { value: "500+", label: "Mentors Available" },
-    { value: "50+", label: "Schools Connected" }
-  ];
 
   return (
     <div className="min-h-screen relative">
@@ -113,14 +107,22 @@ const Index = () => {
               </Link>
             </div>
 
-            {/* Stats */}
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-6 pt-12">
-              {stats.map((stat, idx) => (
-                <div key={idx} className="animate-slide-up" style={{ animationDelay: `${idx * 100}ms` }}>
-                  <p className="text-3xl md:text-4xl font-bold text-gradient">{stat.value}</p>
-                  <p className="text-sm text-muted-foreground mt-1">{stat.label}</p>
-                </div>
-              ))}
+            {/* CTA Tagline */}
+            <div className="pt-12 animate-slide-up" style={{ animationDelay: '200ms' }}>
+              <div className="glass-card rounded-2xl p-6 md:p-8 max-w-xl mx-auto text-center border border-border/40">
+                <Sparkles className="h-6 w-6 text-accent mx-auto mb-3" />
+                <p className="text-lg md:text-xl font-semibold text-foreground" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>
+                  Be Part Of Something New
+                </p>
+                <p className="text-sm text-muted-foreground mt-2 mb-4">
+                  NexStep is growing — join early and shape the future of student collaboration.
+                </p>
+                <Link to="/auth">
+                  <Button className="gradient-primary shadow-glow btn-hover-lift gap-2">
+                    Join Now <ArrowRight className="h-4 w-4" />
+                  </Button>
+                </Link>
+              </div>
             </div>
           </div>
         </div>
