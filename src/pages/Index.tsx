@@ -13,6 +13,9 @@ import {
   Zap
 } from "lucide-react";
 import heroBackground from "@/assets/hero-background.jpg";
+import HowItWorks from "@/components/landing/HowItWorks";
+import DemoCards from "@/components/landing/DemoCards";
+import Testimonials from "@/components/landing/Testimonials";
 
 const Index = () => {
   const features = [
@@ -161,6 +164,15 @@ const Index = () => {
           </div>
         </div>
       </section>
+
+      {/* How It Works */}
+      <HowItWorks />
+
+      {/* Demo Cards */}
+      <DemoCards />
+
+      {/* Testimonials */}
+      <Testimonials />
 
       {/* CTA Section */}
       <section className="py-24 relative overflow-hidden">
