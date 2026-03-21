@@ -47,9 +47,9 @@ const CATEGORIES = [
     id: "animals",
     label: "Animals",
     icon: PawPrint,
-    style: "thumbs",
+    style: "croodles",
     seeds: [
-      "Cat", "Dog", "Panda", "Fox", "Frog", "Owl", "Bear", "Bunny",
+      "Kitty", "Puppy", "Panda", "Fox", "Froggy", "Owl", "Bear", "Bunny",
       "Penguin", "Koala", "Tiger", "Lion", "Wolf", "Deer", "Raccoon",
       "Hedgehog", "Dolphin", "Parrot", "Hamster", "Squirrel",
     ],
@@ -111,7 +111,7 @@ const AvatarSelector = ({ open, onOpenChange, currentAvatarUrl, onSuccess }: Ava
 
   return (
     <Dialog open={open} onOpenChange={(v) => { if (!v) handleCancel(); else onOpenChange(v); }}>
-      <DialogContent className="sm:max-w-[600px] max-h-[85vh] flex flex-col p-0 gap-0">
+      <DialogContent className="sm:max-w-[600px] max-h-[85vh] flex flex-col p-0 gap-0 overflow-hidden">
         <DialogHeader className="px-6 pt-6 pb-2">
           <DialogTitle className="flex items-center gap-3">
             <Avatar className="h-12 w-12 border-2 border-primary">
@@ -121,8 +121,8 @@ const AvatarSelector = ({ open, onOpenChange, currentAvatarUrl, onSuccess }: Ava
           </DialogTitle>
         </DialogHeader>
 
-        <Tabs defaultValue="cute" className="flex-1 flex flex-col min-h-0 px-6">
-          <TabsList className="w-full flex-wrap h-auto gap-1 bg-muted/30 p-1">
+        <Tabs defaultValue="cute" className="flex-1 flex flex-col min-h-0 px-6 overflow-hidden">
+          <TabsList className="w-full flex-wrap h-auto gap-1 bg-muted/30 p-1 shrink-0">
             {CATEGORIES.map((cat) => (
               <TabsTrigger key={cat.id} value={cat.id} className="flex items-center gap-1.5 text-xs px-3 py-1.5">
                 <cat.icon className="h-3.5 w-3.5" />
@@ -132,9 +132,9 @@ const AvatarSelector = ({ open, onOpenChange, currentAvatarUrl, onSuccess }: Ava
           </TabsList>
 
           {CATEGORIES.map((cat) => (
-            <TabsContent key={cat.id} value={cat.id} className="flex-1 min-h-0 mt-3">
-              <ScrollArea className="h-[380px] pr-3">
-                <div className="grid grid-cols-4 sm:grid-cols-5 gap-3">
+            <TabsContent key={cat.id} value={cat.id} className="flex-1 min-h-0 mt-3 overflow-hidden">
+              <ScrollArea className="h-full max-h-[320px] pr-3">
+                <div className="grid grid-cols-4 sm:grid-cols-5 gap-3 pb-2">
                   {cat.seeds.map((seed) => {
                     const url = getAvatarUrl(cat.style, seed);
                     const isSelected = selectedUrl === url;
@@ -167,12 +167,12 @@ const AvatarSelector = ({ open, onOpenChange, currentAvatarUrl, onSuccess }: Ava
           ))}
         </Tabs>
 
-        <DialogFooter className="px-6 py-4 border-t border-border">
+        <div className="shrink-0 flex justify-end gap-2 px-6 py-4 border-t border-border bg-background">
           <Button variant="outline" onClick={handleCancel} disabled={saving}>Cancel</Button>
           <Button onClick={handleConfirm} disabled={saving || !preview}>
             {saving ? "Saving..." : "Confirm Avatar"}
           </Button>
-        </DialogFooter>
+        </div>
       </DialogContent>
     </Dialog>
   );
