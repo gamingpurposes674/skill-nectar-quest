@@ -32,8 +32,10 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       .maybeSingle();
 
     if (!existingProfile) {
-      const randomStyle = AVATAR_STYLES[Math.floor(Math.random() * AVATAR_STYLES.length)];
-      const randomSeed = AVATAR_SEEDS[Math.floor(Math.random() * AVATAR_SEEDS.length)];
+      const styles = ["avataaars", "lorelei", "fun-emoji", "thumbs", "shapes"];
+      const seeds = ["Felix", "Aneka", "Liam", "Sophia", "Milo", "Zara", "Oliver", "Chloe", "Jasper", "Luna", "Kai", "Nova"];
+      const randomStyle = styles[Math.floor(Math.random() * styles.length)];
+      const randomSeed = seeds[Math.floor(Math.random() * seeds.length)];
       const randomAvatar = `https://api.dicebear.com/7.x/${randomStyle}/svg?seed=${randomSeed}`;
       await supabase.from("profiles").insert({
         id: authUser.id,
