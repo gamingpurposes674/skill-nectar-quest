@@ -79,7 +79,12 @@ const Auth = () => {
     setShowConfirmDialog(false);
     setLoading(true);
     try {
-      await signUp(signUpData.email, signUpData.password, signUpData.fullName);
+      await signUp(signUpData.email, signUpData.password, signUpData.fullName, {
+        school: signUpData.school,
+        grade: signUpData.grade,
+        city: signUpData.city,
+        dob: signUpData.dob,
+      });
     } catch (error) {
       console.error("Sign up error:", error);
     } finally {
