@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
-import { Check, Heart, Briefcase, Laugh, PawPrint, Shapes } from "lucide-react";
+import { Check, Heart, User, Laugh, PawPrint, Shapes } from "lucide-react";
 import { ScrollArea } from "@/components/ui/scroll-area";
 
 const CATEGORIES = [
@@ -22,9 +22,9 @@ const CATEGORIES = [
     ],
   },
   {
-    id: "professional",
-    label: "Professional",
-    icon: Briefcase,
+    id: "basic",
+    label: "Basic",
+    icon: User,
     style: "avataaars",
     seeds: [
       "Felix", "Aneka", "Liam", "Sophia", "Milo", "Zara", "Oliver", "Chloe",
