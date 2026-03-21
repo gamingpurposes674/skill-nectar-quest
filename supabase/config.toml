@@ -34,3 +34,6 @@ content_path = "./templates/magic_link.html"
 [auth.email.template.email_change]
 subject = "NexStep | Confirm Email Change"
 content_path = "./templates/email_change.html"
+
+[functions.process-email-queue]
+verify_jwt = true
