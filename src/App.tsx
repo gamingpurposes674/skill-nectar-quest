@@ -18,6 +18,7 @@ import ProjectDetail from "./pages/ProjectDetail";
 import BrowseProfiles from "./pages/BrowseProfiles";
 import Admin from "./pages/Admin";
 import Growth from "./pages/Growth";
+import Mentorship from "./pages/Mentorship";
 
 const queryClient = new QueryClient();
 
@@ -86,6 +87,14 @@ const App = () => (
                 element={
                   <ProtectedRoute>
                     <Growth />
+                  </ProtectedRoute>
+                } 
+              />
+              <Route 
+                path="/mentorship" 
+                element={
+                  <ProtectedRoute>
+                    <Mentorship />
                   </ProtectedRoute>
                 } 
               />

@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import { Search, LogOut, Compass, Users as UsersIcon, FolderOpen, Shield, Menu, X, TrendingUp } from "lucide-react";
+import { Search, LogOut, Compass, Users as UsersIcon, FolderOpen, Shield, Menu, X, TrendingUp, GraduationCap } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Input } from "@/components/ui/input";
@@ -246,6 +246,12 @@ export default function TopNav({ profile }: TopNavProps) {
               </Link>
             </Button>
 
+            <Button variant="ghost" size="icon" asChild>
+              <Link to="/mentorship">
+                <GraduationCap className="h-5 w-5" />
+              </Link>
+            </Button>
+
             {isAdmin && (
               <Button variant="ghost" size="icon" asChild>
                 <Link to="/admin">
@@ -445,6 +451,14 @@ export default function TopNav({ profile }: TopNavProps) {
               >
                 <TrendingUp className="h-5 w-5" />
                 <span className="text-sm font-medium">My Growth</span>
+              </button>
+
+              <button
+                onClick={() => handleMobileNav("/mentorship")}
+                className="w-full flex items-center gap-3 px-3 py-3 rounded-lg text-foreground hover:bg-muted/40 transition-colors"
+              >
+                <GraduationCap className="h-5 w-5" />
+                <span className="text-sm font-medium">Mentorship</span>
               </button>
 
               {isAdmin && (
