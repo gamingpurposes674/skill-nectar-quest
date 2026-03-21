@@ -315,6 +315,36 @@ export type Database = {
           },
         ]
       }
+      portfolio_health_snapshots: {
+        Row: {
+          achievement_count: number
+          collaboration_count: number
+          health_value: number
+          id: string
+          project_count: number
+          recorded_at: string
+          user_id: string
+        }
+        Insert: {
+          achievement_count?: number
+          collaboration_count?: number
+          health_value?: number
+          id?: string
+          project_count?: number
+          recorded_at?: string
+          user_id: string
+        }
+        Update: {
+          achievement_count?: number
+          collaboration_count?: number
+          health_value?: number
+          id?: string
+          project_count?: number
+          recorded_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           age: number | null
