@@ -175,6 +175,9 @@ const Index = () => {
       {/* Testimonials */}
       <Testimonials />
 
+      {/* About & Comparison */}
+      <AboutAndComparison />
+
       {/* CTA Section */}
       <section className="py-24 relative overflow-hidden">
         <div className="absolute inset-0 gradient-primary opacity-5" />
