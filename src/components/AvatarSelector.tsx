@@ -167,12 +167,12 @@ const AvatarSelector = ({ open, onOpenChange, currentAvatarUrl, onSuccess }: Ava
           ))}
         </Tabs>
 
-        <DialogFooter className="px-6 py-4 border-t border-border">
+        <div className="shrink-0 flex justify-end gap-2 px-6 py-4 border-t border-border bg-background">
           <Button variant="outline" onClick={handleCancel} disabled={saving}>Cancel</Button>
           <Button onClick={handleConfirm} disabled={saving || !preview}>
             {saving ? "Saving..." : "Confirm Avatar"}
           </Button>
-        </DialogFooter>
+        </div>
       </DialogContent>
     </Dialog>
   );
