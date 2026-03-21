@@ -231,6 +231,68 @@ export type Database = {
           },
         ]
       }
+      mentor_profiles: {
+        Row: {
+          availability: string
+          bio: string | null
+          created_at: string
+          expertise: string[]
+          id: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          availability?: string
+          bio?: string | null
+          created_at?: string
+          expertise?: string[]
+          id?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          availability?: string
+          bio?: string | null
+          created_at?: string
+          expertise?: string[]
+          id?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      mentorship_messages: {
+        Row: {
+          created_at: string
+          id: string
+          mentorship_id: string
+          message: string
+          sender_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          mentorship_id: string
+          message: string
+          sender_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          mentorship_id?: string
+          message?: string
+          sender_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "mentorship_messages_mentorship_id_fkey"
+            columns: ["mentorship_id"]
+            isOneToOne: false
+            referencedRelation: "mentorship_requests"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       mentorship_requests: {
         Row: {
           created_at: string | null
