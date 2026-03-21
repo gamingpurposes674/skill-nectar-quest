@@ -16,6 +16,7 @@ import heroBackground from "@/assets/hero-background.jpg";
 import HowItWorks from "@/components/landing/HowItWorks";
 import DemoCards from "@/components/landing/DemoCards";
 import Testimonials from "@/components/landing/Testimonials";
+import AboutAndComparison from "@/components/landing/AboutAndComparison";
 
 const Index = () => {
   const features = [
