@@ -121,8 +121,8 @@ const AvatarSelector = ({ open, onOpenChange, currentAvatarUrl, onSuccess }: Ava
           </DialogTitle>
         </DialogHeader>
 
-        <Tabs defaultValue="cute" className="flex-1 flex flex-col min-h-0 px-6">
-          <TabsList className="w-full flex-wrap h-auto gap-1 bg-muted/30 p-1">
+        <Tabs defaultValue="cute" className="flex-1 flex flex-col min-h-0 px-6 overflow-hidden">
+          <TabsList className="w-full flex-wrap h-auto gap-1 bg-muted/30 p-1 shrink-0">
             {CATEGORIES.map((cat) => (
               <TabsTrigger key={cat.id} value={cat.id} className="flex items-center gap-1.5 text-xs px-3 py-1.5">
                 <cat.icon className="h-3.5 w-3.5" />
@@ -132,9 +132,9 @@ const AvatarSelector = ({ open, onOpenChange, currentAvatarUrl, onSuccess }: Ava
           </TabsList>
 
           {CATEGORIES.map((cat) => (
-            <TabsContent key={cat.id} value={cat.id} className="flex-1 min-h-0 mt-3">
-              <ScrollArea className="h-[380px] pr-3">
-                <div className="grid grid-cols-4 sm:grid-cols-5 gap-3">
+            <TabsContent key={cat.id} value={cat.id} className="flex-1 min-h-0 mt-3 overflow-hidden">
+              <ScrollArea className="h-full max-h-[320px] pr-3">
+                <div className="grid grid-cols-4 sm:grid-cols-5 gap-3 pb-2">
                   {cat.seeds.map((seed) => {
                     const url = getAvatarUrl(cat.style, seed);
                     const isSelected = selectedUrl === url;
