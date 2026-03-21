@@ -2,7 +2,7 @@ import { createContext, useContext, useEffect, useState, ReactNode } from "react
 import { User, Session } from "@supabase/supabase-js";
 import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
-import { AVATAR_SEEDS, AVATAR_STYLES } from "@/components/AvatarSelector";
+
 import { toast } from "sonner";
 
 interface AuthContextType {
