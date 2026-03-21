@@ -55,8 +55,23 @@ const Auth = () => {
   const { signUp, signIn } = useAuth();
   const navigate = useNavigate();
 
+  const validateDob = (dob: string) => {
+    if (!dob) { setDobError("Date of birth is required"); return false; }
+    const birthDate = new Date(dob);
+    const age = Math.floor((Date.now() - birthDate.getTime()) / (365.25 * 24 * 60 * 60 * 1000));
+    if (age < 13) { setDobError("You must be at least 13 years old"); return false; }
+    if (age > 22) { setDobError("NexStep is for students aged 13-22"); return false; }
+    setDobError("");
+    return true;
+  };
+
   const handleSignUpSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    if (!validateDob(signUpData.dob)) return;
+    if (!signUpData.studentConfirm) {
+      toast.error("Please confirm that you are a current student");
+      return;
+    }
     setShowConfirmDialog(true);
   };
 
