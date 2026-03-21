@@ -9,7 +9,7 @@ interface AuthContextType {
   user: User | null;
   session: Session | null;
   loading: boolean;
-  signUp: (email: string, password: string, fullName: string) => Promise<void>;
+  signUp: (email: string, password: string, fullName: string, extra?: { school?: string; grade?: string; city?: string; dob?: string }) => Promise<void>;
   signIn: (email: string, password: string) => Promise<void>;
   signOut: () => Promise<void>;
 }
@@ -71,7 +71,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     return () => subscription.unsubscribe();
   }, []);
 
-  const signUp = async (email: string, password: string, fullName: string) => {
+  const signUp = async (email: string, password: string, fullName: string, extra?: { school?: string; grade?: string; city?: string; dob?: string }) => {
     try {
       const { data, error } = await supabase.auth.signUp({
         email,
@@ -86,6 +86,21 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
       if (error) throw error;
       await ensureProfile(data.user);
+
+      // Update profile with extra signup fields
+      if (data.user && extra) {
+        const updates: Record<string, string | number | null> = {};
+        if (extra.school) updates.school = extra.school;
+        if (extra.grade) updates.grade = extra.grade;
+        if (extra.city) updates.location = extra.city;
+        if (extra.dob) {
+          const age = Math.floor((Date.now() - new Date(extra.dob).getTime()) / (365.25 * 24 * 60 * 60 * 1000));
+          updates.age = age;
+        }
+        if (Object.keys(updates).length > 0) {
+          await supabase.from("profiles").update(updates).eq("id", data.user.id);
+        }
+      }
 
       toast.success("Account created successfully!");
       navigate("/dashboard");

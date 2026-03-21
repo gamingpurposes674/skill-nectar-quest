@@ -5,6 +5,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { Loader2, ArrowLeft } from "lucide-react";
@@ -31,7 +33,13 @@ const Auth = () => {
     fullName: "",
     email: "",
     password: "",
+    dob: "",
+    school: "",
+    grade: "",
+    city: "",
+    studentConfirm: false,
   });
+  const [dobError, setDobError] = useState("");
   const [signInData, setSignInData] = useState({
     email: "",
     password: "",
@@ -47,8 +55,23 @@ const Auth = () => {
   const { signUp, signIn } = useAuth();
   const navigate = useNavigate();
 
+  const validateDob = (dob: string) => {
+    if (!dob) { setDobError("Date of birth is required"); return false; }
+    const birthDate = new Date(dob);
+    const age = Math.floor((Date.now() - birthDate.getTime()) / (365.25 * 24 * 60 * 60 * 1000));
+    if (age < 13) { setDobError("You must be at least 13 years old"); return false; }
+    if (age > 22) { setDobError("NexStep is for students aged 13-22"); return false; }
+    setDobError("");
+    return true;
+  };
+
   const handleSignUpSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    if (!validateDob(signUpData.dob)) return;
+    if (!signUpData.studentConfirm) {
+      toast.error("Please confirm that you are a current student");
+      return;
+    }
     setShowConfirmDialog(true);
   };
 
@@ -56,7 +79,12 @@ const Auth = () => {
     setShowConfirmDialog(false);
     setLoading(true);
     try {
-      await signUp(signUpData.email, signUpData.password, signUpData.fullName);
+      await signUp(signUpData.email, signUpData.password, signUpData.fullName, {
+        school: signUpData.school,
+        grade: signUpData.grade,
+        city: signUpData.city,
+        dob: signUpData.dob,
+      });
     } catch (error) {
       console.error("Sign up error:", error);
     } finally {
@@ -346,7 +374,85 @@ const Auth = () => {
                   />
                   <p className="text-xs text-muted-foreground mt-1">At least 6 characters</p>
                 </div>
-                <Button type="submit" className="w-full gradient-primary shadow-glow" disabled={loading}>
+                <div>
+                  <Label htmlFor="signup-dob">Date of Birth</Label>
+                  <Input
+                    id="signup-dob"
+                    type="date"
+                    value={signUpData.dob}
+                    onChange={(e) => {
+                      setSignUpData({ ...signUpData, dob: e.target.value });
+                      if (e.target.value) validateDob(e.target.value);
+                    }}
+                    required
+                    disabled={loading}
+                  />
+                  {dobError && <p className="text-xs text-destructive mt-1">{dobError}</p>}
+                </div>
+                <div>
+                  <Label htmlFor="signup-school">School or College Name</Label>
+                  <Input
+                    id="signup-school"
+                    type="text"
+                    placeholder="Springfield High School"
+                    value={signUpData.school}
+                    onChange={(e) => setSignUpData({ ...signUpData, school: e.target.value })}
+                    required
+                    disabled={loading}
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="signup-grade">Current Grade or Year</Label>
+                  <Select
+                    value={signUpData.grade}
+                    onValueChange={(value) => setSignUpData({ ...signUpData, grade: value })}
+                    required
+                  >
+                    <SelectTrigger id="signup-grade" disabled={loading}>
+                      <SelectValue placeholder="Select your grade/year" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="Grade 9">Grade 9</SelectItem>
+                      <SelectItem value="Grade 10">Grade 10</SelectItem>
+                      <SelectItem value="Grade 11">Grade 11</SelectItem>
+                      <SelectItem value="Grade 12">Grade 12</SelectItem>
+                      <SelectItem value="College Year 1">College Year 1</SelectItem>
+                      <SelectItem value="College Year 2">College Year 2</SelectItem>
+                      <SelectItem value="College Year 3">College Year 3</SelectItem>
+                      <SelectItem value="College Year 4">College Year 4</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div>
+                  <Label htmlFor="signup-city">City</Label>
+                  <Input
+                    id="signup-city"
+                    type="text"
+                    placeholder="New York"
+                    value={signUpData.city}
+                    onChange={(e) => setSignUpData({ ...signUpData, city: e.target.value })}
+                    required
+                    disabled={loading}
+                  />
+                </div>
+                <div className="flex items-start space-x-2 pt-2">
+                  <Checkbox
+                    id="student-confirm"
+                    checked={signUpData.studentConfirm}
+                    onCheckedChange={(checked) =>
+                      setSignUpData({ ...signUpData, studentConfirm: checked === true })
+                    }
+                    disabled={loading}
+                  />
+                  <Label htmlFor="student-confirm" className="text-sm leading-snug cursor-pointer">
+                    I confirm I am a current school or college student
+                  </Label>
+                </div>
+                <Button
+                  type="submit"
+                  className="w-full gradient-primary shadow-glow"
+                  disabled={loading || !signUpData.studentConfirm || !signUpData.grade}
+                >
                   {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                   Create Account
                 </Button>
