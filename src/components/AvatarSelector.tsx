@@ -1,29 +1,74 @@
 import { useState } from "react";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Avatar, AvatarImage } from "@/components/ui/avatar";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
-import { Check } from "lucide-react";
+import { Check, Heart, Briefcase, Laugh, PawPrint, Shapes } from "lucide-react";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
-const AVATAR_SEEDS = [
-  "Felix", "Aneka", "Liam", "Sophia", "Milo", "Zara",
-  "Oliver", "Chloe", "Jasper", "Luna", "Kai", "Nova",
-  "Aria", "Leo", "Maya", "Finn", "Sage", "River",
+const CATEGORIES = [
+  {
+    id: "cute",
+    label: "Cute",
+    icon: Heart,
+    style: "lorelei",
+    seeds: [
+      "Muffin", "Cookie", "Bubbles", "Daisy", "Sprinkle", "Cupcake", "Peanut", "Biscuit",
+      "Marshmallow", "Pudding", "Jellybean", "Twinkle", "Peaches", "Honey", "Cinnamon",
+      "Caramel", "Mocha", "Latte", "Truffle", "Toffee",
+    ],
+  },
+  {
+    id: "professional",
+    label: "Professional",
+    icon: Briefcase,
+    style: "avataaars",
+    seeds: [
+      "Felix", "Aneka", "Liam", "Sophia", "Milo", "Zara", "Oliver", "Chloe",
+      "Jasper", "Luna", "Kai", "Nova", "Aria", "Leo", "Maya",
+      "Finn", "Sage", "River", "Blake", "Jordan",
+    ],
+  },
+  {
+    id: "funny",
+    label: "Funny",
+    icon: Laugh,
+    style: "fun-emoji",
+    seeds: [
+      "Giggles", "Wacky", "Bonkers", "Silly", "Goofy", "Zany", "Nutty", "Quirky",
+      "Cheeky", "Jolly", "Loopy", "Zippy", "Dizzy", "Fizzy", "Snappy",
+      "Bouncy", "Funky", "Jazzy", "Peppy", "Sassy",
+    ],
+  },
+  {
+    id: "animals",
+    label: "Animals",
+    icon: PawPrint,
+    style: "thumbs",
+    seeds: [
+      "Cat", "Dog", "Panda", "Fox", "Frog", "Owl", "Bear", "Bunny",
+      "Penguin", "Koala", "Tiger", "Lion", "Wolf", "Deer", "Raccoon",
+      "Hedgehog", "Dolphin", "Parrot", "Hamster", "Squirrel",
+    ],
+  },
+  {
+    id: "abstract",
+    label: "Abstract",
+    icon: Shapes,
+    style: "shapes",
+    seeds: [
+      "Prism", "Nebula", "Vortex", "Flux", "Quartz", "Pixel", "Echo", "Zenith",
+      "Aurora", "Cipher", "Vertex", "Helix", "Orbit", "Neon", "Spark",
+      "Crystal", "Matrix", "Pulse", "Nova", "Cosmo",
+    ],
+  },
 ];
 
-const AVATAR_STYLES = [
-  "avataaars",
-  "bottts",
-  "fun-emoji",
-];
-
-// Generate avatar URLs from different DiceBear styles
-const AVATARS = AVATAR_STYLES.flatMap((style) =>
-  AVATAR_SEEDS.slice(0, style === "avataaars" ? 6 : style === "bottts" ? 6 : 6).map(
-    (seed) => `https://api.dicebear.com/7.x/${style}/svg?seed=${seed}`
-  )
-);
+const getAvatarUrl = (style: string, seed: string) =>
+  `https://api.dicebear.com/7.x/${style}/svg?seed=${seed}`;
 
 interface AvatarSelectorProps {
   open: boolean;
@@ -35,19 +80,20 @@ interface AvatarSelectorProps {
 const AvatarSelector = ({ open, onOpenChange, currentAvatarUrl, onSuccess }: AvatarSelectorProps) => {
   const { user } = useAuth();
   const [saving, setSaving] = useState(false);
+  const [preview, setPreview] = useState<string | null>(null);
 
-  const handleSelect = async (avatarUrl: string) => {
-    if (!user) return;
+  const handleConfirm = async () => {
+    if (!user || !preview) return;
     setSaving(true);
     try {
       const { error } = await supabase
         .from("profiles")
-        .update({ avatar_url: avatarUrl, updated_at: new Date().toISOString() })
+        .update({ avatar_url: preview, updated_at: new Date().toISOString() })
         .eq("id", user.id);
-
       if (error) throw error;
       toast.success("Avatar updated!");
       onSuccess();
+      setPreview(null);
       onOpenChange(false);
     } catch (error: any) {
       toast.error(error.message || "Failed to update avatar");
@@ -56,42 +102,80 @@ const AvatarSelector = ({ open, onOpenChange, currentAvatarUrl, onSuccess }: Ava
     }
   };
 
+  const handleCancel = () => {
+    setPreview(null);
+    onOpenChange(false);
+  };
+
+  const selectedUrl = preview || currentAvatarUrl;
+
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[480px] max-h-[80vh] overflow-y-auto">
-        <DialogHeader>
-          <DialogTitle>Choose Your Avatar</DialogTitle>
+    <Dialog open={open} onOpenChange={(v) => { if (!v) handleCancel(); else onOpenChange(v); }}>
+      <DialogContent className="sm:max-w-[600px] max-h-[85vh] flex flex-col p-0 gap-0">
+        <DialogHeader className="px-6 pt-6 pb-2">
+          <DialogTitle className="flex items-center gap-3">
+            <Avatar className="h-12 w-12 border-2 border-primary">
+              <AvatarImage src={selectedUrl || ""} />
+            </Avatar>
+            <span>Choose Your Avatar</span>
+          </DialogTitle>
         </DialogHeader>
-        <div className="grid grid-cols-4 sm:grid-cols-6 gap-3 py-4">
-          {AVATARS.map((url) => {
-            const isSelected = currentAvatarUrl === url;
-            return (
-              <button
-                key={url}
-                onClick={() => handleSelect(url)}
-                disabled={saving}
-                className={`relative rounded-full p-0.5 transition-all duration-200 hover:scale-110 focus:outline-none ${
-                  isSelected
-                    ? "ring-2 ring-primary ring-offset-2 ring-offset-background"
-                    : "hover:ring-2 hover:ring-muted-foreground/30 hover:ring-offset-1 hover:ring-offset-background"
-                }`}
-              >
-                <Avatar className="h-14 w-14">
-                  <AvatarImage src={url} alt="Avatar option" />
-                </Avatar>
-                {isSelected && (
-                  <div className="absolute -bottom-0.5 -right-0.5 h-5 w-5 rounded-full bg-primary flex items-center justify-center">
-                    <Check className="h-3 w-3 text-primary-foreground" />
-                  </div>
-                )}
-              </button>
-            );
-          })}
-        </div>
+
+        <Tabs defaultValue="cute" className="flex-1 flex flex-col min-h-0 px-6">
+          <TabsList className="w-full flex-wrap h-auto gap-1 bg-muted/30 p-1">
+            {CATEGORIES.map((cat) => (
+              <TabsTrigger key={cat.id} value={cat.id} className="flex items-center gap-1.5 text-xs px-3 py-1.5">
+                <cat.icon className="h-3.5 w-3.5" />
+                {cat.label}
+              </TabsTrigger>
+            ))}
+          </TabsList>
+
+          {CATEGORIES.map((cat) => (
+            <TabsContent key={cat.id} value={cat.id} className="flex-1 min-h-0 mt-3">
+              <ScrollArea className="h-[380px] pr-3">
+                <div className="grid grid-cols-4 sm:grid-cols-5 gap-3">
+                  {cat.seeds.map((seed) => {
+                    const url = getAvatarUrl(cat.style, seed);
+                    const isSelected = selectedUrl === url;
+                    return (
+                      <button
+                        key={seed}
+                        onClick={() => setPreview(url)}
+                        disabled={saving}
+                        className={`relative rounded-xl p-1.5 transition-all duration-200 hover:scale-105 focus:outline-none bg-muted/20 hover:bg-muted/40 ${
+                          isSelected
+                            ? "ring-2 ring-primary ring-offset-2 ring-offset-background bg-primary/10"
+                            : ""
+                        }`}
+                      >
+                        <Avatar className="h-16 w-16 mx-auto">
+                          <AvatarImage src={url} alt={seed} />
+                        </Avatar>
+                        <p className="text-[10px] text-muted-foreground text-center mt-1 truncate">{seed}</p>
+                        {isSelected && (
+                          <div className="absolute top-0.5 right-0.5 h-5 w-5 rounded-full bg-primary flex items-center justify-center">
+                            <Check className="h-3 w-3 text-primary-foreground" />
+                          </div>
+                        )}
+                      </button>
+                    );
+                  })}
+                </div>
+              </ScrollArea>
+            </TabsContent>
+          ))}
+        </Tabs>
+
+        <DialogFooter className="px-6 py-4 border-t border-border">
+          <Button variant="outline" onClick={handleCancel} disabled={saving}>Cancel</Button>
+          <Button onClick={handleConfirm} disabled={saving || !preview}>
+            {saving ? "Saving..." : "Confirm Avatar"}
+          </Button>
+        </DialogFooter>
       </DialogContent>
     </Dialog>
   );
 };
 
-export { AVATAR_SEEDS, AVATAR_STYLES };
 export default AvatarSelector;
