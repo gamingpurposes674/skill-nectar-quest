@@ -32,6 +32,7 @@ import { motion } from "framer-motion";
 import { useReducedMotion } from "@/hooks/use-reduced-motion";
 import EditProfileDialog from "@/components/EditProfileDialog";
 import AddAchievementDialog from "@/components/AddAchievementDialog";
+import AvatarSelector from "@/components/AvatarSelector";
 import SendAdviceDialog from "@/components/SendAdviceDialog";
 import ReactionsAndComments from "@/components/ReactionsAndComments";
 import ConnectionButton from "@/components/ConnectionButton";
