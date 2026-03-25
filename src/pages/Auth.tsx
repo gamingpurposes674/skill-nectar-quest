@@ -219,7 +219,7 @@ const Auth = () => {
                       disabled={loading}
                     />
                   </div>
-                  <Button type="submit" className="w-full gradient-primary shadow-glow" disabled={loading}>
+                  <Button type="submit" className="w-full shadow-glow" disabled={loading}>
                     {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                     Send Code
                   </Button>
@@ -250,7 +250,7 @@ const Auth = () => {
                       maxLength={6}
                     />
                   </div>
-                  <Button type="submit" className="w-full gradient-primary shadow-glow" disabled={loading || resetCode.length < 6}>
+                  <Button type="submit" className="w-full shadow-glow" disabled={loading || resetCode.length < 6}>
                     {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                     Verify Code
                   </Button>
@@ -301,7 +301,7 @@ const Auth = () => {
                       disabled={loading}
                     />
                   </div>
-                  <Button type="submit" className="w-full gradient-primary shadow-glow" disabled={loading}>
+                  <Button type="submit" className="w-full shadow-glow" disabled={loading}>
                     {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                     Update Password
                   </Button>
@@ -450,7 +450,7 @@ const Auth = () => {
                 </div>
                 <Button
                   type="submit"
-                  className="w-full gradient-primary shadow-glow"
+                  className="w-full shadow-glow"
                   disabled={loading || !signUpData.studentConfirm || !signUpData.grade}
                 >
                   {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
@@ -485,7 +485,7 @@ const Auth = () => {
                     disabled={loading}
                   />
                 </div>
-                <Button type="submit" className="w-full gradient-primary shadow-glow" disabled={loading}>
+                <Button type="submit" className="w-full shadow-glow" disabled={loading}>
                   {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                   Sign In
                 </Button>
