@@ -113,7 +113,7 @@ const Index = () => {
 
             {/* CTA Tagline */}
             <div className="pt-12 animate-slide-up" style={{ animationDelay: '200ms' }}>
-              <div className="glass-card rounded-2xl p-6 md:p-8 max-w-xl mx-auto text-center border border-border/40">
+              <div className="border border-border/50 bg-card rounded-2xl p-6 md:p-8 max-w-xl mx-auto text-center">
                 <Sparkles className="h-6 w-6 text-accent mx-auto mb-3" />
                 <p className="text-lg md:text-xl font-semibold text-foreground" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>
                   Be Part Of Something New
@@ -133,14 +133,14 @@ const Index = () => {
       </section>
 
       {/* Features Section */}
-      <section className="py-24 bg-gradient-to-b from-background to-muted/30">
+      <section className="py-28 section-alt-b">
         <div className="container mx-auto px-4">
           <div className="text-center mb-16 animate-fade-in">
             <Badge variant="secondary" className="mb-4">
               <TrendingUp className="h-4 w-4 mr-2 inline" />
               Powerful Features
             </Badge>
-            <h2 className="text-4xl font-bold mb-4">Everything You Need to Succeed</h2>
+            <h2 className="text-4xl md:text-5xl font-bold mb-4">Everything You Need To Succeed</h2>
             <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
               From portfolio building to mentorship, we've got all the tools to help you grow
             </p>
@@ -150,11 +150,11 @@ const Index = () => {
             {features.map((feature, idx) => (
               <Card 
                 key={idx} 
-                className="glass-card shadow-card p-6 card-hover-glow group animate-scale-in"
+                className="border border-border/50 bg-card p-6 animate-scale-in"
                 style={{ animationDelay: `${idx * 100}ms` }}
               >
-                <div className="p-3 rounded-xl bg-primary w-fit mb-4 group-hover:scale-110 transition-transform">
-                  <feature.icon className="h-6 w-6 text-primary-foreground" />
+                <div className="p-3 rounded-xl bg-muted w-fit mb-4">
+                  <feature.icon className="h-6 w-6 text-primary" />
                 </div>
                 <h3 className="text-xl font-semibold mb-2">{feature.title}</h3>
                 <p className="text-muted-foreground text-sm leading-relaxed">
@@ -179,18 +179,17 @@ const Index = () => {
       <AboutAndComparison />
 
       {/* CTA Section */}
-      <section className="py-24 relative overflow-hidden">
-        <div className="absolute inset-0 gradient-primary opacity-5" />
+      <section className="py-28 section-alt-b relative overflow-hidden">
         <div className="container mx-auto px-4 relative">
-          <Card className="glass-card shadow-elegant p-12 max-w-4xl mx-auto text-center animate-scale-in card-hover-glow">
+          <Card className="border border-border/50 bg-card p-12 max-w-4xl mx-auto text-center animate-scale-in">
             <Award className="h-16 w-16 mx-auto mb-6 text-primary" />
-            <h2 className="text-4xl font-bold mb-4">Ready to Level Up?</h2>
+            <h2 className="text-4xl md:text-5xl font-bold mb-4">Ready To Level Up?</h2>
             <p className="text-muted-foreground text-lg mb-8 max-w-2xl mx-auto">
               Join thousands of students who are already building their future. 
               Create your profile in minutes and start connecting today.
             </p>
             <Link to="/auth">
-              <Button size="lg" className="shadow-glow text-lg px-12 btn-hover-lift">
+              <Button size="lg" className="text-lg px-12 btn-hover-lift">
                 Create Your Profile
                 <ArrowRight className="ml-2 h-5 w-5" />
               </Button>

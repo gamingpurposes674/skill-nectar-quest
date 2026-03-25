@@ -22,14 +22,14 @@ const AboutAndComparison = () => {
   return (
     <>
       {/* About NexStep */}
-      <section className="py-24 bg-gradient-to-b from-background to-muted/30">
+      <section className="py-28 section-alt-b">
         <div className="container mx-auto px-4">
           <div className="max-w-3xl mx-auto text-center space-y-6 animate-fade-in">
             <Badge variant="secondary" className="mb-4">
               <Info className="h-4 w-4 mr-2 inline" />
               About NexStep
             </Badge>
-            <h2 className="text-4xl font-bold">Why NexStep?</h2>
+            <h2 className="text-4xl md:text-5xl font-bold">Why NexStep?</h2>
             <p className="text-lg text-muted-foreground leading-relaxed">
               NexStep was built by a student, for students. Born out of the overwhelm of college prep
               and the need for a space where students could actually build things together — not just
@@ -41,20 +41,20 @@ const AboutAndComparison = () => {
       </section>
 
       {/* NexStep vs The Rest */}
-      <section className="py-24">
+      <section className="py-28 section-alt-a">
         <div className="container mx-auto px-4">
           <div className="text-center mb-12 animate-fade-in">
             <Badge variant="secondary" className="mb-4">
               <CheckCircle2 className="h-4 w-4 mr-2 inline" />
               Compare
             </Badge>
-            <h2 className="text-4xl font-bold mb-4">NexStep vs The Rest</h2>
+            <h2 className="text-4xl md:text-5xl font-bold mb-4">NexStep vs The Rest</h2>
             <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
               See how NexStep stacks up against other platforms
             </p>
           </div>
 
-          <Card className="glass-card shadow-elegant max-w-4xl mx-auto overflow-hidden animate-scale-in">
+          <Card className="border border-border/50 bg-card max-w-4xl mx-auto overflow-hidden animate-scale-in">
             <Table>
               <TableHeader>
                 <TableRow className="border-border/50">

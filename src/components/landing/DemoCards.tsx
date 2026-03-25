@@ -4,11 +4,11 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { MapPin, Star, Heart, MessageSquare, Share2 } from "lucide-react";
 
 const DemoCards = () => (
-  <section className="py-24 bg-gradient-to-b from-background to-muted/30">
+  <section className="py-28 section-alt-b">
     <div className="container mx-auto px-4">
       <div className="text-center mb-16">
         <Badge variant="secondary" className="mb-4">Preview</Badge>
-        <h2 className="text-4xl font-bold mb-4" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>
+        <h2 className="text-4xl md:text-5xl font-bold mb-4" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>
           What You'll Build
         </h2>
         <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
@@ -18,10 +18,10 @@ const DemoCards = () => (
 
       <div className="grid md:grid-cols-2 gap-8 max-w-5xl mx-auto">
         {/* Demo Profile Card */}
-        <Card className="glass-card shadow-card p-6 card-hover-glow">
+        <Card className="border border-border/50 bg-card p-6">
           <div className="flex items-start gap-4 mb-5">
-            <Avatar className="h-14 w-14 ring-2 ring-primary/30">
-              <AvatarFallback className="gradient-primary text-primary-foreground font-bold text-lg">
+            <Avatar className="h-14 w-14">
+              <AvatarFallback className="bg-primary text-primary-foreground font-bold text-lg">
                 AS
               </AvatarFallback>
             </Avatar>
@@ -52,7 +52,7 @@ const DemoCards = () => (
         </Card>
 
         {/* Demo Project Card */}
-        <Card className="glass-card shadow-card p-6 card-hover-glow">
+        <Card className="border border-border/50 bg-card p-6">
           <Badge variant="default" className="mb-3 text-xs">Open For Collaboration</Badge>
           <h3 className="text-lg font-semibold mb-2">Study Buddy — AI Homework Helper</h3>
           <p className="text-sm text-muted-foreground mb-4 leading-relaxed">

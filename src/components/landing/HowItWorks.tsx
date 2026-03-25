@@ -1,5 +1,4 @@
 import { Badge } from "@/components/ui/badge";
-import { Card } from "@/components/ui/card";
 import { UserPlus, FolderPlus, Rocket } from "lucide-react";
 
 const steps = [
@@ -21,11 +20,11 @@ const steps = [
 ];
 
 const HowItWorks = () => (
-  <section className="py-24 bg-gradient-to-b from-muted/30 to-background">
+  <section className="py-28 section-alt-a">
     <div className="container mx-auto px-4">
       <div className="text-center mb-16">
         <Badge variant="secondary" className="mb-4">How It Works</Badge>
-        <h2 className="text-4xl font-bold mb-4" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>
+        <h2 className="text-4xl md:text-5xl font-bold mb-4" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>
           Three Simple Steps
         </h2>
         <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
@@ -35,13 +34,13 @@ const HowItWorks = () => (
 
       <div className="grid md:grid-cols-3 gap-8 max-w-5xl mx-auto">
         {steps.map((step, idx) => (
-          <div key={idx} className="relative flex flex-col items-center text-center group">
+          <div key={idx} className="relative flex flex-col items-center text-center">
             {/* Connector line */}
             {idx < steps.length - 1 && (
               <div className="hidden md:block absolute top-10 left-[calc(50%+40px)] w-[calc(100%-80px)] h-px bg-border" />
             )}
-            <div className="relative z-10 w-20 h-20 rounded-2xl bg-primary flex items-center justify-center mb-6 shadow-glow group-hover:scale-110 transition-transform">
-              <step.icon className="h-9 w-9 text-primary-foreground" />
+            <div className="relative z-10 w-20 h-20 rounded-2xl bg-muted flex items-center justify-center mb-6">
+              <step.icon className="h-9 w-9 text-primary" />
             </div>
             <span className="text-xs font-bold text-muted-foreground mb-2 uppercase tracking-widest">
               Step {idx + 1}
