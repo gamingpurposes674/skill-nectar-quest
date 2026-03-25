@@ -284,7 +284,7 @@ const AddAchievementDialog = ({ open, onOpenChange, onSuccess }: AddAchievementD
             >
               Cancel
             </Button>
-            <Button type="submit" className="gradient-primary" disabled={loading}>
+            <Button type="submit" disabled={loading}>
               {loading ? "Adding..." : "Add Achievement"}
             </Button>
           </div>

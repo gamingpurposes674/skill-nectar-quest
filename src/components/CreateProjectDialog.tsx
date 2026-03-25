@@ -472,7 +472,7 @@ const CreateProjectDialog = ({ open, onOpenChange, onSuccess, userMajor, userGra
               <Button type="button" variant="outline" onClick={handleClose}>
                 Cancel
               </Button>
-              <Button type="submit" disabled={loading} className="gradient-primary">
+              <Button type="submit" disabled={loading}>
                 {loading ? "Creating..." : "Create Project"}
               </Button>
             </div>

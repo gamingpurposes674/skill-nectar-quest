@@ -211,7 +211,7 @@ const ConnectionButton = ({
           <Button
             onClick={sendConnectionRequest}
             disabled={actionLoading}
-            className="gap-2 gradient-primary"
+            className="gap-2"
           >
             <UserPlus className="h-4 w-4" />
             {actionLoading ? "Sending..." : "Connect"}
@@ -235,7 +235,7 @@ const ConnectionButton = ({
             <Button
               onClick={acceptConnectionRequest}
               disabled={actionLoading}
-              className="gap-2 gradient-primary"
+              className="gap-2"
             >
               <UserCheck className="h-4 w-4" />
               {actionLoading ? "Accepting..." : "Accept"}

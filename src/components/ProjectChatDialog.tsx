@@ -220,7 +220,7 @@ const ProjectChatDialog = ({
                 onClick={sendMessage}
                 disabled={loading || !newMessage.trim()}
                 size="icon"
-                className="gradient-primary"
+                className=""
               >
                 <Send className="h-4 w-4" />
               </Button>

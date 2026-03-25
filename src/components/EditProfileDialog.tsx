@@ -375,7 +375,7 @@ const EditProfileDialog = ({ open, onOpenChange, profile, onSuccess }: EditProfi
             >
               Cancel
             </Button>
-            <Button type="submit" className="gradient-primary" disabled={loading}>
+            <Button type="submit" disabled={loading}>
               {loading ? "Saving..." : "Save Changes"}
             </Button>
           </div>
