@@ -819,7 +819,7 @@ const ProfilePage = () => {
                   <Button
                     onClick={() => setAchievementDialogOpen(true)}
                     size="sm"
-                    className="mb-2 gradient-primary text-xs h-8"
+                    className="mb-2 text-xs h-8"
                   >
                     Add Achievement
                   </Button>

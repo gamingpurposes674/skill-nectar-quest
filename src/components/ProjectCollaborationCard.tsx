@@ -234,7 +234,7 @@ const ProjectCollaborationCard = ({
             {!project.is_complete && !hasMarkedComplete && (
               <Button
                 size="sm"
-                className="gradient-primary"
+                className=""
                 onClick={handleMarkComplete}
                 disabled={completing}
               >

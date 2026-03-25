@@ -230,7 +230,7 @@ const EditProjectDialog = ({ open, onOpenChange, project, onSuccess }: EditProje
 
           <div className="flex justify-end gap-2 pt-4">
             <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>Cancel</Button>
-            <Button type="submit" disabled={loading} className="gradient-primary">
+            <Button type="submit" disabled={loading}>
               {loading ? "Saving..." : "Save Changes"}
             </Button>
           </div>

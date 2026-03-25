@@ -263,7 +263,7 @@ const ProjectDetail = () => {
               </Button>
             )}
             {canJoin && (
-              <Button size="sm" onClick={handleJoin} className="h-8 px-4 text-xs font-semibold gradient-primary shadow-glow">
+              <Button size="sm" onClick={handleJoin} className="h-8 px-4 text-xs font-semibold shadow-glow">
                 <Users className="h-3.5 w-3.5 mr-1.5" />
                 Join Project
               </Button>
@@ -423,7 +423,7 @@ const ProjectDetail = () => {
                   className="text-[13px] bg-muted/30 border-border/50 resize-none"
                 />
                 <Button size="icon" onClick={handlePostComment} disabled={!newComment.trim() || submitting}
-                  className="h-10 w-10 flex-shrink-0 gradient-primary">
+                  className="h-10 w-10 flex-shrink-0">
                   <Send className="h-4 w-4" />
                 </Button>
               </div>

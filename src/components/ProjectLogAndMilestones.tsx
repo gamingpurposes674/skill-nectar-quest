@@ -126,7 +126,7 @@ export const ProjectLogSection = ({ projectId, isParticipant, project }: Project
             size="icon"
             onClick={handlePostLog}
             disabled={!newLog.trim() || submitting}
-            className="h-10 w-10 flex-shrink-0 gradient-primary"
+            className="h-10 w-10 flex-shrink-0"
           >
             <Send className="h-4 w-4" />
           </Button>

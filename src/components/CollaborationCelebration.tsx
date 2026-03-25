@@ -167,7 +167,7 @@ const CollaborationCelebration = ({
                   Got it
                 </Button>
                 {onOpenChat && (
-                  <Button className="flex-1 gradient-primary" onClick={onOpenChat}>
+                  <Button className="flex-1" onClick={onOpenChat}>
                     <MessageSquare className="h-4 w-4 mr-1.5" />
                     Start Chatting
                   </Button>
