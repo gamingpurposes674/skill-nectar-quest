@@ -113,7 +113,7 @@ const Index = () => {
 
             {/* CTA Tagline */}
             <div className="pt-12 animate-slide-up" style={{ animationDelay: '200ms' }}>
-              <div className="glass-card rounded-2xl p-6 md:p-8 max-w-xl mx-auto text-center border border-border/40">
+              <div className="border border-border/50 bg-card rounded-2xl p-6 md:p-8 max-w-xl mx-auto text-center">
                 <Sparkles className="h-6 w-6 text-accent mx-auto mb-3" />
                 <p className="text-lg md:text-xl font-semibold text-foreground" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>
                   Be Part Of Something New
