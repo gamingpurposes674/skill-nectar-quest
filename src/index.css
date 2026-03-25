@@ -199,19 +199,32 @@
     transform: translateY(0);
   }
 
-  /* Card hover glow effect */
+  /* Card hover — subtle border only, no glow */
   .card-hover-glow {
-    @apply transition-all duration-300;
+    @apply transition-colors duration-300;
   }
   
   .card-hover-glow:hover {
-    box-shadow: 0 0 24px hsl(var(--primary) / 0.12), var(--shadow-elegant);
     border-color: hsl(var(--primary) / 0.25);
   }
 
   /* AI-only gradient for buttons — use only on AI-powered features */
   .gradient-ai {
     background: var(--gradient-primary);
+  }
+
+  /* Landing page alternating section backgrounds */
+  .section-alt-a {
+    background: #0f0f1a;
+  }
+  .section-alt-b {
+    background: #13131f;
+  }
+  .light .section-alt-a {
+    background: hsl(220 20% 97%);
+  }
+  .light .section-alt-b {
+    background: hsl(220 14% 93%);
   }
 
   /* Subtle background noise texture */
