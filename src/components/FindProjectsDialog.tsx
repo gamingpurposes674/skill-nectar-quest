@@ -300,6 +300,7 @@ const FindProjectsDialog = ({ open, onOpenChange }: FindProjectsDialogProps) => 
                             <div className="flex gap-2">
                               <Button
                                 size="sm"
+                                className="gradient-primary"
                                 onClick={() => handleSendRequest(project.id)}
                               >
                                 <Send className="h-3 w-3 mr-1" />
@@ -320,6 +321,7 @@ const FindProjectsDialog = ({ open, onOpenChange }: FindProjectsDialogProps) => 
                         ) : (
                           <Button
                             size="sm"
+                            className="gradient-primary"
                             onClick={() => setSelectedProject(project.id)}
                           >
                             <Users className="h-3 w-3 mr-1" />

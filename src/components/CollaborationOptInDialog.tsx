@@ -69,6 +69,7 @@ const CollaborationOptInDialog = ({
             No, Keep Private
           </Button>
           <Button
+            className="gradient-primary"
             onClick={() => handleOptIn(true)}
             disabled={loading}
           >

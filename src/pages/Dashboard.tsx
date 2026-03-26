@@ -468,7 +468,7 @@ const Dashboard = () => {
                         whileHover={prefersReducedMotion ? undefined : { scale: 1.02 }}
                         whileTap={prefersReducedMotion ? undefined : { scale: 0.98 }}
                       >
-                        <Button className="shadow-glow">
+                        <Button className="gradient-primary shadow-glow">
                           <Plus className="h-4 w-4 mr-2" />
                           New Project
                           <ChevronDown className="h-4 w-4 ml-2" />
@@ -629,6 +629,7 @@ const Dashboard = () => {
                             whileTap={prefersReducedMotion ? undefined : { scale: 0.98 }}
                           >
                             <Button 
+                              className="gradient-primary"
                               onClick={() => setShowCreateDialog(true)}
                             >
                               Create Project
@@ -718,6 +719,7 @@ const Dashboard = () => {
                             whileTap={prefersReducedMotion ? undefined : { scale: 0.98 }}
                           >
                             <Button 
+                              className="gradient-primary"
                               onClick={() => setShowFindProjectsDialog(true)}
                             >
                               Find Projects

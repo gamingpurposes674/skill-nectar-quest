@@ -40,7 +40,7 @@ const HowItWorks = () => (
             {idx < steps.length - 1 && (
               <div className="hidden md:block absolute top-10 left-[calc(50%+40px)] w-[calc(100%-80px)] h-px bg-border" />
             )}
-            <div className="relative z-10 w-20 h-20 rounded-2xl bg-primary flex items-center justify-center mb-6 shadow-glow group-hover:scale-110 transition-transform">
+            <div className="relative z-10 w-20 h-20 rounded-2xl gradient-primary flex items-center justify-center mb-6 shadow-glow group-hover:scale-110 transition-transform">
               <step.icon className="h-9 w-9 text-primary-foreground" />
             </div>
             <span className="text-xs font-bold text-muted-foreground mb-2 uppercase tracking-widest">
