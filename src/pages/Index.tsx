@@ -184,8 +184,11 @@ const Index = () => {
       {/* CTA Section */}
       <section className="py-28 section-alt-b relative overflow-hidden">
         <div className="container mx-auto px-4 relative">
-          <Card className="border border-border/50 bg-card p-12 max-w-4xl mx-auto text-center animate-scale-in">
-            <Award className="h-16 w-16 mx-auto mb-6 text-primary" />
+          <Card className="border border-border/50 bg-card p-12 max-w-4xl mx-auto text-center animate-scale-in select-none">
+            <div className="relative w-fit mx-auto mb-6">
+              <div className="absolute inset-0 rounded-2xl bg-primary/30 blur-xl scale-150 pointer-events-none" />
+              <Award className="h-16 w-16 relative text-primary" />
+            </div>
             <h2 className="text-4xl md:text-5xl font-bold mb-4">Ready To Level Up?</h2>
             <p className="text-muted-foreground text-lg mb-8 max-w-2xl mx-auto">
               Join thousands of students who are already building their future. 
