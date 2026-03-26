@@ -150,11 +150,14 @@ const Index = () => {
             {features.map((feature, idx) => (
               <Card 
                 key={idx} 
-                className="border border-border/50 bg-card p-6 animate-scale-in"
+                className="border border-border/50 bg-card p-6 animate-scale-in select-none"
                 style={{ animationDelay: `${idx * 100}ms` }}
               >
-                <div className="p-3 rounded-xl bg-muted w-fit mb-4">
-                  <feature.icon className="h-6 w-6 text-primary" />
+                <div className="relative p-3 rounded-xl w-fit mb-4">
+                  <div className="absolute inset-0 rounded-xl bg-primary/30 blur-lg scale-125 pointer-events-none" />
+                  <div className="relative p-3 rounded-xl bg-primary/15 border border-primary/20">
+                    <feature.icon className="h-6 w-6 text-primary" />
+                  </div>
                 </div>
                 <h3 className="text-xl font-semibold mb-2">{feature.title}</h3>
                 <p className="text-muted-foreground text-sm leading-relaxed">
