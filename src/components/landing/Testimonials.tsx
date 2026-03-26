@@ -28,11 +28,11 @@ const testimonials = [
 ];
 
 const Testimonials = () => (
-  <section className="py-28 section-alt-a">
+  <section className="py-24 bg-gradient-to-b from-muted/30 to-background">
     <div className="container mx-auto px-4">
       <div className="text-center mb-16">
         <Badge variant="secondary" className="mb-4">Testimonials</Badge>
-        <h2 className="text-4xl md:text-5xl font-bold mb-4" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>
+        <h2 className="text-4xl font-bold mb-4" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>
           What Students Say
         </h2>
         <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
@@ -44,7 +44,7 @@ const Testimonials = () => (
         {testimonials.map((t, idx) => (
           <Card
             key={idx}
-            className="border border-border/50 bg-card p-6 flex flex-col"
+            className="glass-card shadow-card p-6 card-hover-glow flex flex-col"
           >
             <Quote className="h-8 w-8 text-primary/40 mb-4" />
             <p className="text-sm text-muted-foreground leading-relaxed flex-1 italic">
@@ -52,7 +52,7 @@ const Testimonials = () => (
             </p>
             <div className="flex items-center gap-3 mt-6 pt-4 border-t border-border/40">
               <Avatar className="h-10 w-10">
-                <AvatarFallback className="bg-primary text-primary-foreground text-sm font-bold">
+                <AvatarFallback className="gradient-primary text-primary-foreground text-sm font-bold">
                   {t.initials}
                 </AvatarFallback>
               </Avatar>
