@@ -39,8 +39,11 @@ const HowItWorks = () => (
             {idx < steps.length - 1 && (
               <div className="hidden md:block absolute top-10 left-[calc(50%+40px)] w-[calc(100%-80px)] h-px bg-border" />
             )}
-            <div className="relative z-10 w-20 h-20 rounded-2xl bg-muted flex items-center justify-center mb-6">
-              <step.icon className="h-9 w-9 text-primary" />
+            <div className="relative z-10 w-20 h-20 rounded-2xl flex items-center justify-center mb-6">
+              <div className="absolute inset-0 rounded-2xl bg-primary/25 blur-xl pointer-events-none" />
+              <div className="relative w-full h-full rounded-2xl bg-primary/15 border border-primary/20 flex items-center justify-center">
+                <step.icon className="h-9 w-9 text-primary" />
+              </div>
             </div>
             <span className="text-xs font-bold text-muted-foreground mb-2 uppercase tracking-widest">
               Step {idx + 1}
