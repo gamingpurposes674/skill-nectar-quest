@@ -122,7 +122,7 @@ const Index = () => {
                   NexStep is growing — join early and shape the future of student collaboration.
                 </p>
                 <Link to="/auth">
-                  <Button className="gradient-primary shadow-glow btn-hover-lift gap-2">
+                    <Button className="bg-secondary hover:bg-secondary/90 text-secondary-foreground shadow-glow btn-hover-lift gap-2">
                     Join Now <ArrowRight className="h-4 w-4" />
                   </Button>
                 </Link>
@@ -153,7 +153,7 @@ const Index = () => {
                 className="glass-card shadow-card p-6 card-hover-glow group animate-scale-in"
                 style={{ animationDelay: `${idx * 100}ms` }}
               >
-                <div className="p-3 rounded-xl gradient-primary w-fit mb-4 group-hover:scale-110 transition-transform">
+                <div className="p-3 rounded-xl bg-secondary w-fit mb-4 group-hover:scale-110 transition-transform">
                   <feature.icon className="h-6 w-6 text-primary-foreground" />
                 </div>
                 <h3 className="text-xl font-semibold mb-2">{feature.title}</h3>
